@@ -77,7 +77,25 @@ int main(int argc, char** argv){
 
 	    std::cout << "Starting Message test, status " << myfc->getStatus() << std::endl;
 
+	    Message* mymess = myfc->createMessageFrame();
+	    mymess->setSubject("Test");
+	    mymess->setBody("This is a test, pleace check this message is posted");
+	    mymess->setBoardId(myboard->getId());
+	    mymess->setSlot(0);
+	    if(myfc->postMessage(mymess)){
+	      std::cout << "Posted message succeessfully, status " << myfc->getStatus() << std::endl;
+	    }else{
+	      std::cout << "Failed to post message, status " << myfc->getStatus() << std::endl;
+	    }
+	    delete mymess;
+
+	    std::cout << "Re-fetching board" << std::endl;
+
+	    delete myboard;
+	    myboard = myfc->getPersonalBoard();
+
 	    GetMessage* gm = myfc->createGetMessageFrame();
+	    gm->setBoard(myboard->getId());
 	    gm->addMessageRange(0, myboard->numMessages());
 	    std::map<unsigned int, Message*> messages = myfc->getMessages(gm);
 	    std::cout << "Downloaded messages" << std::endl;
