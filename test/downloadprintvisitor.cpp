@@ -7,6 +7,8 @@
 #include <tpproto/starsystem.h>
 #include <tpproto/planet.h>
 #include <tpproto/fleet.h>
+#include <tpproto/getobjectbyid.h>
+#include <tpproto/framecodec.h>
 
 #include "downloadprintvisitor.h"
 
@@ -20,6 +22,18 @@ DownloadPrintVisitor::~DownloadPrintVisitor(){
 
 void DownloadPrintVisitor::visit(Universe* ob){
   std::cout << "Visiting Universe" << std::endl;
+  
+  std::cout << "ID: " << ob->getId() << std::endl;
+  std::cout << "name: " << ob->getName() << std::endl;
+  std::cout << "type: " << ob->getObjectType() << std::endl;
+  std::cout << "size: " << ob->getSize() << std::endl;
+  std::cout << "age: " << ob->getAge() << std::endl;
+
+  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+    std::cout << (*itcurr) << " ";
+  }
+  std::cout << std::endl;
 
   visit((Object*)ob);
 }
@@ -50,12 +64,24 @@ void DownloadPrintVisitor::visit(Fleet* ob){
 
 void DownloadPrintVisitor::visit(Object* ob){
 
-  std::cout << "Downloading Contained Objects" << std::endl;
-  
+  std::cout << "Downloading Contained Objects, " << ob->getContainedObjectIds().size() << " to fetch" << std::endl;
  
-  std::cout << "Visiting contained objects" << std::endl;
-
-  std::cout << "Cleaning up" << std::endl;
+  if(ob->getContainedObjectIds().size() > 0){
+    
+    GetObjectByID* gobi = fc->createGetObjectByIDFrame();
+    gobi->addObjectIDs(ob->getContainedObjectIds());
+    std::map<unsigned int, Object*> oblist = fc->getObjects(gobi);
+    
+    std::cout << "Visiting contained objects, " << oblist.size() << " to visit" << std::endl;
+    for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
+      (itcurr->second)->visit(this);
+    }
+    
+    std::cout << "Cleaning up" << std::endl;
+    for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
+      delete (itcurr->second);
+    }
+  }
 }
 
 void DownloadPrintVisitor::setFrameCodec(FrameCodec* nfc){
