@@ -1,12 +1,12 @@
 #ifndef TPPROTO_GETOBJECTBYID_H
 #define TPPROTO_GETOBJECTBYID_H
 
-#include <tpproto/frame.h>
+#include <tpproto/getobjects.h>
 #include <set>
 
 namespace TPProto{
   
-  class GetObjectByID : public Frame{
+  class GetObjectByID : public GetObjects{
   public:
     GetObjectByID();
     virtual ~GetObjectByID();

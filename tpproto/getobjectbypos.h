@@ -1,12 +1,12 @@
 #ifndef TPPROTO_GETOBJECTBYPOS_H
 #define TPPROTO_GETOBJECTBYPOS_H
 
-#include <tpproto/frame.h>
+#include <tpproto/getobjects.h>
 #include <tpproto/vector3d.h>
 
 namespace TPProto{
 
-  class GetObjectByPos : public Frame{
+  class GetObjectByPos : public GetObjects{
   public:
     GetObjectByPos();
     virtual ~GetObjectByPos();

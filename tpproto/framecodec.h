@@ -2,7 +2,7 @@
 #define TPPROTO_FRAMECODEC_H
 
 #include <string>
-
+#include <map>
 
 namespace TPProto{
 
@@ -10,6 +10,9 @@ namespace TPProto{
   class Frame;
   class GetObjectByID;
   class GetObjectByPos;
+  class GetObjects;
+  class Object;
+  class Buffer;
 
   class FrameCodec{
   public:
@@ -33,10 +36,9 @@ namespace TPProto{
 
     //Objects
     GetObjectByID* createGetObjectByIDFrame();
-    //std::map<unsigned int, Object*> getObjectByID(GetObjectByID * frame);
     GetObjectByPos* createGetObjectByPosFrame();
-    //std::map<unsigned int, Object*> getObjectByPos(GetObjectByPos * frame);
-    //Object* getUniverse();
+    std::map<unsigned int, Object*> getObjects(GetObjects * frame);
+    Object* getUniverse();
 
     //Order* createOrderFrame(int type);
 
@@ -46,6 +48,8 @@ namespace TPProto{
     Frame* recvFrame();
 
   private:
+    Object* createObject(Buffer *buf);
+
     TPSocket * sock;
     int status;
     int version;
