@@ -2,7 +2,7 @@
 #define TPPROTO_OBJECTVISITOR_H
 
 /*! \file
-  /brief Declares the ObjectVisitor interface.
+  \brief Declares the ObjectVisitor interface.
 */
 
 namespace TPProto{
