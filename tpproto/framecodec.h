@@ -24,6 +24,7 @@ namespace TPProto{
   class Order;
   class RemoveOrder;
   class OrderDescription;
+  class Logger;
 
 
   class FrameCodec{
@@ -36,6 +37,7 @@ namespace TPProto{
     void setClientString(const std::string & name);
     void setSocket(TPSocket * nsock);
     void setAsyncFrameListener(AsyncFrameListener* afl);
+    void setLogger(Logger* nlog);
 
     //status
     int getStatus();
@@ -86,6 +88,7 @@ namespace TPProto{
 
     TPSocket * sock;
     AsyncFrameListener* asynclistener;
+    Logger* logger;
     int status;
     int version;
     std::string clientid;

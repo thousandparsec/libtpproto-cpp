@@ -1,5 +1,5 @@
 
-#include <iostream>
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -41,6 +41,8 @@
 #include "removeorder.h"
 #include "orderdesc.h"
 #include "getorderdesc.h"
+#include "logger.h"
+#include "silentlogger.h"
 
 
 #include "framecodec.h"
@@ -50,6 +52,7 @@ namespace TPProto {
   FrameCodec::FrameCodec(){
     sock = NULL;
     asynclistener = NULL;
+    logger = new SilentLogger();
     status = 0;
     version = 2; // TPO2
     clientid = "Unknown client";
@@ -63,6 +66,7 @@ namespace TPProto {
     if(asynclistener != NULL){
       delete asynclistener;
     }
+    delete logger;
 
     for(std::map<unsigned int, OrderDescription*>::iterator itcurr = orderdescCache.begin(); 
 	itcurr != orderdescCache.end(); ++itcurr){
@@ -89,6 +93,15 @@ namespace TPProto {
     asynclistener = afl;
   }
 
+  void FrameCodec::setLogger(Logger* nlog){
+    delete logger;
+    logger = nlog;
+    if(logger == NULL){
+      logger = new SilentLogger();
+    }
+    logger->debug("Logger set");
+  }
+
   int FrameCodec::getStatus(){
     if(sock == NULL || !sock->isConnected()){
       status = 0;
@@ -99,7 +112,7 @@ namespace TPProto {
   bool FrameCodec::connect(){
     if(sock != NULL || status != 0){
       if(sock->connect()){
-
+	logger->debug("Connection opened");
 	status = 1;
 
 	// send connect frame
@@ -116,14 +129,19 @@ namespace TPProto {
 	  // expect OK back
 	  //  or maybe error
 	  status = 2;
-	  
+	  logger->info("Connected");
 	  
 	  return true;
 	}else{
 	  status = 0;
+	  logger->error("Could not connect");
 	  sock->disconnect();
 	}
+      }else{
+	logger->error("Could not open socket to server");
       }
+    }else{
+      logger->warning("Already connected or no socket, ignoring connect attempt");
     }
     return false;
   }
@@ -142,10 +160,11 @@ namespace TPProto {
 	  // expect OK back
 	  //  or maybe error
 	  status = 3;
-	  
+	  logger->info("Logged in");
 	  
 	  return true;
 	}else{
+	  logger->warning("Did not log in");
 	  //status = 0;
 	  //sock->disconnect();
 	}
@@ -157,8 +176,10 @@ namespace TPProto {
   }
 
   void FrameCodec::disconnect(){
-    if(status != 0 && sock != NULL)
+    if(status != 0 && sock != NULL){
       sock->disconnect();
+      logger->info("Disconnected");
+    }
     status = 0;
   }
 
@@ -192,7 +213,7 @@ namespace TPProto {
 	      set_union(oldset.begin(), oldset.end(), obset.begin(), obset.end(), inserter(ordertypes, ordertypes.begin()));
 	    }
 	  }else{
-	    std::cerr << "Expecting object frames, but got " << ob->getType() << " instead" << std::endl;
+	    logger->debug("Expecting object frames, but got %d instead", ob->getType());
 	  }
 	}
       }else if(reply->getType() == ft02_Object){
@@ -205,10 +226,10 @@ namespace TPProto {
 	}
       }else{
 	//error!
-	std::cerr << "Expected object or sequence frame, got " << reply->getType() << std::endl;
+	logger->debug("Expected object or sequence frame, got %d", reply->getType());
       }
     }else{
-      std::cerr << "Frame was null, expecting object or sequence" << std::endl;
+      logger->debug("Frame was null, expecting object or sequence");
     }
     if(!ordertypes.empty()){
       seedOrderDescriptionCache(ordertypes);
@@ -251,9 +272,9 @@ namespace TPProto {
 	  if(ob != NULL && ob->getType() == ft02_Order){
 	    out[((Order*)ob)->getSlot()] = (Order*)ob;
 	  }else if(ob != NULL){
-	    std::cerr << "Expecting order frames, but got " << ob->getType() << " instead" << std::endl;
+	    logger->debug("Expecting order frames, but got %d instead", ob->getType());
 	  }else{
-	    std::cerr << "Expecting order frames, but got NULL" << std::endl;
+	    logger->debug("Expecting order frames, but got NULL");
 	  
 	  }
 	}
@@ -261,10 +282,10 @@ namespace TPProto {
 	out[((Order*)reply)->getSlot()] = (Order*)reply;
       }else{
 	//error!
-	std::cerr << "Expected order or sequence frame, got " << reply->getType() << std::endl;
+	logger->debug("Expected order or sequence frame, got %d", reply->getType());
       }
     }else{
-      std::cerr << "Frame was null, expecting order or sequence" << std::endl;
+      logger->debug("Frame was null, expecting order or sequence");
     }
     return out;
   }
@@ -283,7 +304,7 @@ namespace TPProto {
       return f;
     }
 
-    std::cerr << "No order description in cache for type " << type << std::endl;
+    logger->debug("No order description in cache for type %d", type);
 
     delete f;
     return NULL;
@@ -299,11 +320,11 @@ namespace TPProto {
 	
 	return true;
       }else{
-	std::cout << "Expected ok frame, got " << reply->getType() << std::endl;
+	logger->debug("Expected ok frame, got %d", reply->getType());
       }
       delete reply;
     }else{
-      std::cout << "Expected ok frame, got NULL" << std::endl;
+      logger->debug("Expected ok frame, got NULL");
     }
     return false;
   }
@@ -354,7 +375,7 @@ namespace TPProto {
       }else if(reply->getType() == ft02_OK){
 	removed++;
       }else{
-	std::cout << "Waiting for sequence or ok, got " << reply->getType() << std::endl;
+	logger->debug("Waiting for sequence or ok, got %d", reply->getType());
       }
       delete reply;
     }
@@ -396,7 +417,7 @@ namespace TPProto {
 	      OrderDescription* od = (OrderDescription*)ob;
 	      orderdescCache[od->getOrderType()] = od;
 	    }else{
-	      std::cout << "Expected Order Desc frame, got " << reply->getType() << std::endl;
+	      logger->debug("Expected Order Desc frame, got %d", reply->getType());
 	    }
 	  }
 	  delete reply;
@@ -404,10 +425,10 @@ namespace TPProto {
 	  OrderDescription* od = (OrderDescription*)reply;
 	  orderdescCache[od->getOrderType()] = od;
 	}else{
-	  std::cout << "Expected Order Desc frame, got " << reply->getType() << std::endl;
+	  logger->debug("Expected Order Desc frame, got %d", reply->getType());
 	}
       }else{
-	std::cout << "Expected order desc or sequence frame, got NULL" << std::endl;
+	logger->debug("Expected order desc or sequence frame, got NULL");
       }
       
     }
@@ -432,17 +453,17 @@ namespace TPProto {
 	  if(ob != NULL && ob->getType() == ft02_Board){
 	    out[((Board*)ob)->getId()] = (Board*)ob;
 	  }else{
-	    std::cerr << "Expecting Board frames, but got " << ob->getType() << " instead" << std::endl;
+	    logger->debug("Expecting Board frames, but got %d instead", ob->getType());
 	  }
 	}
       }else if(reply->getType() == ft02_Board){
 	out[((Board*)reply)->getId()] = (Board*)reply;
       }else{
 	//error!
-	std::cerr << "Expected board or sequence frame, got " << reply->getType() << std::endl;
+	logger->debug("Expected board or sequence frame, got %d", reply->getType());
       }
     }else{
-      std::cerr << "Frame was null, expecting board or sequence" << std::endl;
+      logger->debug("Frame was null, expecting board or sequence");;
     }
     return out;
   }
@@ -482,19 +503,19 @@ namespace TPProto {
 	  if(ob != NULL && ob->getType() == ft02_Message){
 	    out[((Message*)ob)->getSlot()] = (Message*)ob;
 	  }else if(ob != NULL){
-	    std::cerr << "Expecting message frames, but got " << ob->getType() << " instead" << std::endl;
+	    logger->debug("Expecting message frames, but got %d instead", ob->getType());
 	  }else{
-	    std::cerr << "Expecting message frames, but got NULL"  << std::endl;
+	    logger->debug("Expecting message frames, but got NULL");
 	  }
 	}
       }else if(reply->getType() == ft02_Message){
 	out[((Message*)reply)->getSlot()] = (Message*)reply;
       }else{
 	//error!
-	std::cerr << "Expected message or sequence frame, got " << reply->getType() << std::endl;
+	logger->debug("Expected message or sequence frame, got %d", reply->getType());
       }
     }else{
-      std::cerr << "Frame was null, expecting message or sequence" << std::endl;
+      logger->debug("Frame was null, expecting message or sequence");
     }
     return out;
 
@@ -547,7 +568,7 @@ namespace TPProto {
       }else if(reply->getType() == ft02_OK){
 	removed++;
       }else{
-	std::cout << "Waiting for sequence or ok, got " << reply->getType() << std::endl;
+	logger->debug("Waiting for sequence or ok, got %d", reply->getType());
       }
       delete reply;
     }
@@ -590,7 +611,7 @@ namespace TPProto {
     int rlen = sock->recvHeader(16, head);
     if(rlen != 16){
       //now what?
-      std::cout << "Could not read whole header" << std::endl;
+      logger->warning("Could not read whole header");
       delete head;
       return NULL;
     }
@@ -602,13 +623,13 @@ namespace TPProto {
 
     if(!header->readHeader(fver, sequ, type, len)){
       // invalid header
-      std::cout << "Header invalid" << std::endl;
+      logger->warning("Header invalid");
       delete header;
       return NULL;
     }
 
     if(fver != 2){
-      std::cout << "Wrong verison of protocol, ver: " << fver << " sequ: " << sequ << " type: " << type << " len: " << len << std::endl;
+      logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fver, sequ, type, len);
       delete header;
       sock->disconnect();
       status = 0;
@@ -618,7 +639,7 @@ namespace TPProto {
     rlen = sock->recvBody(len, body);
     if(rlen != len){
       //again, now what?
-      std::cout << "Could not read whole body" << std::endl;
+      logger->warning("Could not read whole body");
       delete header;
       delete body;
       return NULL;
@@ -669,7 +690,7 @@ namespace TPProto {
 
     default:
       //others...
-      std::cout << "Received frame of type " << type << " but don't know what to do, setting return value to NULL" << std::endl;
+      logger->warning("Received frame of type %d but don't know what to do, setting return value to NULL", type);
       break;
     }
     
@@ -677,7 +698,7 @@ namespace TPProto {
       frame->setProtocolVersion(fver);
       if(!frame->unpackBuffer(data)){
 	delete frame;
-	std::cout << "Unpack Buffer failed" << std::endl;
+	logger->error("Unpack Buffer failed");
 	frame = NULL;
       }
     }
