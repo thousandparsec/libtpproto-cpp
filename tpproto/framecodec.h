@@ -2,6 +2,7 @@
 #define TPPROTO_FRAMECODEC_H
 
 #include <string>
+#include <set>
 #include <map>
 
 namespace TPProto{
@@ -22,6 +23,7 @@ namespace TPProto{
   class GetOrder;
   class Order;
   class RemoveOrder;
+  class OrderDescription;
 
 
   class FrameCodec{
@@ -58,6 +60,7 @@ namespace TPProto{
     bool replaceOrder(Order* frame);
     RemoveOrder* createRemoveOrderFrame();
     int removeOrders(RemoveOrder* frame); // returns number removed
+    void seedOrderDescriptionCache(std::set<unsigned int> otypes);
 
     //Boards and Messages
     GetBoard* createGetBoardFrame();
@@ -87,6 +90,8 @@ namespace TPProto{
     int version;
     std::string clientid;
     int nextseqnum;
+
+    std::map<unsigned int, OrderDescription*> orderdescCache;
 
   };
 

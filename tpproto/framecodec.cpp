@@ -63,6 +63,12 @@ namespace TPProto {
     if(asynclistener != NULL){
       delete asynclistener;
     }
+
+    for(std::map<unsigned int, OrderDescription*>::iterator itcurr = orderdescCache.begin(); 
+	itcurr != orderdescCache.end(); ++itcurr){
+      delete itcurr->second;
+    }
+    orderdescCache.clear();
   }
 
   void FrameCodec::setClientString(const std::string & name){
@@ -170,6 +176,7 @@ namespace TPProto {
 
   std::map<unsigned int, Object*> FrameCodec::getObjects(GetObjects * frame){
     std::map<unsigned int, Object*> out;
+    std::set<unsigned int> ordertypes;
     sendFrame(frame);
     Frame * reply = recvFrame();
     if(reply != NULL){
@@ -178,18 +185,33 @@ namespace TPProto {
 	  Frame * ob = recvFrame();
 	  if(ob != NULL && ob->getType() == ft02_Object){
 	    out[((Object*)ob)->getId()] = (Object*)ob;
+	    if(!((Object*)ob)->getAvailableOrders().empty()){
+	      std::set<unsigned int> oldset = ordertypes;
+	      ordertypes.clear();
+	      std::set<unsigned int> obset = ((Object*)ob)->getAvailableOrders();
+	      set_union(oldset.begin(), oldset.end(), obset.begin(), obset.end(), inserter(ordertypes, ordertypes.begin()));
+	    }
 	  }else{
 	    std::cerr << "Expecting object frames, but got " << ob->getType() << " instead" << std::endl;
 	  }
 	}
       }else if(reply->getType() == ft02_Object){
 	out[((Object*)reply)->getId()] = (Object*)reply;
+	if(!((Object*)reply)->getAvailableOrders().empty()){
+	  std::set<unsigned int> oldset = ordertypes;
+	  ordertypes.clear();
+	  std::set<unsigned int> obset = ((Object*)reply)->getAvailableOrders();
+	  set_union(oldset.begin(), oldset.end(), obset.begin(), obset.end(), inserter(ordertypes, ordertypes.begin()));
+	}
       }else{
 	//error!
 	std::cerr << "Expected object or sequence frame, got " << reply->getType() << std::endl;
       }
     }else{
       std::cerr << "Frame was null, expecting object or sequence" << std::endl;
+    }
+    if(!ordertypes.empty()){
+      seedOrderDescriptionCache(ordertypes);
     }
     return out;
   }
@@ -228,8 +250,11 @@ namespace TPProto {
 	  Frame * ob = recvFrame();
 	  if(ob != NULL && ob->getType() == ft02_Order){
 	    out[((Order*)ob)->getSlot()] = (Order*)ob;
-	  }else{
+	  }else if(ob != NULL){
 	    std::cerr << "Expecting order frames, but got " << ob->getType() << " instead" << std::endl;
+	  }else{
+	    std::cerr << "Expecting order frames, but got NULL" << std::endl;
+	  
 	  }
 	}
       }else if(reply->getType() == ft02_Order){
@@ -249,29 +274,17 @@ namespace TPProto {
     f->setProtocolVersion(version);
     f->setOrderType(type);
     //get description
-//     GetOrderDescription* god = new GetOrderDescription();
-//     god->setProtocolVersion(version);
-//     god->addOrderType(type);
-//     sendFrame(god);
-//     delete god;
-    
-//     Frame* reply = recvFrame();
-//     if(reply != NULL){
-//       if(reply->getType() == ft02_OrderDesc){
-	
-// 	//add parameter objects
-	
-// 	delete reply;
- 	return f;
-//       }else{
-// 	std::cout << "Expected Order Desc frame, got " << reply->getType() << std::endl;
-//       }
-//       delete reply;
-//     }else{
-//       std::cout << "Expected order desc frame, got NULL" << std::endl;
-//     }
-//     delete f;
-//     return NULL;
+
+    std::map<unsigned int, OrderDescription*>::iterator idesc = orderdescCache.find(type);
+    if(idesc != orderdescCache.end()){
+      // add parameters
+      return f;
+    }
+
+    std::cerr << "No order description in cache for type " << type << std::endl;
+
+    delete f;
+    return NULL;
   }
 
   bool FrameCodec::insertOrder(Order* frame){
@@ -346,6 +359,59 @@ namespace TPProto {
     }
     return removed;
   }
+
+  void FrameCodec::seedOrderDescriptionCache(std::set<unsigned int> otypes){
+
+    for(std::set<unsigned int>::iterator itcurr = otypes.begin(); 
+	itcurr != otypes.end(); ++itcurr){
+      if(orderdescCache[*itcurr] != NULL){
+	std::set<unsigned int>::iterator itnew = itcurr;
+	// this is not ideal...
+	if(itcurr == otypes.begin())
+	  ++itnew;
+	else
+	  --itnew;
+
+	otypes.erase(itcurr);
+	itcurr = itnew;
+
+      }
+    }
+
+    if(!otypes.empty()){
+      GetOrderDescription* god = new GetOrderDescription();
+      god->setProtocolVersion(version);
+      god->addOrderTypes(otypes);
+      sendFrame(god);
+      delete god;
+      
+      Frame* reply = recvFrame();
+      if(reply != NULL){
+	if(reply->getType() == ft02_Sequence){
+	  for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
+	    Frame * ob = recvFrame();
+	    
+	    if(ob != NULL && ob->getType() == ft02_OrderDesc){
+	      OrderDescription* od = (OrderDescription*)ob;
+	      orderdescCache[od->getOrderType()] = od;
+	    }else{
+	      std::cout << "Expected Order Desc frame, got " << reply->getType() << std::endl;
+	    }
+	  }
+	  delete reply;
+	}else if(reply->getType() == ft02_OrderDesc){
+	  OrderDescription* od = (OrderDescription*)reply;
+	  orderdescCache[od->getOrderType()] = od;
+	}else{
+	  std::cout << "Expected Order Desc frame, got " << reply->getType() << std::endl;
+	}
+      }else{
+	std::cout << "Expected order desc or sequence frame, got NULL" << std::endl;
+      }
+      
+    }
+  }
+  
 
 
   GetBoard* FrameCodec::createGetBoardFrame(){
@@ -585,7 +651,7 @@ namespace TPProto {
       break;
 
     case ft02_Order:
-      frame = new Order();
+      frame = createOrderFrame(data->peekInt(8));
       break;
 
     case ft02_Time_Remaining:
@@ -624,7 +690,7 @@ namespace TPProto {
 	}
       }
 
-      if(frame){
+      if(frame != NULL){
 	delete frame;
       }
 
