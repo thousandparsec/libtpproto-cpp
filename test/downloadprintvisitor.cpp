@@ -41,23 +41,68 @@ void DownloadPrintVisitor::visit(Universe* ob){
 void DownloadPrintVisitor::visit(Galaxy* ob){
   std::cout << "Visiting Galaxy" << std::endl;
 
+  std::cout << "ID: " << ob->getId() << std::endl;
+  std::cout << "name: " << ob->getName() << std::endl;
+  std::cout << "type: " << ob->getObjectType() << std::endl;
+  std::cout << "size: " << ob->getSize() << std::endl;
+
+  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+    std::cout << (*itcurr) << " ";
+  }
+  std::cout << std::endl;
+
   visit((Object*)ob);
 }
 
 void DownloadPrintVisitor::visit(StarSystem* ob){
-   std::cout << "Visiting StarSystem" << std::endl;
+  std::cout << "Visiting StarSystem" << std::endl;
+
+  std::cout << "ID: " << ob->getId() << std::endl;
+  std::cout << "name: " << ob->getName() << std::endl;
+  std::cout << "type: " << ob->getObjectType() << std::endl;
+  std::cout << "size: " << ob->getSize() << std::endl;
+
+  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+    std::cout << (*itcurr) << " ";
+  }
+  std::cout << std::endl;
 
   visit((Object*)ob);
 }
 
 void DownloadPrintVisitor::visit(Planet* ob){
-   std::cout << "Visiting Planet" << std::endl;
+  std::cout << "Visiting Planet" << std::endl;
+
+  std::cout << "ID: " << ob->getId() << std::endl;
+  std::cout << "name: " << ob->getName() << std::endl;
+  std::cout << "type: " << ob->getObjectType() << std::endl;
+  std::cout << "size: " << ob->getSize() << std::endl;
+
+  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+    std::cout << (*itcurr) << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "Owned by: " << ob->getOwner() << std::endl;
 
   visit((Object*)ob);
 }
 
 void DownloadPrintVisitor::visit(Fleet* ob){
-   std::cout << "Visiting Fleet" << std::endl;
+  std::cout << "Visiting Fleet" << std::endl;
+  
+  std::cout << "ID: " << ob->getId() << std::endl;
+  std::cout << "name: " << ob->getName() << std::endl;
+  std::cout << "type: " << ob->getObjectType() << std::endl;
+  std::cout << "size: " << ob->getSize() << std::endl;
+
+  std::cout << "Owned By: " << ob->getOwner() << std::endl;
+  std::cout << "Damage: " << ob->getDamage() << std::endl;
+  std::cout << "ships: Scouts(" << ob->numShips(0) << "), Frigates(" << ob->numShips(1) << "), Battleships(" <<
+    ob->numShips(2) << ")" << std::endl;
 
   visit((Object*)ob);
 }
