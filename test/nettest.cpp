@@ -213,6 +213,12 @@ int main(int argc, char** argv){
 
 	    std::cout << "Time test complete, status " << myfc->getStatus() << std::endl;
 
+	    std::cout << "Starting Async frame polling test" << std::endl;
+
+	    myfc->pollForAsyncFrames();
+
+	    std::cout << "Async frame polling test complete, status " << myfc->getStatus() << std::endl;
+
 	  }else{
 	    std::cout << "Board test failed, board is NULL, status " << myfc->getStatus() << std::endl;
 	    status = 5;
