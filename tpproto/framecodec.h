@@ -8,6 +8,8 @@ namespace TPProto{
 
   class TPSocket;
   class Frame;
+  class GetObjectByID;
+  class GetObjectByPos;
 
   class FrameCodec{
   public:
@@ -28,6 +30,13 @@ namespace TPProto{
     bool login(const std::string &user, const std::string &password);
     void disconnect();
     
+
+    //Objects
+    GetObjectByID* createGetObjectByIDFrame();
+    //std::map<unsigned int, Object*> getObjectByID(GetObjectByID * frame);
+    GetObjectByPos* createGetObjectByPosFrame();
+    //std::map<unsigned int, Object*> getObjectByPos(GetObjectByPos * frame);
+    //Object* getUniverse();
 
     //Order* createOrderFrame(int type);
 
