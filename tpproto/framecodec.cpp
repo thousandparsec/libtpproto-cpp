@@ -17,6 +17,8 @@
 #include "sequence.h"
 #include "connect.h"
 #include "login.h"
+#include "getobjectbyid.h"
+#include "getobjectbypos.h"
 
 
 #include "framecodec.h"
@@ -120,7 +122,19 @@ namespace TPProto {
       sock->disconnect();
     status = 0;
   }
+
+  GetObjectByID* FrameCodec::createGetObjectByIDFrame(){
+    GetObjectByID* rtv = new GetObjectByID();
+    rtv->setProtocolVersion(version);
+    return rtv;
+  }
   
+  GetObjectByPos* FrameCodec::createGetObjectByPosFrame(){
+    GetObjectByPos* rtv = new GetObjectByPos();
+    rtv->setProtocolVersion(version);
+    return rtv;
+  }
+
   void FrameCodec::sendFrame(Frame *f){
 
     Buffer *data = new Buffer();

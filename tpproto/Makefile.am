@@ -5,10 +5,12 @@ lib_LTLIBRARIES = libtpproto.la
 
 libtpproto_la_LDFLAGS = -version-info 0:0:0
 libtpproto_la_SOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
-    connect.cpp okframe.cpp failframe.cpp login.cpp tcpsocket.cpp sequence.cpp
+    connect.cpp okframe.cpp failframe.cpp login.cpp tcpsocket.cpp sequence.cpp\
+    getobjectbyid.cpp vector3d.cpp getobjectbypos.cpp
 libtpprotodir = $(includedir)/tpproto
 libtpproto_HEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
-    connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h
+    connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
+    getobjectbyid.h vector3d.h getobjectbypos.h
 
 
 
