@@ -16,6 +16,10 @@
 
 namespace TPProto{
 
+  /*! \brief Default constructor.
+
+  Sets up defaults, that will prevent connecting.
+  */
   TcpSocket::TcpSocket(){
     status = 0;
     sockfd = -1;
@@ -23,6 +27,8 @@ namespace TPProto{
     portname = NULL;
   }
 
+  /*! \brief Destructor.
+   */
   TcpSocket::~TcpSocket(){
     if(hostname != NULL)
       delete[] hostname;
@@ -30,10 +36,21 @@ namespace TPProto{
       delete[] portname;
   }
 
+  /*! \brief Check if the socket is connected.
+    \return True if connected, false otherwise.
+  */
   bool TcpSocket::isConnected(){
     return status == 1;
   }
 
+  /*! \brief Connects to the host and port over TCP.
+    
+  If HAVE_IPV6 is defined, it will use either IPv4 or IPv6 to
+  make the connection, otherwise it will only use IPv4 (old APIs). They follow 
+  different code paths.
+  \return True if a new connection is made, false if already connected or
+  if an error occured.
+  */
   bool TcpSocket::connect(){
     if(status == 0 && hostname != NULL && portname != NULL){
       
@@ -127,6 +144,11 @@ namespace TPProto{
     return false;
   }
 
+  /*! \brief Closes the connection.
+
+  The connection is closed after calling this method (even if it was already
+  closed).
+  */
   void TcpSocket::disconnect(){
     if(status == 1){
       close(sockfd);
@@ -135,6 +157,15 @@ namespace TPProto{
     status = 0;
   }
 
+  /*! \brief Sends a header and data to the socket.
+
+  Sends the frame in two sends, one for the header and one for the data.
+  Saves copying the header and data into another buffer.
+  \param header The header data.
+  \param hlen The length of the header data.
+  \param data The data.
+  \param len The length of the data.
+  */
   void TcpSocket::send(char* header, int hlen, char* data, int len){
     if(status == 1){
       ::send(sockfd, header, hlen, 0);
@@ -142,6 +173,14 @@ namespace TPProto{
     }
   }
 
+  /*! \brief Receives a header from the network.
+
+  Identical to recvBody().  If nothing is recieved from the network,
+  we have been disconnected.
+    \param len The length of the header to receive.
+    \param data The array to store the data in.
+    \return The length written into the data array.
+    */
   int TcpSocket::recvHeader(int len, char* &data){
     if(status == 1){
       data = (char*)malloc(len);
@@ -152,7 +191,15 @@ namespace TPProto{
     }
     return 0;
   }
-  
+
+  /*! \brief Receives data from the network.
+
+  Identical to recvHeader().  If nothing is recieved from the network,
+  we have been disconnected.
+    \param len The length of the data to receive.
+    \param data The array to store the data in.
+    \return The length written into the data array.
+    */
   int TcpSocket::recvBody(int len, char* &data){
     if(status == 1){
       data = (char*)malloc(len);
@@ -164,6 +211,11 @@ namespace TPProto{
     return 0;
   }
 
+  /*! \brief Polls the network for data.
+
+  Polls the network using select with zero timeout.  It does actually work.
+  \return True if data is waiting, false otherwise.
+  */
   bool TcpSocket::poll(){
     fd_set readfds;
     struct timeval timeout;
@@ -179,6 +231,12 @@ namespace TPProto{
 
   }
 
+  /*! \brief Sets the server address and port to connect to.
+
+  Host can be DNS name or ip address. Post can be port name or number.
+  \param host Host to connect to.
+  \param port Port to connect to.
+  */
   void TcpSocket::setServerAddr(const char* host, const char* port){
     if(hostname != NULL){
       delete hostname;

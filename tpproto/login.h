@@ -1,11 +1,17 @@
 #ifndef TPPROTO_LOGIN_H
 #define TPPROTO_LOGIN_H
 
+/*! \file
+  \brief Declares the Login Frame.
+*/
+
 #include <string>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! The Frame for logging into a player on the server.
+   */
   class Login : public Frame{
   public:
     Login();

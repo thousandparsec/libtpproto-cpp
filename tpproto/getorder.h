@@ -1,11 +1,17 @@
 #ifndef TPPROTO_GETORDER_H
 #define TPPROTO_GETORDER_H
 
+/*! \file
+  \brief Declares GetOrder Frame.
+*/
+
 #include <set>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! A Frame to get Orders from an Object on the server.
+   */
   class GetOrder : public Frame{
   public:
     GetOrder();

@@ -1,0 +1,8 @@
+/*! \namespace tpproto
+     \brief The overall namespace for libtpproto-cpp.
+
+     The namespace tpproto is used by libtpproto-cpp to keep
+     the declarations of classes and functions separate from
+     any a client may declare or use.
+
+*/

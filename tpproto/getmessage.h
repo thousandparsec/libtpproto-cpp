@@ -1,11 +1,17 @@
 #ifndef TPPROTO_GETMESSAGE_H
 #define TPPROTO_GETMESSAGE_H
 
+/*! \file
+  \brief Declares GetMessage Frame.
+*/
+
 #include <set>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! \brief A Frame to get Messages from one board on the server.
+   */
   class GetMessage : public Frame{
   public:
     GetMessage();

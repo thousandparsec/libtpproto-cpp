@@ -1,11 +1,17 @@
 #ifndef TPPROTO_GETORDERDESC_H
 #define TPPROTO_GETORDERDESC_H
 
+/*! \file
+  \brief Declares GetOrderDescription Frame.
+*/
+
 #include <set>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! A Frame for getting OrderDescriptions.
+   */
   class GetOrderDescription : public Frame{
   public:
     GetOrderDescription();

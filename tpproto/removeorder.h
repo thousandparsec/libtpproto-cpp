@@ -1,11 +1,17 @@
 #ifndef TPPROTO_REMOVEORDER_H
 #define TPPROTO_REMOVEORDER_H
 
+/*! \file
+  \brief Declares RemoveOrder Frame.
+*/
+
 #include <set>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! \brief A Frame for removing Orders from an Object.
+   */
   class RemoveOrder : public Frame{
   public:
     RemoveOrder();

@@ -1,13 +1,22 @@
 #ifndef TPPROTO_BOARD_H
 #define TPPROTO_BOARD_H
+/*! \file
+  \brief Declares Board class.
+*/
 
 #include <string>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! \brief Board Frame class.
+    
+  The Board class is the representation of the board Frame, and provides
+  an interface to the boards.
+  */
   class Board : public Frame{
   public:
+
     Board();
     virtual ~Board();
 
@@ -17,6 +26,7 @@ namespace TPProto{
     unsigned int getId();
     std::string getName();
     std::string getDescription();
+
     int numMessages();
 
 

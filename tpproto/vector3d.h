@@ -1,10 +1,20 @@
 #ifndef TPPROTO_VECTOR3D_H
 #define TPPROTO_VECTOR3D_H
 
+/*! \file
+  \brief Declares the Vector3d class.
+*/
+
 namespace TPProto{
   
   class Buffer;
   
+  /*! \brief A vector of 3 signed 64 bit integers.
+
+  Because the Thousand Parsec game universe uses signed 64 bit ints for 
+  storing positions and velocities, this class allows easy manipulation
+  and control.
+  */
   class Vector3d{
     
   public:

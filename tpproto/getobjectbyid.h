@@ -1,11 +1,18 @@
 #ifndef TPPROTO_GETOBJECTBYID_H
 #define TPPROTO_GETOBJECTBYID_H
 
+/*! \file
+  \brief Declares GetObjectByID Frame class.
+*/
+
 #include <tpproto/getobjects.h>
 #include <set>
 
 namespace TPProto{
   
+  /*! \brief Frame to send to the server to get one or more
+    Object by objectid.
+  */
   class GetObjectByID : public GetObjects{
   public:
     GetObjectByID();

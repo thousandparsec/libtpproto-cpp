@@ -1,10 +1,16 @@
 #ifndef TPPROTO_TCPSOCKET_H
 #define TPPROTO_TCPSOCKET_H
 
+/*! \file
+  \brief Declares TcpSocket class.
+*/
+
 #include <tpproto/tpsocket.h>
 
 namespace TPProto{
 
+  /*! \brief A TPSocket for connecting over TCP to a server.
+   */
   class TcpSocket : public TPSocket{
   public:
     TcpSocket();

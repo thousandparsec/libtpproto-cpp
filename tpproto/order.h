@@ -1,6 +1,10 @@
 #ifndef TPPROTO_ORDER_H
 #define TPPROTO_ORDER_H
 
+/*! \file
+  \brief Declares Order Frame.
+*/
+
 #include <list>
 #include <string>
 #include <tpproto/frame.h>
@@ -10,6 +14,8 @@ namespace TPProto{
   class OrderParameter;
   class OrderDescription;
 
+  /*! \brief A Frame representing an Order on an Object.
+   */
   class Order : public Frame{
   public:
     Order();

@@ -1,6 +1,10 @@
 #ifndef TPPROTO_ORDERDESC_H
 #define TPPROTO_ORDERDESC_H
 
+/*! \file
+  \brief Declares OrderDescription Frame.
+*/
+
 #include <string>
 #include <list>
 #include <tpproto/frame.h>
@@ -9,6 +13,8 @@ namespace TPProto{
 
   class OrderParameter;
 
+  /*! A description of orders as sent as a Frame.
+   */
   class OrderDescription : public Frame{
   public:
     OrderDescription();

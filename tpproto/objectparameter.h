@@ -1,10 +1,16 @@
 #ifndef TPPROTO_OBJECTPARAMETER_H
 #define TPPROTO_OBJECTPARAMETER_H
 
+/*! \file
+  \brief Declares ObjectParameter OrderParameter.
+*/
+
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
 
+  /*! \brief An OrderParameter that refers to an Object.
+   */
   class ObjectParameter : public OrderParameter{
   public:
     ObjectParameter();

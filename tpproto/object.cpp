@@ -8,13 +8,26 @@
 
 namespace TPProto{
 
+  /*! \brief Required virtual destructor.
+   */
   Object::~Object(){
   }
 
+  /*! \brief Asserts(0).
+    
+  Thie method asserts zero because it should never be sent to the server.
+  /param buf The Buffer (ignored).
+  */
   void Object::packBuffer(Buffer* buf){
     assert(0);
   }
 
+  /*! \brief Unpacks the standard Object fields from the Buffer.
+
+  Everything except the ObjectType specific data is unpacked.
+  /param buf The Buffer the Object is to be unpacked from.
+  \return True if Successful.
+  */
   bool Object::unpackBuffer(Buffer* buf){
     id = buf->unpackInt();
     obtype = buf->unpackInt();
@@ -47,38 +60,67 @@ namespace TPProto{
 
   }
 
+  /*! \brief Gets the Object's id number.
+    \return The id number.
+  */
   unsigned int Object::getId(){
     return id;
   }
 
+  /*! \brief Gets the Object's name.
+    \return The name of the object.
+  */
   std::string Object::getName(){
     return name;
   }
 
+  /*! \brief Gets the position of the object.
+    \return Vector3d of the position.
+  */
   Vector3d Object::getPos(){
     return pos;
   }
 
+  /*! \brief Gets the velocity of the object.
+    \return Vector3d of the velocity.
+  */
   Vector3d Object::getVel(){
     return vel;
   }
 
+  /*! \brief Gets the object type number of the object.
+    \return The object type number.
+  */
   int Object::getObjectType(){
     return obtype;
   }
 
+  /*! \brief Gets the diameter of the object in units.
+    \return The diameter of the object.
+  */
   unsigned long long Object::getSize(){
     return size;
   }
 
+  /*! \brief Gets the set of contained objectids.
+    \return The set of contained object ids.
+  */
   std::set<unsigned int> Object::getContainedObjectIds(){
     return contained;
   }
 
+  /*! \brief Gets the set of available Order types.
+    \return The set of order types.
+  */
   std::set<unsigned int> Object::getAvailableOrders(){
     return availableorders;
   }
 
+  /*! \brief Gets the number of Orders on this object.
+
+  The ids of the Orders are from 0 to numorders-1.
+  \return The number of orders.
+  */
   int Object::getNumberOrders(){
     return numorders;
   }

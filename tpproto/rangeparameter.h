@@ -1,10 +1,16 @@
 #ifndef TPPROTO_RANGEPARAMETER_H
 #define TPPROTO_RANGEPARAMETER_H
 
+/*! \file
+  \brief Declares the RangeParameter OrderParamter type.
+*/
+
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
 
+  /*! \brief An OrderParameter that is in a range.
+   */
   class RangeParameter : public OrderParameter{
   public:
     RangeParameter();

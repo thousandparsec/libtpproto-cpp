@@ -1,13 +1,21 @@
 #ifndef TPPROTO_LISTPARAMETER_H
 #define TPPROTO_LISTPARAMETER_H
 
+/*! \file
+  \brief Declares the ListParameter class.
+*/
+
 #include <map>
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
 
+  /*! \brief Name, max value pair for selection list.
+   */
   typedef std::pair<std::string, unsigned int> SelectableElement;
   
+  /*! \brief An OrderParameter containing a list of selectable items.
+   */
   class ListParameter : public OrderParameter{
   public:
     ListParameter();

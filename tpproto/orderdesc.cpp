@@ -16,9 +16,15 @@
 
 namespace TPProto{
 
+  /*! \brief Default constructor.
+   */
   OrderDescription::OrderDescription(){
   }
 
+  /*! \brief Destructor.
+
+  Deletes the OrderParameters it contains.
+  */
   OrderDescription::~OrderDescription(){
     for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
       delete *itcurr;
@@ -26,10 +32,20 @@ namespace TPProto{
     params.clear();
   }
 
+  /*! \brief Pack into a Buffer, assert(0).
+
+  This Frame is only received from the server and therefore does not get
+  packed on the client side.  assert(0) is called.
+    \param buf The Buffer, ignored.
+  */
   void OrderDescription::packBuffer(Buffer* buf){
     assert(0);
   }
 
+  /*! \brief Unpack this OrderDescription from a Buffer.
+    \param buf The Buffer to unpack out of.
+    \return True if successful.
+  */
   bool OrderDescription::unpackBuffer(Buffer* buf){
     otype = buf->unpackInt();
     char* temp = buf->unpackString();
@@ -81,18 +97,30 @@ namespace TPProto{
     return true;
   }
 
+  /*! \brief Gets the order type number of this order description.
+    \return The order type number.
+  */
   unsigned int OrderDescription::getOrderType(){
     return otype;
   }
 
+  /*! \brief Gets the name of this order description.
+    /return The name of the order description.
+  */
   std::string OrderDescription::getName(){
     return name;
   }
 
+  /*! \brief Gets the text description of this order description.
+    /return The text description of the order description.
+  */
   std::string OrderDescription::getDescription(){
     return desc;
   }
 
+  /*! \brief Gets a copy of the OrderParameters in this order description.
+    \return A copy of the list of OrderParameters.
+  */
   std::list<OrderParameter*> OrderDescription::getParameters(){
     std::list<OrderParameter*> np;
     for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){

@@ -1,11 +1,17 @@
 #ifndef TPPROTO_SPACECOORD_H
 #define TPPROTO_SPACECOORD_H
 
+/*! \file
+  \brief Declares SpaceCoordinates OrderParameter type.
+*/
+
 #include <tpproto/vector3d.h>
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
 
+  /*! \brief An OrderParameter type that holds space coordinates.
+   */
   class SpaceCoordinates : public OrderParameter{
   public:
     SpaceCoordinates();

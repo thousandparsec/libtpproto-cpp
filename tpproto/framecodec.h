@@ -4,6 +4,11 @@
 #include <string>
 #include <set>
 #include <map>
+/*! \file
+  \brief Declares the FrameCodec class.
+
+  It is the main file you will need to include.
+*/
 
 namespace TPProto{
 
@@ -26,7 +31,14 @@ namespace TPProto{
   class OrderDescription;
   class Logger;
 
+ /*! \brief FrameCodec is the main working class of libtpproto-cpp.
 
+    The FrameCodec class is responsible for handling the running of
+    the protocol.  It provides the easiest way to interact with
+    Thousand Parsec servers and avoids a lot of unneccessary handling
+    by the client.  The FrameCodec class is not neccesary to use
+    libttpproto-cpp, but is currently the easiest way.
+  */
   class FrameCodec{
   public:
     FrameCodec();

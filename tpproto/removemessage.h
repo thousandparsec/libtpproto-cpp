@@ -1,11 +1,17 @@
 #ifndef TPPROTO_REMOVEMESSAGE_H
 #define TPPROTO_REMOVEMESSAGE_H
 
+/*! \file
+  \brief Declares RemoveMessage Frame.
+*/
+
 #include <set>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
+  /*! \brief A Frame for removing Messages from a Board.
+   */
   class RemoveMessage : public Frame{
   public:
     RemoveMessage();

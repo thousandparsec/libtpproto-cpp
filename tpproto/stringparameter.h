@@ -1,11 +1,17 @@
 #ifndef TPPROTO_STRINGPARAMETER_H
 #define TPPROTO_STRINGPARAMETER_H
 
+/*! \file
+  \brief Declares the StringParameter OrderParameter.
+*/
+
 #include <string>
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
 
+  /*! \brief An OrderParameter that holds a string with a maximum length.
+   */
   class StringParameter : public OrderParameter{
   public:
     StringParameter();

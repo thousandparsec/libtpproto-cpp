@@ -1,10 +1,16 @@
 #ifndef TPPROTO_PLAYERPARAMETER_H
 #define TPPROTO_PLAYERPARAMETER_H
 
+/*! \file
+  \brief Declares the PlayerParameter OrderParameter.
+*/
+
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
 
+  /*! \brief The OrderParameter for selecting a player.
+   */
   class PlayerParameter : public OrderParameter{
   public:
     PlayerParameter();

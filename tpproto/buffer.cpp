@@ -24,17 +24,24 @@
 
 namespace TPProto{
 
+  /*! \brief Default constructor.
+   */
   Buffer::Buffer(){
     data = NULL;
     datalen = 0;
     dataptr = 0;
   }
 
+  /*! \brief Default destructor.
+   */
   Buffer::~Buffer(){
     if(data != NULL)
       free(data);
   }
 
+  /*! \brief Packs a 32 bit int into the buffer.
+      \param val The value to be packed.
+  */
   void Buffer::packInt(int val){
     int netval = htonl(val);
     data = (char *) realloc(data, datalen + 4);
@@ -46,6 +53,9 @@ namespace TPProto{
 
   }
 
+  /*! \brief Packs a 64 bit int into the buffer.
+      \param val The value to be packed.
+  */
   void Buffer::packInt64(long long val){
     long long netval = htonq(val);
     char *temp = (char *) realloc(data, datalen + 8);
@@ -57,6 +67,9 @@ namespace TPProto{
     datalen += 8;
   }
 
+  /*! \brief Packs a string into the buffer.
+      \param val The string to be packed.
+  */
   void Buffer::packString(const char* val){
     int slen = strlen(val) + 1;
     
@@ -78,6 +91,9 @@ namespace TPProto{
     datalen += 4 + slen;
   }
   
+  /*! \brief Unpacks a 32 bit int from the buffer.
+      \return The value unpacked.
+  */
   int Buffer::unpackInt(){
     int nval;
     memcpy(&nval, data + dataptr, 4);
@@ -85,13 +101,19 @@ namespace TPProto{
     return ntohl(nval);
   }
 
+  /*! \brief Unpacks a 64 bit int from the buffer.
+      \return The value unpacked.
+  */
   long long Buffer::unpackInt64(){
     long long nval;
     memcpy(&nval, data + dataptr, 8);
     dataptr += 8;
     return ntohq(nval);
   }
-
+  
+  /*! \brief Unpacks a string from the buffer.
+      \return The string unpacked.
+  */
   char* Buffer::unpackString(){
     int len = unpackInt();
     char *rtnstr = NULL;
@@ -110,12 +132,27 @@ namespace TPProto{
     return rtnstr;
   }
 
+  /*! \brief Peeks at the value of the 32 bit int at an offset into the
+      buffer.
+
+      This operation does not change the r/w position.
+      \param offset The offset into the buffer.
+      \return The 32 bit int value at the offset.
+  */
   int Buffer::peekInt(int offset){
     int nval;
     memcpy(&nval, data + offset, 4);
     return ntohl(nval);
   }
 
+  /*! \brief Creates a header for the given parameters.
+
+    The buffer is set to the header.
+    \param ver The version of the protocol.
+    \param seqnum The sequence number.
+    \param type The type number.
+    \param len The length of the data of the frame in bytes.
+  */
   void Buffer::createHeader(int ver, int seqnum, int type, int len){
     if(data != NULL)
       free(data);
@@ -134,6 +171,18 @@ namespace TPProto{
     memcpy(data + 12, &temp, 4);
   }
 
+  /*! \brief Reads a header, passing back the parameters.
+
+    Some checks are performed to check that the buffer is a valid
+    header.
+    \param ver A reference to where the version number of the protocol will
+    be stored.
+    \param seqnum A reference to where the sequence number will be stored.
+    \param type A reference to where the type number will be stored.
+    \param len A reference to where the lenght of the data of the frame 
+    in bytes should be stored.
+    \return True if the header is valid.
+  */
   bool Buffer::readHeader(int &ver, int &seqnum, int &type, int &len){
     if(data == NULL || data[0] != 'T' || data[1] != 'P'){
       return false;
@@ -149,6 +198,13 @@ namespace TPProto{
     return true;
   }
 
+  /*! \brief Sets the buffer with the given data.
+
+    Should not be called in general, used by FrameCodec to set the data
+    received from the network.
+      \param buff The char array of data to be copied as the buffer.
+      \param len The length of the array of data for the buffer.
+  */
   void Buffer::setData(char* buff, int len){
     if(data != NULL)
       free(data);
@@ -157,10 +213,19 @@ namespace TPProto{
     dataptr = 0;
   }
 
+  /*! \brief Gets the data in the buffer.
+
+    Should not be called in general, used by FrameCodec to send the data
+    on the network.
+    \return Data in the buffer.
+  */
   char* Buffer::getData(){
     return data;
   }
 
+  /*! \brief Gets the current length of the data in the buffer.
+      \return The length of the buffer in bytes.
+  */
   int Buffer::getLength(){
     return datalen;
   }
