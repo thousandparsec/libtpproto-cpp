@@ -29,8 +29,9 @@ void DownloadPrintVisitor::visit(Universe* ob){
   std::cout << "size: " << ob->getSize() << std::endl;
   std::cout << "age: " << ob->getAge() << std::endl;
 
-  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
-  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+  std::set<unsigned int> obset = ob->getContainedObjectIds();
+  std::cout << "Num contained: " << obset.size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = obset.begin(); itcurr != obset.end(); ++itcurr){
     std::cout << (*itcurr) << " ";
   }
   std::cout << std::endl;
@@ -46,8 +47,9 @@ void DownloadPrintVisitor::visit(Galaxy* ob){
   std::cout << "type: " << ob->getObjectType() << std::endl;
   std::cout << "size: " << ob->getSize() << std::endl;
 
-  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
-  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+  std::set<unsigned int> obset = ob->getContainedObjectIds();
+  std::cout << "Num contained: " << obset.size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = obset.begin(); itcurr != obset.end(); ++itcurr){
     std::cout << (*itcurr) << " ";
   }
   std::cout << std::endl;
@@ -63,8 +65,9 @@ void DownloadPrintVisitor::visit(StarSystem* ob){
   std::cout << "type: " << ob->getObjectType() << std::endl;
   std::cout << "size: " << ob->getSize() << std::endl;
 
-  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
-  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+  std::set<unsigned int> obset = ob->getContainedObjectIds();
+  std::cout << "Num contained: " << obset.size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = obset.begin(); itcurr != obset.end(); ++itcurr){
     std::cout << (*itcurr) << " ";
   }
   std::cout << std::endl;
@@ -80,8 +83,9 @@ void DownloadPrintVisitor::visit(Planet* ob){
   std::cout << "type: " << ob->getObjectType() << std::endl;
   std::cout << "size: " << ob->getSize() << std::endl;
 
-  std::cout << "Num contained: " << ob->getContainedObjectIds().size() << std::endl << "Contains: ";
-  for(std::set<unsigned int>::iterator itcurr = ob->getContainedObjectIds().begin(); itcurr != ob->getContainedObjectIds().end(); ++itcurr){
+  std::set<unsigned int> obset = ob->getContainedObjectIds();
+  std::cout << "Num contained: " << obset.size() << std::endl << "Contains: ";
+  for(std::set<unsigned int>::iterator itcurr = obset.begin(); itcurr != obset.end(); ++itcurr){
     std::cout << (*itcurr) << " ";
   }
   std::cout << std::endl;
