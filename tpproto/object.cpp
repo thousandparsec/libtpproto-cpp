@@ -39,6 +39,7 @@ namespace TPProto{
     buf->unpackInt();
     buf->unpackInt();
     buf->unpackInt();
+    buf->unpackInt();
 
     type = ft02_Object;
 
