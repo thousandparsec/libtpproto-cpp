@@ -9,6 +9,7 @@
 #include <tpproto/removemessage.h>
 
 #include "downloadprintvisitor.h"
+#include "printasynclistener.h"
 
 using namespace TPProto;
 
@@ -34,6 +35,9 @@ int main(int argc, char** argv){
     FrameCodec *myfc = new FrameCodec();
     myfc->setSocket(ts);
     myfc->setClientString("libtpproto-cpp_NetTest");
+
+    PrintAsyncListener* pal = new PrintAsyncListener();
+    myfc->setAsyncFrameListener(pal);
 
     std::cout << "Test setup complete" << std::endl;
 
