@@ -9,7 +9,7 @@ simpletest_LDADD= \
     $(top_srcdir)/tpproto/libtpproto.la
 
 
-nettest_SOURCES = nettest.cpp
+nettest_SOURCES = nettest.cpp downloadprintvisitor.h downloadprintvisitor.cpp
 
 nettest_LDADD= \
     $(top_srcdir)/tpproto/libtpproto.la

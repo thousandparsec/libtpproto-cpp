@@ -4,6 +4,8 @@
 #include <tpproto/tcpsocket.h>
 #include <tpproto/object.h>
 
+#include "downloadprintvisitor.h"
+
 using namespace TPProto;
 
 int main(int argc, char** argv){
@@ -44,6 +46,17 @@ int main(int argc, char** argv){
 	  
 	  std::cout << "Got the Universe object ok, status: " << myfc->getStatus() << std::endl;
 
+	  std::cout << "Setting up Visitor test" << std::endl;
+	  DownloadPrintVisitor* dpv = new DownloadPrintVisitor();
+	  dpv->setFrameCodec(myfc);
+	  
+	  std::cout << "Starting Visitor test" << std::endl;
+	  universe->visit(dpv);
+
+	  delete universe;
+	  delete dpv;
+	  
+	  std::cout << "Finished Visitor test, status: " << myfc->getStatus() << std::endl;
 
 	}else{
 	  std::cout << "Failed to get Universe Object, status" << myfc->getStatus() << std::endl;
