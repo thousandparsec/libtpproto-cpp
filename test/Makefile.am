@@ -1,6 +1,8 @@
 TESTS = simpletest nettest.sh 
 check_PROGRAMS = simpletest nettest
 
+EXTRA_DIST = nettest.sh
+
 INCLUDES = -I$(top_srcdir)/src
 
 simpletest_SOURCES = simpletest.cpp testsocket.h testsocket.cpp
