@@ -30,6 +30,8 @@
 #include "fleet.h"
 #include "getboard.h"
 #include "board.h"
+#include "getmessage.h"
+#include "message.h"
 
 
 #include "framecodec.h"
@@ -238,6 +240,41 @@ namespace TPProto {
     return (Board*)reply;
   }
 
+  GetMessage* FrameCodec::createGetMessageFrame(){
+    GetMessage* f = new GetMessage();
+    f->setProtocolVersion(version);
+    return f;
+  }
+
+  
+  std::map<unsigned int, Message*> FrameCodec::getMessages(GetMessage* frame){
+    std::map<unsigned int, Message*> out;
+    sendFrame(frame);
+    Frame * reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_Sequence){
+	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
+	  Frame * ob = recvFrame();
+	  if(ob != NULL && ob->getType() == ft02_Message){
+	    out[((Message*)ob)->getSlot()] = (Message*)ob;
+	  }else if(ob != NULL){
+	    std::cerr << "Expecting message frames, but got " << ob->getType() << " instead" << std::endl;
+	  }else{
+	    std::cerr << "Expecting message frames, but got NULL"  << std::endl;
+	  }
+	}
+      }else if(reply->getType() == ft02_Message){
+	out[((Message*)reply)->getSlot()] = (Message*)reply;
+      }else{
+	//error!
+	std::cerr << "Expected message or sequence frame, got " << reply->getType() << std::endl;
+      }
+    }else{
+      std::cerr << "Frame was null, expecting message or sequence" << std::endl;
+    }
+    return out;
+
+  }
 
   void FrameCodec::sendFrame(Frame *f){
 
@@ -312,6 +349,10 @@ namespace TPProto {
 
     case ft02_Board:
       frame = new Board();
+      break;
+
+    case ft02_Message:
+      frame = new Message();
       break;
 
     default:
