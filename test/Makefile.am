@@ -1,5 +1,5 @@
-TESTS = simpletest 
-check_PROGRAMS = $(TESTS)
+TESTS = simpletest nettest.sh 
+check_PROGRAMS = simpletest nettest
 
 INCLUDES = -I$(top_srcdir)/src
 
@@ -9,9 +9,10 @@ simpletest_LDADD= \
     $(top_srcdir)/tpproto/libtpproto.la
 
 
+nettest_SOURCES = nettest.cpp
 
-
-
+nettest_LDADD= \
+    $(top_srcdir)/tpproto/libtpproto.la
 
 
 
