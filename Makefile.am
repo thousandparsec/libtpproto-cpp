@@ -1,0 +1,2 @@
+SUBDIRS = tpproto test
+
