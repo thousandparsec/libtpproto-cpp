@@ -9,5 +9,9 @@ namespace TPProto{
   bool TPSocket::isConnected(){
     return false;
   }
+
+  bool TPSocket::poll(){
+    return false;
+  }
   
 }

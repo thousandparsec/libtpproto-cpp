@@ -16,6 +16,8 @@ namespace TPProto{
     virtual int recvHeader(int len, char* &data) = 0;
     virtual int recvBody(int len, char * &data) = 0;
 
+    virtual bool poll();
+
   };
 
 }

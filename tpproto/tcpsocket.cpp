@@ -5,6 +5,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/select.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -160,6 +161,21 @@ namespace TPProto{
       return rlen;
     }
     return 0;
+  }
+
+  bool TcpSocket::poll(){
+    fd_set readfds;
+    struct timeval timeout;
+
+    // just poll, don't wait
+    timeout.tv_sec = 0;
+    timeout.tv_usec = 0;
+
+    FD_ZERO(&readfds);
+    FD_SET(sockfd, &readfds);
+
+    return (select(sockfd + 1, &readfds, NULL, NULL, &timeout) == 1);
+
   }
 
   void TcpSocket::setServerAddr(const char* host, const char* port){

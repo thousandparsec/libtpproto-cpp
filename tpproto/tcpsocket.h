@@ -19,6 +19,8 @@ namespace TPProto{
     int recvHeader(int len, char* &data);
     int recvBody(int len, char* &data);
 
+    bool poll();
+
     void setServerAddr(const char* host, const char* port = "6923");
 
   private:
