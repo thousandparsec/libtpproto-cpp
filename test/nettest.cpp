@@ -7,6 +7,9 @@
 #include <tpproto/message.h>
 #include <tpproto/getmessage.h>
 #include <tpproto/removemessage.h>
+#include <tpproto/order.h>
+#include <tpproto/getorder.h>
+#include <tpproto/removeorder.h>
 
 #include "downloadprintvisitor.h"
 #include "printasynclistener.h"
@@ -62,9 +65,78 @@ int main(int argc, char** argv){
 	  universe->visit(dpv);
 
 	  delete universe;
+
+	  int pob = dpv->getPlayableObject();
 	  delete dpv;
-	  
+
 	  std::cout << "Finished Visitor test, status: " << myfc->getStatus() << std::endl;
+	  
+	  std::cout << "Starting Order test" << std::endl;
+	  
+	  Order* order = myfc->createOrderFrame(0);
+	  order->setObjectId(pob);
+	  order->setSlot(0);
+	  if(myfc->insertOrder(order)){
+	    std::cout << "Successfully added order, status " << myfc->getStatus() << std::endl;
+	    delete order;
+	    
+	    GetOrder* gor = myfc->createGetOrderFrame();
+	    gor->addOrderId(0);
+	    gor->setObjectId(pob);
+	    std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
+	    order = orlist.begin()->second;
+	    std::cout << "Order: slot " << order->getSlot() << std::endl;
+	    std::cout << "obid: " << order->getObjectId() << std::endl;
+	    std::cout << "type: " << order->getOrderType() << std::endl;
+	    std::cout << "num turns: " << order->getNumTurns() << std::endl;
+	    std::cout << "num params: " << order->getNumParameters() << std::endl;
+
+	    //mod order
+	    order->setOrderType(1);
+	    
+	    if(myfc->replaceOrder(order)){
+	      std::cout << "Successfully replaced order, status " << myfc->getStatus() << std::endl;
+	      
+	      delete order;
+	      
+	      gor = myfc->createGetOrderFrame();
+	      gor->addOrderRange(0, 10);
+	      gor->setObjectId(pob);
+	      std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
+	      for(std::map<unsigned int, Order*>::iterator itcurr = orlist.begin(); itcurr != orlist.end(); ++itcurr){
+		std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
+		std::cout << "type: " << itcurr->second->getOrderType() << std::endl;
+		std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
+		std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+	      }
+
+	    }else{
+	      delete order;
+	      std::cout << "Failed to replaced order, status " << myfc->getStatus() << std::endl; 
+	      status = 10;
+	    }
+
+	    // remove order
+	    std::cout << "Trying to remove order" << std::endl;
+
+	    RemoveOrder* ro = myfc->createRemoveOrderFrame();
+	    ro->setObjectId(pob);
+	    ro->removeOrderId(0);
+	    if(myfc->removeOrders(ro) == 1){
+	      std::cout << "Successfully removed the one order" << std::endl;
+	    }else{
+	      std::cout << "Failed to remove the one order" << std::endl;
+	      status = 9;
+	    }
+	    delete ro;
+
+	  }else{
+	    delete order;
+	    std::cout << "Failed to added order, status " << myfc->getStatus() << std::endl;
+	    status = 8;
+	  }
+	  
+	  std::cout << "Order test complete, status " << myfc->getStatus() << std::endl;
 
 	  std::cout << "Starting Board test" << std::endl;
 
@@ -91,6 +163,7 @@ int main(int argc, char** argv){
 	      std::cout << "Posted message succeessfully, status " << myfc->getStatus() << std::endl;
 	    }else{
 	      std::cout << "Failed to post message, status " << myfc->getStatus() << std::endl;
+	      status = 7;
 	    }
 	    delete mymess;
 
@@ -124,6 +197,7 @@ int main(int argc, char** argv){
 	      std::cout << "Successfully removed the one message" << std::endl;
 	    }else{
 	      std::cout << "Failed to remove the one message" << std::endl;
+	      status = 6;
 	    }
 	    delete rm;
 
