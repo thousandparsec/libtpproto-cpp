@@ -16,6 +16,8 @@ namespace TPProto{
     long long unpackInt64();
     char* unpackString();
 
+    int peekInt(int offset);
+
     void createHeader(int ver, int seqnum, int type, int len);
     bool readHeader(int &ver, int &seqnum, int &type, int &len);
 

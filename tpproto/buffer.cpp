@@ -109,6 +109,12 @@ namespace TPProto{
     return rtnstr;
   }
 
+  int Buffer::peekInt(int offset){
+    int nval;
+    memcpy(&nval, data + offset, 4);
+    return ntohl(nval);
+  }
+
   void Buffer::createHeader(int ver, int seqnum, int type, int len){
     if(data != NULL)
       free(data);
