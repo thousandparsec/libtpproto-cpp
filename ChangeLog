@@ -1,3 +1,9 @@
+2005-01-25 Lee
+	* Doxygen comments for all library classes.
+	* make doc creates the docs.
+	* No code changes (except version number)
+	* version 0.0.3
+
 2004-12-22 Lee
 	* Valgrind used to fine many of the memory leaks
 	* version 0.0.2

@@ -1,9 +1,9 @@
-AC_INIT([libtpproto-cpp],[0.0.2],[lee@thousandparsec.net])
+AC_INIT([libtpproto-cpp],[0.0.3],[lee@thousandparsec.net])
 AC_CONFIG_SRCDIR(tpproto/framecodec.cpp)
 
 AC_CANONICAL_TARGET([])
 
-AM_INIT_AUTOMAKE(libtpproto-cpp, 0.0.2)
+AM_INIT_AUTOMAKE(libtpproto-cpp, 0.0.3)
 AM_CONFIG_HEADER(config.h)
 
 AM_MAINTAINER_MODE

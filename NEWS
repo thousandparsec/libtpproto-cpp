@@ -1,3 +1,9 @@
+2005-01-25 Lee
+No code changes in 0.0.3.  Just doxygen documentation for all classes in the 
+library.  Should be binary identical except for one byte (last part of the 
+version number.)
+It was quite an effect, so I hope it is appreciated.
+
 2004-12-22 Lee
 No real changes in 0.0.2 other than removing most (if not all of the current) memory
 leaks in the library.  Documentation is still coming  :-)
