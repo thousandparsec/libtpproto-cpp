@@ -18,6 +18,7 @@ namespace TPProto{
   class GetMessage;
   class Message;
   class RemoveMessage;
+  class AsyncFrameListener;
 
   class FrameCodec{
   public:
@@ -28,7 +29,7 @@ namespace TPProto{
 
     void setClientString(const std::string & name);
     void setSocket(TPSocket * nsock);
-
+    void setAsyncFrameListener(AsyncFrameListener* afl);
 
     //status
     int getStatus();
@@ -72,6 +73,7 @@ namespace TPProto{
     Object* createObject(Buffer *buf);
 
     TPSocket * sock;
+    AsyncFrameListener* asynclistener;
     int status;
     int version;
     std::string clientid;

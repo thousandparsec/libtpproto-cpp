@@ -35,6 +35,7 @@
 #include "removemessage.h"
 #include "gettime.h"
 #include "timeremaining.h"
+#include "asyncframelistener.h"
 
 
 #include "framecodec.h"
@@ -43,6 +44,7 @@ namespace TPProto {
 
   FrameCodec::FrameCodec(){
     sock = NULL;
+    asynclistener = NULL;
     status = 0;
     version = 2; // TPO2
     clientid = "Unknown client";
@@ -52,6 +54,9 @@ namespace TPProto {
   FrameCodec::~FrameCodec(){
     if(sock != NULL){
       delete sock;
+    }
+    if(asynclistener != NULL){
+      delete asynclistener;
     }
   }
 
@@ -64,6 +69,13 @@ namespace TPProto {
       delete sock;
     sock = nsock;
     status = 0;
+  }
+
+  void FrameCodec::setAsyncFrameListener(AsyncFrameListener* afl){
+    if(asynclistener != NULL){
+      delete asynclistener;
+    }
+    asynclistener = afl;
   }
 
   int FrameCodec::getStatus(){
@@ -445,6 +457,12 @@ namespace TPProto {
 
     if(sequ == 0){
       // async frame, send it on and try again.
+
+      if(asynclistener != NULL){
+	if(frame != NULL && frame->getType() == ft02_Time_Remaining){
+	  asynclistener->recvTimeRemaining((TimeRemaining*)frame);
+	}
+      }
 
       if(frame){
 	delete frame;
