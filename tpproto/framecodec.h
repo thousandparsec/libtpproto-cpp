@@ -13,6 +13,10 @@ namespace TPProto{
   class GetObjects;
   class Object;
   class Buffer;
+  class GetBoard;
+  class Board;
+  class GetMessage;
+  class Message;
 
   class FrameCodec{
   public:
@@ -40,8 +44,18 @@ namespace TPProto{
     std::map<unsigned int, Object*> getObjects(GetObjects * frame);
     Object* getUniverse();
 
+    //Orders
     //Order* createOrderFrame(int type);
 
+
+    //Boards and Messages
+    GetBoard* createGetBoardFrame();
+    std::map<unsigned int, Board*> getBoards(GetBoard* frame);
+    Board* getPersonalBoard();
+    GetMessage* createGetMessageFrame();
+    std::map<unsigned int, Message*> getMessages(GetMessage* frame);
+    Message* createMessageFrame();
+    bool postMessage(Message* frame);
     
     //send and receive frames
     void sendFrame(Frame * f);

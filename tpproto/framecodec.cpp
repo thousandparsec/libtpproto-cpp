@@ -276,6 +276,27 @@ namespace TPProto {
 
   }
 
+  Message* FrameCodec::createMessageFrame(){
+    Message* f = new Message();
+    f->setProtocolVersion(version);
+    return f;
+  }
+
+  bool FrameCodec::postMessage(Message* frame){
+    sendFrame(frame);
+    Frame* reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_OK){
+
+	delete reply;
+
+	return true;
+      }
+      delete reply;
+    }
+    return false;
+  }
+
   void FrameCodec::sendFrame(Frame *f){
 
     Buffer *data = new Buffer();
