@@ -4,6 +4,8 @@
 #include <tpproto/tcpsocket.h>
 #include <tpproto/object.h>
 #include <tpproto/board.h>
+#include <tpproto/message.h>
+#include <tpproto/getmessage.h>
 
 #include "downloadprintvisitor.h"
 
@@ -72,7 +74,24 @@ int main(int argc, char** argv){
 		      << myboard->numMessages() << std::endl;
 
 	    std::cout << "Board test finished" << std::endl;
-	    
+
+	    std::cout << "Starting Message test, status " << myfc->getStatus() << std::endl;
+
+	    GetMessage* gm = myfc->createGetMessageFrame();
+	    gm->addMessageRange(0, myboard->numMessages());
+	    std::map<unsigned int, Message*> messages = myfc->getMessages(gm);
+	    std::cout << "Downloaded messages" << std::endl;
+	    for(std::map<unsigned int, Message*>::iterator itcurr = messages.begin(); itcurr != messages.end();
+		++itcurr){
+	      Message* mess = (itcurr->second);
+	      std::cout << "Message on " << mess->getBoardId() << " in slot " << mess->getSlot() << " with type " << mess->getMessageType() << std::endl;
+	      std::cout << "Subject: " << mess->getSubject() << std::endl;
+	      std::cout << "Body: " << mess->getBody() << std::endl;
+	      delete mess;
+	    }
+
+	    std::cout << "Message test complete, status " << myfc->getStatus() << std::endl;
+
 	    delete myboard;
 
 	  }else{
