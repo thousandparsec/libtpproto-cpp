@@ -38,6 +38,7 @@
 #include "asyncframelistener.h"
 #include "order.h"
 #include "getorder.h"
+#include "removeorder.h"
 
 
 #include "framecodec.h"
@@ -244,6 +245,7 @@ namespace TPProto {
   Order* FrameCodec::createOrderFrame(int type){
     Order* f = new Order();
     f->setProtocolVersion(version);
+    f->setOrderType(type);
     //get description
     //add parameter objects
     return f;
@@ -258,62 +260,69 @@ namespace TPProto {
 	delete reply;
 	
 	return true;
+      }else{
+	std::cout << "Expected ok frame, got " << reply->getType() << std::endl;
       }
       delete reply;
+    }else{
+      std::cout << "Expected ok frame, got NULL" << std::endl;
     }
     return false;
   }
 
   bool FrameCodec::replaceOrder(Order* frame){
-    sendFrame(frame);
-    Frame* reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_OK){
+    if(frame->getSlot() >= 0 && insertOrder(frame)){
 	
-	delete reply;
-	
-	// much more here
-
+      // much more here
+      RemoveOrder* ro =  new RemoveOrder();
+      ro->setProtocolVersion(version);
+      ro->setObjectId(frame->getObjectId());
+      ro->removeOrderId(frame->getSlot() + 1);
+      if(removeOrders(ro) == 1){
+	delete ro;
 	return true;
       }
-      delete reply;
+
+      delete ro;
+
     }
+    
     return false;
 
   }
 
-//   RemoveOrder* FrameCodec::createRemoveOrderFrame(){
-//     RemoveOrder* f = new RemoveOrder();
-//     f->setProtocolVersion(version);
-//     return f;
-//   }
+  RemoveOrder* FrameCodec::createRemoveOrderFrame(){
+    RemoveOrder* f = new RemoveOrder();
+    f->setProtocolVersion(version);
+    return f;
+  }
 
-//   int FrameCodec::removeOrder(RemoveOrder* frame){
-//     int removed = 0;
-//     sendFrame(frame);
+  int FrameCodec::removeOrders(RemoveOrder* frame){
+    int removed = 0;
+    sendFrame(frame);
 
-//     Frame* reply = recvFrame();
-//     if(reply != NULL){
-//       if(reply->getType() == ft02_Sequence){
-// 	int num = ((Sequence*)reply)->getNumber();
-// 	for(int i = 0; i < num; i++){
-// 	  Frame* f = recvFrame();
-// 	  if(f == NULL)
-// 	    break;
-// 	  if(f->getType() == ft02_OK){
-// 	    removed++;
-// 	  }
-// 	  delete f;
-// 	}
-//       }else if(reply->getType() == ft02_OK){
-// 	removed++;
-//       }else{
-// 	std::cout << "Waiting for sequence or ok, got " << reply->getType() << std::endl;
-//       }
-//       delete reply;
-//     }
-//     return removed;
-//   }
+    Frame* reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_Sequence){
+	int num = ((Sequence*)reply)->getNumber();
+	for(int i = 0; i < num; i++){
+	  Frame* f = recvFrame();
+	  if(f == NULL)
+	    break;
+	  if(f->getType() == ft02_OK){
+	    removed++;
+	  }
+	  delete f;
+	}
+      }else if(reply->getType() == ft02_OK){
+	removed++;
+      }else{
+	std::cout << "Waiting for sequence or ok, got " << reply->getType() << std::endl;
+      }
+      delete reply;
+    }
+    return removed;
+  }
 
 
   GetBoard* FrameCodec::createGetBoardFrame(){
@@ -491,6 +500,7 @@ namespace TPProto {
     int rlen = sock->recvHeader(16, head);
     if(rlen != 16){
       //now what?
+      std::cout << "Could not read whole header" << std::endl;
       delete head;
       return NULL;
     }
@@ -502,19 +512,23 @@ namespace TPProto {
 
     if(!header->readHeader(fver, sequ, type, len)){
       // invalid header
+      std::cout << "Header invalid" << std::endl;
       delete header;
       return NULL;
     }
 
     if(fver != 2){
-      
+      std::cout << "Wrong verison of protocol, ver: " << fver << " sequ: " << sequ << " type: " << type << " len: " << len << std::endl;
       delete header;
+      sock->disconnect();
+      status = 0;
       return NULL;
     }
 
     rlen = sock->recvBody(len, body);
     if(rlen != len){
       //again, now what?
+      std::cout << "Could not read whole body" << std::endl;
       delete header;
       delete body;
       return NULL;
@@ -561,12 +575,17 @@ namespace TPProto {
 
     default:
       //others...
+      std::cout << "Received frame of type " << type << " but don't know what to do, setting return value to NULL" << std::endl;
       break;
     }
     
-    if(frame != NULL && !frame->unpackBuffer(data)){
-      delete frame;
-      frame = NULL;
+    if(frame != NULL){
+      frame->setProtocolVersion(fver);
+      if(!frame->unpackBuffer(data)){
+	delete frame;
+	std::cout << "Unpack Buffer failed" << std::endl;
+	frame = NULL;
+      }
     }
 
     if(sequ == 0){

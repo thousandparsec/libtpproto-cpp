@@ -56,8 +56,8 @@ namespace TPProto{
     Order* createOrderFrame(int type);
     bool insertOrder(Order* frame);
     bool replaceOrder(Order* frame);
-    //RemoveOrder* createRemoveOrderFrame();
-    //int removeOrders(RemoveOrder* frame); // returns number removed
+    RemoveOrder* createRemoveOrderFrame();
+    int removeOrders(RemoveOrder* frame); // returns number removed
 
     //Boards and Messages
     GetBoard* createGetBoardFrame();
