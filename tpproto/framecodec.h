@@ -19,6 +19,10 @@ namespace TPProto{
   class Message;
   class RemoveMessage;
   class AsyncFrameListener;
+  class GetOrder;
+  class Order;
+  class RemoveOrder;
+
 
   class FrameCodec{
   public:
@@ -47,8 +51,13 @@ namespace TPProto{
     Object* getUniverse();
 
     //Orders
-    //Order* createOrderFrame(int type);
-
+    GetOrder* createGetOrderFrame();
+    std::map<unsigned int, Order*> getOrders(GetOrder* frame);
+    Order* createOrderFrame(int type);
+    bool insertOrder(Order* frame);
+    bool replaceOrder(Order* frame);
+    //RemoveOrder* createRemoveOrderFrame();
+    //int removeOrders(RemoveOrder* frame); // returns number removed
 
     //Boards and Messages
     GetBoard* createGetBoardFrame();

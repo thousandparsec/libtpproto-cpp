@@ -36,6 +36,8 @@
 #include "gettime.h"
 #include "timeremaining.h"
 #include "asyncframelistener.h"
+#include "order.h"
+#include "getorder.h"
 
 
 #include "framecodec.h"
@@ -205,6 +207,114 @@ namespace TPProto {
     return (Object*)reply;
 	
   }
+
+
+  GetOrder* FrameCodec::createGetOrderFrame(){
+    GetOrder* f = new GetOrder();
+    f->setProtocolVersion(version);
+    return f;
+  }
+  
+  std::map<unsigned int, Order*> FrameCodec::getOrders(GetOrder* frame){
+    std::map<unsigned int, Order*> out;
+    sendFrame(frame);
+    Frame * reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_Sequence){
+	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
+	  Frame * ob = recvFrame();
+	  if(ob != NULL && ob->getType() == ft02_Order){
+	    out[((Order*)ob)->getSlot()] = (Order*)ob;
+	  }else{
+	    std::cerr << "Expecting order frames, but got " << ob->getType() << " instead" << std::endl;
+	  }
+	}
+      }else if(reply->getType() == ft02_Order){
+	out[((Order*)reply)->getSlot()] = (Order*)reply;
+      }else{
+	//error!
+	std::cerr << "Expected order or sequence frame, got " << reply->getType() << std::endl;
+      }
+    }else{
+      std::cerr << "Frame was null, expecting order or sequence" << std::endl;
+    }
+    return out;
+  }
+
+  Order* FrameCodec::createOrderFrame(int type){
+    Order* f = new Order();
+    f->setProtocolVersion(version);
+    //get description
+    //add parameter objects
+    return f;
+  }
+
+  bool FrameCodec::insertOrder(Order* frame){
+    sendFrame(frame);
+    Frame* reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_OK){
+	
+	delete reply;
+	
+	return true;
+      }
+      delete reply;
+    }
+    return false;
+  }
+
+  bool FrameCodec::replaceOrder(Order* frame){
+    sendFrame(frame);
+    Frame* reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_OK){
+	
+	delete reply;
+	
+	// much more here
+
+	return true;
+      }
+      delete reply;
+    }
+    return false;
+
+  }
+
+//   RemoveOrder* FrameCodec::createRemoveOrderFrame(){
+//     RemoveOrder* f = new RemoveOrder();
+//     f->setProtocolVersion(version);
+//     return f;
+//   }
+
+//   int FrameCodec::removeOrder(RemoveOrder* frame){
+//     int removed = 0;
+//     sendFrame(frame);
+
+//     Frame* reply = recvFrame();
+//     if(reply != NULL){
+//       if(reply->getType() == ft02_Sequence){
+// 	int num = ((Sequence*)reply)->getNumber();
+// 	for(int i = 0; i < num; i++){
+// 	  Frame* f = recvFrame();
+// 	  if(f == NULL)
+// 	    break;
+// 	  if(f->getType() == ft02_OK){
+// 	    removed++;
+// 	  }
+// 	  delete f;
+// 	}
+//       }else if(reply->getType() == ft02_OK){
+// 	removed++;
+//       }else{
+// 	std::cout << "Waiting for sequence or ok, got " << reply->getType() << std::endl;
+//       }
+//       delete reply;
+//     }
+//     return removed;
+//   }
+
 
   GetBoard* FrameCodec::createGetBoardFrame(){
     GetBoard* f = new GetBoard();
@@ -431,6 +541,10 @@ namespace TPProto {
 
     case ft02_Object:
       frame = createObject(data);
+      break;
+
+    case ft02_Order:
+      frame = new Order();
       break;
 
     case ft02_Time_Remaining:
