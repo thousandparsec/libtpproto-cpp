@@ -2,9 +2,12 @@
 #define TPPROTO_ORDERDESC_H
 
 #include <string>
+#include <list>
 #include <tpproto/frame.h>
 
 namespace TPProto{
+
+  class OrderParameter;
 
   class OrderDescription : public Frame{
   public:
@@ -17,12 +20,13 @@ namespace TPProto{
     unsigned int getOrderType();
     std::string getName();
     std::string getDescription();
-    //get args
+    std::list<OrderParameter*> getParameters();
 
   private:
     int otype;
     std::string name;
     std::string desc;
+    std::list<OrderParameter*> params;
 
   };
 

@@ -2,6 +2,7 @@
 #include <cassert>
 
 #include "buffer.h"
+#include "orderparameter.h"
 
 #include "orderdesc.h"
 
@@ -11,6 +12,10 @@ namespace TPProto{
   }
 
   OrderDescription::~OrderDescription(){
+    for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
+      delete *itcurr;
+    }
+    params.clear();
   }
 
   void OrderDescription::packBuffer(Buffer* buf){
@@ -45,7 +50,13 @@ namespace TPProto{
     return desc;
   }
 
-  
+  std::list<OrderParameter*> OrderDescription::getParameters(){
+    std::list<OrderParameter*> np;
+    for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
+      np.push_back((*itcurr)->clone());
+    }
+    return np;
+  }
 
 }
 

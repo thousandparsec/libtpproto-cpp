@@ -1,6 +1,7 @@
 
 
 #include "buffer.h"
+#include "orderparameter.h"
 
 #include "order.h"
 
@@ -10,6 +11,10 @@ namespace TPProto{
   }
 
   Order::~Order(){
+    for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
+      delete *itcurr;
+    }
+    params.clear();
   }
 
   void Order::packBuffer(Buffer* buf){
@@ -20,7 +25,9 @@ namespace TPProto{
     buf->packInt(0); // resource list
 
     //pack paramters
-    buf->packInt(1);
+    for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
+      (*itcurr)->packBuffer(buf);
+    }
 
     type = ft02_Order_Insert;
   }
@@ -34,6 +41,9 @@ namespace TPProto{
     buf->unpackInt(); // that had better be 0...
     
     //unpack parameters
+    for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
+      (*itcurr)->unpackBuffer(buf);
+    }
 
     type = ft02_Order;
     return true;
@@ -55,8 +65,21 @@ namespace TPProto{
     return numturns;
   }
 
-  int Order::getNumParameters(){
-    return 0;
+  unsigned int Order::getNumParameters(){
+    return params.size();
+  }
+
+  OrderParameter* Order::getParameter(unsigned int which){
+    if(which < params.size()){
+      std::list<OrderParameter*>::iterator itcurr = params.begin();
+      advance(itcurr, which);
+      if(itcurr != params.end()){
+	return *itcurr;
+      }
+    }
+    
+    return NULL;
+    
   }
 
   void Order::setObjectId(unsigned int oid){
@@ -69,6 +92,10 @@ namespace TPProto{
 
   void Order::setOrderType(int t){
     otype = t;
+  }
+
+  void Order::setParameters(const std::list<OrderParameter*>& nparams){
+    params = nparams;
   }
 
 }
