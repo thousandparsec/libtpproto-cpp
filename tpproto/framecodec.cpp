@@ -278,6 +278,8 @@ namespace TPProto {
     std::map<unsigned int, OrderDescription*>::iterator idesc = orderdescCache.find(type);
     if(idesc != orderdescCache.end()){
       // add parameters
+      f->setParameters((idesc->second)->getParameters());
+
       return f;
     }
 
@@ -308,8 +310,7 @@ namespace TPProto {
 
   bool FrameCodec::replaceOrder(Order* frame){
     if(frame->getSlot() >= 0 && insertOrder(frame)){
-	
-      // much more here
+      
       RemoveOrder* ro =  new RemoveOrder();
       ro->setProtocolVersion(version);
       ro->setObjectId(frame->getObjectId());
