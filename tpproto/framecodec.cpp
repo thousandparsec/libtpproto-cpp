@@ -1,4 +1,6 @@
 
+#include <iostream>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -152,9 +154,18 @@ namespace TPProto {
 	  Frame * ob = recvFrame();
 	  if(ob != NULL && ob->getType() == ft02_Object){
 	    out[((Object*)ob)->getId()] = (Object*)ob;
+	  }else{
+	    std::cerr << "Expecting object frames, but got " << ob->getType() << " instead" << std::endl;
 	  }
 	}
+      }else if(reply->getType() == ft02_Object){
+	out[((Object*)reply)->getId()] = (Object*)reply;
+      }else{
+	//error!
+	std::cerr << "Expected object or sequence frame, got " << reply->getType() << std::endl;
       }
+    }else{
+      std::cerr << "Frame was null, expecting object or sequence" << std::endl;
     }
     return out;
   }

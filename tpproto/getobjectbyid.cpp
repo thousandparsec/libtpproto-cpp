@@ -31,7 +31,7 @@ namespace TPProto{
   }
 
   void GetObjectByID::addObjectIDs(std::set<unsigned int> ids){
-    for(std::set<unsigned int>::iterator itcurr = idset.begin(); itcurr != idset.end(); ++itcurr){
+    for(std::set<unsigned int>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
       idset.insert(*itcurr);
     }
   }
