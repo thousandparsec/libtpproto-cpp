@@ -12,7 +12,7 @@ namespace TPProto{
   
   class ObjectVisitor{
   public:
-    virtual ~ObjectVisitor();
+    virtual ~ObjectVisitor(){};
 
     virtual void visit(Universe* ob) = 0;
     virtual void visit(Galaxy* ob) = 0;
