@@ -180,7 +180,7 @@ void DownloadPrintVisitor::visit(Object* ob){
     GetObjectByID* gobi = fc->createGetObjectByIDFrame();
     gobi->addObjectIDs(ob->getContainedObjectIds());
     std::map<unsigned int, Object*> oblist = fc->getObjects(gobi);
-    
+    delete gobi;
     std::cout << "Visiting contained objects, " << oblist.size() << " to visit" << std::endl;
     for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
       (itcurr->second)->visit(this);

@@ -23,7 +23,7 @@ namespace TPProto{
   bool OKFrame::unpackBuffer(Buffer *buf){
     char* temp = buf->unpackString();
     info = temp;
-    delete temp;
+    delete[] temp;
     
     type = ft02_OK;
 

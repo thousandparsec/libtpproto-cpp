@@ -6,6 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 #include <sys/select.h>
+#include <stdlib.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -24,9 +25,9 @@ namespace TPProto{
 
   TcpSocket::~TcpSocket(){
     if(hostname != NULL)
-      delete hostname;
+      delete[] hostname;
     if(portname != NULL)
-      delete portname;
+      delete[] portname;
   }
 
   bool TcpSocket::isConnected(){
@@ -143,7 +144,7 @@ namespace TPProto{
 
   int TcpSocket::recvHeader(int len, char* &data){
     if(status == 1){
-      data = new char[len];
+      data = (char*)malloc(len);
       int rlen = ::recv(sockfd, data, len, 0);
       if(rlen == 0)
 	status = 0;
@@ -154,7 +155,7 @@ namespace TPProto{
   
   int TcpSocket::recvBody(int len, char* &data){
     if(status == 1){
-      data = new char[len];
+      data = (char*)malloc(len);
       int rlen = ::recv(sockfd, data, len, 0);
       if(rlen == 0)
 	status = 0;

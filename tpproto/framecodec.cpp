@@ -130,12 +130,14 @@ namespace TPProto {
 	  //  or maybe error
 	  status = 2;
 	  logger->info("Connected");
-	  
+	  delete reply;
 	  return true;
 	}else{
 	  status = 0;
 	  logger->error("Could not connect");
 	  sock->disconnect();
+	  if(reply != NULL)
+	    delete reply;
 	}
       }else{
 	logger->error("Could not open socket to server");
@@ -153,6 +155,7 @@ namespace TPProto {
       login->setUser(username);
       login->setPass(password);
       sendFrame(login);
+      delete login;
 
       	Frame * reply = recvFrame();
 
@@ -161,12 +164,14 @@ namespace TPProto {
 	  //  or maybe error
 	  status = 3;
 	  logger->info("Logged in");
-	  
+	  delete reply;
 	  return true;
 	}else{
 	  logger->warning("Did not log in");
 	  //status = 0;
 	  //sock->disconnect();
+	  if(reply != NULL)
+	    delete reply;
 	}
 
     }
@@ -216,6 +221,7 @@ namespace TPProto {
 	    logger->debug("Expecting object frames, but got %d instead", ob->getType());
 	  }
 	}
+	delete reply;
       }else if(reply->getType() == ft02_Object){
 	out[((Object*)reply)->getId()] = (Object*)reply;
 	if(!((Object*)reply)->getAvailableOrders().empty()){
@@ -227,6 +233,7 @@ namespace TPProto {
       }else{
 	//error!
 	logger->debug("Expected object or sequence frame, got %d", reply->getType());
+	delete reply;
       }
     }else{
       logger->debug("Frame was null, expecting object or sequence");
@@ -241,10 +248,12 @@ namespace TPProto {
     GetObjectByID * fr = createGetObjectByIDFrame();
     fr->addObjectID(0);
     sendFrame(fr);
+    delete fr;
     Frame * reply = recvFrame();
     if(reply != NULL){
       if(reply->getType() == ft02_Sequence){
 	// hopefully only one 
+	delete reply;
 	reply = recvFrame();
       }
 
@@ -270,19 +279,22 @@ namespace TPProto {
 	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
 	  Frame * ob = recvFrame();
 	  if(ob != NULL && ob->getType() == ft02_Order){
-	    out[((Order*)ob)->getSlot()] = (Order*)ob;
+	      out[((Order*)ob)->getSlot()] = (Order*)ob;
 	  }else if(ob != NULL){
-	    logger->debug("Expecting order frames, but got %d instead", ob->getType());
+	      logger->debug("Expecting order frames, but got %d instead", ob->getType());
+	      delete ob;
 	  }else{
 	    logger->debug("Expecting order frames, but got NULL");
 	  
 	  }
 	}
+	delete reply;
       }else if(reply->getType() == ft02_Order){
 	out[((Order*)reply)->getSlot()] = (Order*)reply;
       }else{
 	//error!
 	logger->debug("Expected order or sequence frame, got %d", reply->getType());
+	delete reply;
       }
     }else{
       logger->debug("Frame was null, expecting order or sequence");
@@ -472,6 +484,7 @@ namespace TPProto {
     GetBoard * fr = createGetBoardFrame();
     fr->addBoardId(0);
     sendFrame(fr);
+    delete fr;
     Frame * reply = recvFrame();
     if(reply != NULL){
       if(reply->getType() == ft02_Sequence){
@@ -507,11 +520,13 @@ namespace TPProto {
 	    logger->debug("Expecting message frames, but got NULL");
 	  }
 	}
+	delete reply;
       }else if(reply->getType() == ft02_Message){
 	out[((Message*)reply)->getSlot()] = (Message*)reply;
       }else{
 	//error!
 	logger->debug("Expected message or sequence frame, got %d", reply->getType());
+	delete reply;
       }
     }else{
       logger->debug("Frame was null, expecting message or sequence");
@@ -632,6 +647,9 @@ namespace TPProto {
       
       sock->send(header->getData(), header->getLength(), data->getData(), data->getLength());
       
+      delete data;
+      delete header;
+
       if(nextseqnum == 0)
 	nextseqnum++;
       
@@ -676,17 +694,17 @@ namespace TPProto {
       
       Buffer * header = new Buffer();
       header->setData(head, rlen);
-      
+ 
       if(!header->readHeader(fver, sequ, type, len)){
 	// invalid header
 	logger->warning("Header invalid");
 	delete header;
 	return NULL;
       }
+      delete header;
       
       if(fver != 2){
 	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fver, sequ, type, len);
-	delete header;
 	sock->disconnect();
 	status = 0;
 	return NULL;
@@ -696,7 +714,6 @@ namespace TPProto {
       if(rlen != len){
 	//again, now what?
 	logger->warning("Could not read whole body");
-	delete header;
 	delete body;
 	return NULL;
       }
@@ -760,6 +777,8 @@ namespace TPProto {
 	}
       }
       
+      delete data;
+
       return frame;
     }
     return NULL;

@@ -1,3 +1,7 @@
+2004-12-22 Lee
+	* Valgrind used to fine many of the memory leaks
+	* version 0.0.2
+
 2004-11-06 Lee
 	* Full TP02 support
 	* Tests compile and run without error

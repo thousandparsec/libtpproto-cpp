@@ -20,7 +20,7 @@ namespace TPProto{
     obtype = buf->unpackInt();
     char* strbuf = buf->unpackString();
     name = strbuf;
-    delete strbuf;
+    delete[] strbuf;
     size = buf->unpackInt64();
     pos.unpack(buf);
     vel.unpack(buf);

@@ -1,3 +1,7 @@
+2004-12-22 Lee
+No real changes in 0.0.2 other than removing most (if not all of the current) memory
+leaks in the library.  Documentation is still coming  :-)
+
 2004-11-06 Lee
 I'm releasing 0.0.1 so that people can start working on clients using the library.
 There are two big problems:

@@ -7,6 +7,7 @@
 namespace TPProto{
 
   Message::Message(){
+    mtypes = 0;
   }
 
   Message::~Message(){
@@ -30,10 +31,10 @@ namespace TPProto{
     mtypes = buf->unpackInt();
     char* temp = buf->unpackString();
     subject = temp;
-    delete temp;
+    delete[] temp;
     temp = buf->unpackString();
     body = temp;
-    delete temp;
+    delete[] temp;
 
     type = ft02_Message;
 

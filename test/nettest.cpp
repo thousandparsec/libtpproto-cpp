@@ -85,6 +85,7 @@ int main(int argc, char** argv){
 	    gor->addOrderId(0);
 	    gor->setObjectId(pob);
 	    std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
+	    delete gor;
 	    order = orlist.begin()->second;
 	    std::cout << "Order: slot " << order->getSlot() << std::endl;
 	    std::cout << "obid: " << order->getObjectId() << std::endl;
@@ -105,11 +106,14 @@ int main(int argc, char** argv){
 	      gor->addOrderRange(0, 10);
 	      gor->setObjectId(pob);
 	      std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
+	      delete gor;
 	      for(std::map<unsigned int, Order*>::iterator itcurr = orlist.begin(); itcurr != orlist.end(); ++itcurr){
 		std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
 		std::cout << "type: " << itcurr->second->getOrderType() << std::endl;
 		std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
 		std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+
+		delete itcurr->second;
 	      }
 
 	    }else{
@@ -178,6 +182,7 @@ int main(int argc, char** argv){
 	    gm->setBoard(myboard->getId());
 	    gm->addMessageRange(0, myboard->numMessages());
 	    std::map<unsigned int, Message*> messages = myfc->getMessages(gm);
+	    delete gm;
 	    std::cout << "Downloaded messages" << std::endl;
 	    for(std::map<unsigned int, Message*>::iterator itcurr = messages.begin(); itcurr != messages.end();
 		++itcurr){
@@ -223,6 +228,7 @@ int main(int argc, char** argv){
 	    std::cout << "Board test failed, board is NULL, status " << myfc->getStatus() << std::endl;
 	    status = 5;
 	  }
+
 	}else{
 	  std::cout << "Failed to get Universe Object, status" << myfc->getStatus() << std::endl;
 	  status = 4;

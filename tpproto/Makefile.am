@@ -3,7 +3,7 @@
 lib_LTLIBRARIES = libtpproto.la
 
 
-libtpproto_la_LDFLAGS = -version-info 0:0:0
+libtpproto_la_LDFLAGS = -version-info 0:1:0
 libtpproto_la_SOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     connect.cpp okframe.cpp failframe.cpp login.cpp tcpsocket.cpp sequence.cpp\
     getobjectbyid.cpp vector3d.cpp getobjectbypos.cpp object.cpp \

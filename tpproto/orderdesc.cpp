@@ -34,10 +34,10 @@ namespace TPProto{
     otype = buf->unpackInt();
     char* temp = buf->unpackString();
     name = temp;
-    delete temp;
+    delete[] temp;
     temp = buf->unpackString();
     desc = temp;
-    delete temp;
+    delete[] temp;
 
     //unpack args
     int numparams = buf->unpackInt();
@@ -66,14 +66,14 @@ namespace TPProto{
       if(opm != NULL){
 	opm->setName(temp);
       }
-      delete temp;
+      delete[] temp;
 
       temp = buf->unpackString();
       if(opm != NULL){
 	opm->setDescription(temp);
 	params.push_back(opm);
       }
-      delete temp;
+      delete[] temp;
     }
     
     type = ft02_OrderDesc;

@@ -21,10 +21,10 @@ namespace TPProto{
     id = buf->unpackInt();
     char* temp = buf->unpackString();
     name = temp;
-    delete temp;
+    delete[] temp;
     temp = buf->unpackString();
     desc = temp;
-    delete temp;
+    delete[] temp;
 
     nummess = buf->unpackInt();
 

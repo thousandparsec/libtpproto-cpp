@@ -25,7 +25,7 @@ namespace TPProto{
     errcode = buf->unpackInt();
     char* temp = buf->unpackString();
     errstring = temp;
-    delete temp;
+    delete[] temp;
     
     type = ft02_Fail;
 
