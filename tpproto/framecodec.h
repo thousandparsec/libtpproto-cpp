@@ -56,6 +56,10 @@ namespace TPProto{
     std::map<unsigned int, Message*> getMessages(GetMessage* frame);
     Message* createMessageFrame();
     bool postMessage(Message* frame);
+
+
+    //Time
+    int getTimeRemaining();
     
     //send and receive frames
     void sendFrame(Frame * f);

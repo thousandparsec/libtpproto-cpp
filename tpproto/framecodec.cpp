@@ -32,6 +32,8 @@
 #include "board.h"
 #include "getmessage.h"
 #include "message.h"
+#include "gettime.h"
+#include "timeremaining.h"
 
 
 #include "framecodec.h"
@@ -297,6 +299,24 @@ namespace TPProto {
     return false;
   }
 
+
+  int FrameCodec::getTimeRemaining(){
+    GetTime* gt = new GetTime();
+    gt->setProtocolVersion(version);
+    sendFrame(gt);
+    delete gt;
+    Frame* reply = recvFrame();
+    if(reply != NULL && reply->getType() == ft02_Time_Remaining){
+      int time = ((TimeRemaining*)reply)->getTimeRemaining();
+      delete reply;
+      return time;
+    }
+    if(reply != NULL)
+      delete reply;
+    return -1;
+  }
+
+
   void FrameCodec::sendFrame(Frame *f){
 
     Buffer *data = new Buffer();
@@ -366,6 +386,10 @@ namespace TPProto {
 
     case ft02_Object:
       frame = createObject(data);
+      break;
+
+    case ft02_Time_Remaining:
+      frame = new TimeRemaining();
       break;
 
     case ft02_Board:
