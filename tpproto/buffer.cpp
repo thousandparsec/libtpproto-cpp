@@ -103,7 +103,8 @@ namespace TPProto{
       dataptr += len;
     } else {
       //Logger::getLogger()->debug("len < 0 or length < upackptr + len");
-      std::cout << "Buffer::unpackString(): len < 0 or length < upackptr + len" << std::endl;
+      std::cerr << "Buffer::unpackString(): len < 0 or length < upackptr + len" << std::endl;
+      std::cout << "len: " << len << " length: " << datalen << " upackptr: " << dataptr << std::endl;
     }
     //printf("unpackptr %d\n", unpackptr);
     return rtnstr;
