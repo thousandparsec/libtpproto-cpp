@@ -15,11 +15,15 @@ namespace TPProto{
 
     unsigned int getObjectId();
     int getSlot();
-    unsigned int getType();
+    unsigned int getOrderType();
     unsigned int getNumTurns();
 
     int getNumParameters();
     //OrderParameter* getParameter(int which);
+
+    void setObjectId(unsigned int oid);
+    void setSlot(int s);
+    void setOrderType(int t);
 
   private:
     unsigned int object;

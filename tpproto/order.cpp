@@ -20,6 +20,7 @@ namespace TPProto{
     buf->packInt(0); // resource list
 
     //pack paramters
+    buf->packInt(1);
 
     type = ft02_Order_Insert;
   }
@@ -46,7 +47,7 @@ namespace TPProto{
     return slot;
   }
 
-  unsigned int Order::getType(){
+  unsigned int Order::getOrderType(){
     return otype;
   }
 
@@ -58,6 +59,17 @@ namespace TPProto{
     return 0;
   }
 
+  void Order::setObjectId(unsigned int oid){
+    object = oid;
+  }
+
+  void Order::setSlot(int s){
+    slot = s;
+  }
+
+  void Order::setOrderType(int t){
+    otype = t;
+  }
 
 }
 
