@@ -28,6 +28,8 @@
 #include "starsystem.h"
 #include "planet.h"
 #include "fleet.h"
+#include "getboard.h"
+#include "board.h"
 
 
 #include "framecodec.h"
@@ -187,6 +189,56 @@ namespace TPProto {
 	
   }
 
+  GetBoard* FrameCodec::createGetBoardFrame(){
+    GetBoard* f = new GetBoard();
+    f->setProtocolVersion(version);
+    return f;
+  }
+
+  std::map<unsigned int, Board*> FrameCodec::getBoards(GetBoard* frame){
+    std::map<unsigned int, Board*> out;
+    sendFrame(frame);
+    Frame * reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_Sequence){
+	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
+	  Frame * ob = recvFrame();
+	  if(ob != NULL && ob->getType() == ft02_Board){
+	    out[((Board*)ob)->getId()] = (Board*)ob;
+	  }else{
+	    std::cerr << "Expecting Board frames, but got " << ob->getType() << " instead" << std::endl;
+	  }
+	}
+      }else if(reply->getType() == ft02_Board){
+	out[((Board*)reply)->getId()] = (Board*)reply;
+      }else{
+	//error!
+	std::cerr << "Expected board or sequence frame, got " << reply->getType() << std::endl;
+      }
+    }else{
+      std::cerr << "Frame was null, expecting board or sequence" << std::endl;
+    }
+    return out;
+  }
+
+
+  Board* FrameCodec::getPersonalBoard(){
+    GetBoard * fr = createGetBoardFrame();
+    fr->addBoardId(0);
+    sendFrame(fr);
+    Frame * reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_Sequence){
+	// hopefully only one 
+	reply = recvFrame();
+      }
+      
+    }
+    
+    return (Board*)reply;
+  }
+
+
   void FrameCodec::sendFrame(Frame *f){
 
     Buffer *data = new Buffer();
@@ -238,7 +290,7 @@ namespace TPProto {
     Buffer *data = new Buffer();
     data->setData(body, rlen);
     
-    Frame* frame;
+    Frame* frame = NULL;
 
     // may need to switch on version too
     switch(type){
@@ -256,6 +308,10 @@ namespace TPProto {
 
     case ft02_Object:
       frame = createObject(data);
+      break;
+
+    case ft02_Board:
+      frame = new Board();
       break;
 
     default:
