@@ -14,6 +14,7 @@ int main(int argc, char** argv){
 
   FrameCodec *myfc = new FrameCodec();
   myfc->setSocket(new TestSocket());
+  myfc->setClientString("SimpleTest");
 
   std::cout << "Test setup complete" << std::endl;
 
