@@ -11,6 +11,11 @@
 #include <tpproto/framecodec.h>
 #include <tpproto/getorder.h>
 #include <tpproto/order.h>
+#include <tpproto/orderparameter.h>
+#include <tpproto/spacecoord.h>
+#include <tpproto/timeparameter.h>
+#include <tpproto/objectparameter.h>
+#include <tpproto/listparameter.h>
 
 #include "downloadprintvisitor.h"
 
@@ -111,6 +116,9 @@ void DownloadPrintVisitor::visit(Planet* ob){
 	std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
 	
 	// for each parameter...
+	for(unsigned int i = 0; i < itcurr->second->getNumParameters(); i++){
+	  itcurr->second->getParameter(i)->visit(this);
+	}
 	
       }
     }
@@ -149,7 +157,9 @@ void DownloadPrintVisitor::visit(Fleet* ob){
 	std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
 	
 	// for each parameter...
-	
+	for(unsigned int i = 0; i < itcurr->second->getNumParameters(); i++){
+	  itcurr->second->getParameter(i)->visit(this);
+	}
       }
     }
   }
@@ -185,4 +195,30 @@ void DownloadPrintVisitor::setFrameCodec(FrameCodec* nfc){
 
 unsigned int DownloadPrintVisitor::getPlayableObject(){
   return funobject;
+}
+
+void DownloadPrintVisitor::visitOrderParam(SpaceCoordinates* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "Pos: <" << op->getX() << ", " << op->getY() << ", " << op->getZ() << ">" << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(TimeParameter* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "Time max: " << op->getMaximumTurns() << std::endl;
+  std::cout << "Turns: " << op->getTurns() << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(ObjectParameter* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "Objectid: " << op->getObjectId() << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(ListParameter* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "List parameter object and I'm lazy" << std::endl;
+}
+
+void DownloadPrintVisitor::printOParam(OrderParameter* op){
+  std::cout << "OrderParameter: Name: " << op->getName() << std::endl;
+  std::cout << "Description: " << op->getDescription() << std::endl;
 }

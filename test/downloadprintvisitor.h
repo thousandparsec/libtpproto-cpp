@@ -2,12 +2,18 @@
 #define DOWNLOADPRINTVISITOR_H
 
 #include <tpproto/objectvisitor.h>
+#include <tpproto/orderparametervisitor.h>
 
 namespace TPProto{
   class FrameCodec;
+  class OrderParameter;
+  class SpaceCoordinates;
+  class TimeParameter;
+  class ObjectParameter;
+  class ListParameter;
 }
 
-class DownloadPrintVisitor : public TPProto::ObjectVisitor{
+class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParameterVisitor{
  public:
   DownloadPrintVisitor();
   virtual ~DownloadPrintVisitor();
@@ -21,6 +27,12 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor{
 
   void setFrameCodec(TPProto::FrameCodec* nfc);
   unsigned int getPlayableObject();
+
+  void visitOrderParam(TPProto::SpaceCoordinates* op);
+  void visitOrderParam(TPProto::TimeParameter* op);
+  void visitOrderParam(TPProto::ObjectParameter* op);
+  void visitOrderParam(TPProto::ListParameter* op);
+  void printOParam(TPProto::OrderParameter* op);
 
  private:
   TPProto::FrameCodec * fc;
