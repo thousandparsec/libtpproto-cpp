@@ -625,35 +625,36 @@ namespace TPProto {
   }
 
   void FrameCodec::sendFrame(Frame *f){
-
-    Buffer *data = new Buffer();
-    f->packBuffer(data);
-    Buffer *header = new Buffer();
-    header->createHeader(f->getProtocolVersion(), nextseqnum++, f->getType(), data->getLength());
-
-    sock->send(header->getData(), header->getLength(), data->getData(), data->getLength());
-
-    if(nextseqnum == 0)
-      nextseqnum++;
-
+    if(status >= 1){
+      Buffer *data = new Buffer();
+      f->packBuffer(data);
+      Buffer *header = new Buffer();
+      header->createHeader(f->getProtocolVersion(), nextseqnum++, f->getType(), data->getLength());
+      
+      sock->send(header->getData(), header->getLength(), data->getData(), data->getLength());
+      
+      if(nextseqnum == 0)
+	nextseqnum++;
+      
+    }
   }
 
   Frame* FrameCodec::recvFrame(){
     Frame* frame = recvOneFrame();
-
-    if(frame->getSequenceNumber() == 0){
+    
+    if(frame != NULL && frame->getSequenceNumber() == 0){
       // async frame, send it on and try again.
-
+      
       if(asynclistener != NULL){
-	if(frame != NULL && frame->getType() == ft02_Time_Remaining){
+	if(frame->getType() == ft02_Time_Remaining){
 	  asynclistener->recvTimeRemaining((TimeRemaining*)frame);
 	}
       }
-
+      
       if(frame != NULL){
 	delete frame;
       }
-
+      
       frame = recvFrame();
     }
     
@@ -662,104 +663,107 @@ namespace TPProto {
   }
 
   Frame* FrameCodec::recvOneFrame(){
-    char* head, *body;
-    int rlen = sock->recvHeader(16, head);
-    if(rlen != 16){
-      //now what?
-      logger->warning("Could not read whole header");
-      delete head;
-      return NULL;
-    }
-    
-    int len, type, sequ, fver;
-    
-    Buffer * header = new Buffer();
-    header->setData(head, rlen);
-
-    if(!header->readHeader(fver, sequ, type, len)){
-      // invalid header
-      logger->warning("Header invalid");
-      delete header;
-      return NULL;
-    }
-
-    if(fver != 2){
-      logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fver, sequ, type, len);
-      delete header;
-      sock->disconnect();
-      status = 0;
-      return NULL;
-    }
-
-    rlen = sock->recvBody(len, body);
-    if(rlen != len){
-      //again, now what?
-      logger->warning("Could not read whole body");
-      delete header;
-      delete body;
-      return NULL;
-    }
-
-    Buffer *data = new Buffer();
-    data->setData(body, rlen);
-    
-    Frame* frame = NULL;
-
-    // may need to switch on version too
-    switch(type){
-    case ft02_OK:
-      frame = new OKFrame();
-      break;
-
-    case ft02_Fail:
-      frame = new FailFrame();
-      break;
-
-    case ft02_Sequence:
-      frame = new Sequence();
-      break;
-
-    case ft02_Object:
-      frame = createObject(data);
-      break;
-
-    case ft02_OrderDesc:
-      frame = new OrderDescription();
-      break;
-
-    case ft02_Order:
-      frame = createOrderFrame(data->peekInt(8));
-      break;
-
-    case ft02_Time_Remaining:
-      frame = new TimeRemaining();
-      break;
-
-    case ft02_Board:
-      frame = new Board();
-      break;
-
-    case ft02_Message:
-      frame = new Message();
-      break;
-
-    default:
-      //others...
-      logger->warning("Received frame of type %d but don't know what to do, setting return value to NULL", type);
-      break;
-    }
-    
-    if(frame != NULL){
-      frame->setProtocolVersion(fver);
-      frame->setSequenceNumber(sequ);
-      if(!frame->unpackBuffer(data)){
-	delete frame;
-	logger->error("Unpack Buffer failed");
-	frame = NULL;
+    if(status >= 1){
+      char* head, *body;
+      int rlen = sock->recvHeader(16, head);
+      if(rlen != 16){
+	//now what?
+	logger->warning("Could not read whole header");
+	delete head;
+	return NULL;
       }
+      
+      int len, type, sequ, fver;
+      
+      Buffer * header = new Buffer();
+      header->setData(head, rlen);
+      
+      if(!header->readHeader(fver, sequ, type, len)){
+	// invalid header
+	logger->warning("Header invalid");
+	delete header;
+	return NULL;
+      }
+      
+      if(fver != 2){
+	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fver, sequ, type, len);
+	delete header;
+	sock->disconnect();
+	status = 0;
+	return NULL;
+      }
+      
+      rlen = sock->recvBody(len, body);
+      if(rlen != len){
+	//again, now what?
+	logger->warning("Could not read whole body");
+	delete header;
+	delete body;
+	return NULL;
+      }
+      
+      Buffer *data = new Buffer();
+      data->setData(body, rlen);
+      
+      Frame* frame = NULL;
+      
+      // may need to switch on version too
+      switch(type){
+      case ft02_OK:
+	frame = new OKFrame();
+	break;
+	
+      case ft02_Fail:
+	frame = new FailFrame();
+	break;
+	
+      case ft02_Sequence:
+	frame = new Sequence();
+	break;
+	
+      case ft02_Object:
+	frame = createObject(data);
+	break;
+	
+      case ft02_OrderDesc:
+	frame = new OrderDescription();
+	break;
+	
+      case ft02_Order:
+	frame = createOrderFrame(data->peekInt(8));
+	break;
+	
+      case ft02_Time_Remaining:
+	frame = new TimeRemaining();
+	break;
+	
+      case ft02_Board:
+	frame = new Board();
+	break;
+	
+      case ft02_Message:
+	frame = new Message();
+	break;
+	
+      default:
+	//others...
+	logger->warning("Received frame of type %d but don't know what to do, setting return value to NULL", type);
+	break;
+      }
+      
+      if(frame != NULL){
+	frame->setProtocolVersion(fver);
+	frame->setSequenceNumber(sequ);
+	if(!frame->unpackBuffer(data)){
+	  delete frame;
+	  logger->error("Unpack Buffer failed");
+	  frame = NULL;
+	}
+      }
+      
+      return frame;
     }
-
-    return frame;
+    return NULL;
   }
 
   Object* FrameCodec::createObject(Buffer *buf){
