@@ -2,6 +2,7 @@
 
 #include <tpproto/framecodec.h>
 #include <tpproto/tcpsocket.h>
+#include <tpproto/object.h>
 
 using namespace TPProto;
 
@@ -37,6 +38,17 @@ int main(int argc, char** argv){
       
       if(myfc->login("test", "test")){
 	std::cout << "Login ok, status: " << myfc->getStatus() << std::endl;
+
+	Object* universe = myfc->getUniverse();
+	if(universe != NULL){
+	  
+	  std::cout << "Got the Universe object ok, status: " << myfc->getStatus() << std::endl;
+
+
+	}else{
+	  std::cout << "Failed to get Universe Object, status" << myfc->getStatus() << std::endl;
+	  status = 4;
+	}
 	
       }else{
 	std::cout << "Failed to login, status: " << myfc->getStatus() << std::endl;
