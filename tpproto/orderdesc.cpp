@@ -8,6 +8,9 @@
 #include "timeparameter.h"
 #include "objectparameter.h"
 #include "listparameter.h"
+#include "spacecoordrel.h"
+#include "rangeparameter.h"
+#include "stringparameter.h"
 
 #include "orderdesc.h"
 

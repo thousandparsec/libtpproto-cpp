@@ -7,6 +7,10 @@ namespace TPProto{
   class TimeParameter;
   class ObjectParameter;
   class ListParameter;
+  class PlayerParameter;
+  class SpaceCoordinatesRel;
+  class RangeParameter;
+  class StringParameter;
 
   class OrderParameterVisitor{
   public:
@@ -16,6 +20,10 @@ namespace TPProto{
     virtual void visitOrderParam(TimeParameter* op) = 0;
     virtual void visitOrderParam(ObjectParameter* op) = 0;
     virtual void visitOrderParam(ListParameter* op) = 0;
+    virtual void visitOrderParam(PlayerParameter* op) = 0;
+    virtual void visitOrderParam(SpaceCoordinatesRel* op) = 0;
+    virtual void visitOrderParam(RangeParameter* op) = 0;
+    virtual void visitOrderParam(StringParameter* op) = 0;
 
   };
 

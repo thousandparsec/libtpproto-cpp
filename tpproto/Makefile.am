@@ -11,7 +11,8 @@ libtpproto_la_SOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     board.cpp getboard.cpp getmessage.cpp message.cpp gettime.cpp timeremaining.cpp \
     removemessage.cpp order.cpp getorder.cpp removeorder.cpp \
     orderdesc.cpp getorderdesc.cpp orderparameter.cpp spacecoord.cpp timeparameter.cpp \
-    objectparameter.cpp listparameter.cpp
+    objectparameter.cpp listparameter.cpp playerparameter.cpp \
+    spacecoordrel.cpp rangeparameter.cpp stringparameter.cpp
 libtpprotodir = $(includedir)/tpproto
 libtpproto_HEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
@@ -20,7 +21,8 @@ libtpproto_HEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     board.h getboard.h getmessage.h message.h gettime.h timeremaining.h \
     removemessage.h asyncframelistener.h order.h getorder.h removeorder.h \
     orderdesc.h getorderdesc.h orderparameter.h spacecoord.h timeparameter.h \
-    objectparameter.h listparameter.h orderparametervisitor.h
+    objectparameter.h listparameter.h orderparametervisitor.h playerparameter.h \
+    spacecoordrel.h rangeparameter.h stringparameter.h
 
 
 
