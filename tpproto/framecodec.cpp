@@ -39,6 +39,8 @@
 #include "order.h"
 #include "getorder.h"
 #include "removeorder.h"
+#include "orderdesc.h"
+#include "getorderdesc.h"
 
 
 #include "framecodec.h"
@@ -247,8 +249,29 @@ namespace TPProto {
     f->setProtocolVersion(version);
     f->setOrderType(type);
     //get description
-    //add parameter objects
-    return f;
+//     GetOrderDescription* god = new GetOrderDescription();
+//     god->setProtocolVersion(version);
+//     god->addOrderType(type);
+//     sendFrame(god);
+//     delete god;
+    
+//     Frame* reply = recvFrame();
+//     if(reply != NULL){
+//       if(reply->getType() == ft02_OrderDesc){
+	
+// 	//add parameter objects
+	
+// 	delete reply;
+ 	return f;
+//       }else{
+// 	std::cout << "Expected Order Desc frame, got " << reply->getType() << std::endl;
+//       }
+//       delete reply;
+//     }else{
+//       std::cout << "Expected order desc frame, got NULL" << std::endl;
+//     }
+//     delete f;
+//     return NULL;
   }
 
   bool FrameCodec::insertOrder(Order* frame){
@@ -555,6 +578,10 @@ namespace TPProto {
 
     case ft02_Object:
       frame = createObject(data);
+      break;
+
+    case ft02_OrderDesc:
+      frame = new OrderDescription();
       break;
 
     case ft02_Order:
