@@ -6,6 +6,9 @@
 
 namespace TPProto{
 
+  OrderParameter::OrderParameter(){
+  }
+
   OrderParameter::OrderParameter(const OrderParameter& rhs){
     name = rhs.name;
     description = rhs.description;

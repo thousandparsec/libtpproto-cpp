@@ -3,6 +3,9 @@
 
 #include "buffer.h"
 #include "orderparameter.h"
+//order parameters
+#include "spacecoord.h"
+#include "timeparameter.h"
 
 #include "orderdesc.h"
 
@@ -32,6 +35,35 @@ namespace TPProto{
     delete temp;
 
     //unpack args
+    int numparams = buf->unpackInt();
+
+    for(int i = 0; i < numparams; i++){
+      temp = buf->unpackString();
+      int ptype = buf->unpackInt();
+      OrderParameter* opm = NULL;
+      switch(ptype){
+      case opT_Space_Coord_Abs:
+	opm = new SpaceCoordinates();
+	break;
+      case opT_Time:
+	opm = new TimeParameter();
+	break;
+
+      default:
+	break;
+      }
+      if(opm != NULL){
+	opm->setName(temp);
+      }
+      delete temp;
+
+      temp = buf->unpackString();
+      if(opm != NULL){
+	opm->setDescription(temp);
+	params.push_back(opm);
+      }
+      delete temp;
+    }
     
     type = ft02_OrderDesc;
 
