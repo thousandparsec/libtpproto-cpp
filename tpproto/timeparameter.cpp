@@ -1,6 +1,7 @@
 
 
 #include "buffer.h"
+#include "orderparametervisitor.h"
 
 #include "timeparameter.h"
 
@@ -33,6 +34,10 @@ namespace TPProto{
 
   OrderParameter* TimeParameter::clone(){
     return new TimeParameter(*this);
+  }
+
+  void TimeParameter::visit(OrderParameterVisitor* opv){
+    opv->visitOrderParam(this);
   }
 
   int TimeParameter::getMaximumTurns(){

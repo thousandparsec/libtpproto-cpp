@@ -1,6 +1,7 @@
 
 
 #include "buffer.h"
+#include "orderparametervisitor.h"
 
 #include "objectparameter.h"
 
@@ -28,6 +29,10 @@ namespace TPProto{
 
   OrderParameter* ObjectParameter::clone(){
     return new ObjectParameter(*this);
+  }
+
+  void ObjectParameter::visit(OrderParameterVisitor* opv){
+    opv->visitOrderParam(this);
   }
 
   unsigned int ObjectParameter::getObjectId(){

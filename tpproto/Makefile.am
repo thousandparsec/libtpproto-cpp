@@ -20,7 +20,7 @@ libtpproto_HEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     board.h getboard.h getmessage.h message.h gettime.h timeremaining.h \
     removemessage.h asyncframelistener.h order.h getorder.h removeorder.h \
     orderdesc.h getorderdesc.h orderparameter.h spacecoord.h timeparameter.h \
-    objectparameter.h listparameter.h
+    objectparameter.h listparameter.h orderparametervisitor.h
 
 
 

@@ -1,6 +1,7 @@
 
 
 #include "buffer.h"
+#include "orderparametervisitor.h"
 
 #include "listparameter.h"
 
@@ -50,6 +51,10 @@ namespace TPProto{
 
   OrderParameter* ListParameter::clone(){
     return new ListParameter(*this);
+  }
+
+  void ListParameter::visit(OrderParameterVisitor* opv){
+    opv->visitOrderParam(this);
   }
 
   bool ListParameter::setSelection(unsigned int id, unsigned int num){

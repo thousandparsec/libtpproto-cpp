@@ -1,6 +1,7 @@
 
 
 #include "buffer.h"
+#include "orderparametervisitor.h"
 
 #include "spacecoord.h"
 
@@ -37,6 +38,10 @@ namespace TPProto{
 
   OrderParameter* SpaceCoordinates::clone(){
     return new SpaceCoordinates(*this);
+  }
+
+  void SpaceCoordinates::visit(OrderParameterVisitor* opv){
+    opv->visitOrderParam(this);
   }
 
   long long SpaceCoordinates::getX(){

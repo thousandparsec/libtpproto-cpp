@@ -15,6 +15,7 @@ namespace TPProto{
     bool unpackBuffer(Buffer* buf);
 
     OrderParameter* clone();
+    void visit(OrderParameterVisitor* opv);
 
     long long getX();
     long long getY();

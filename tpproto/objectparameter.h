@@ -15,6 +15,7 @@ namespace TPProto{
     bool unpackBuffer(Buffer* buf);
 
     OrderParameter* clone();
+    void visit(OrderParameterVisitor* opv);
 
     unsigned int getObjectId();
     void setObjectId(unsigned int id);

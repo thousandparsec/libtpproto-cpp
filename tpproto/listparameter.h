@@ -18,6 +18,7 @@ namespace TPProto{
     bool unpackBuffer(Buffer* buf);
 
     OrderParameter* clone();
+    void visit(OrderParameterVisitor* opv);
 
     bool setSelection(unsigned int id, unsigned int num);
     unsigned int getSelection(unsigned int id);

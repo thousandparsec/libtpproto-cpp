@@ -20,6 +20,7 @@ namespace TPProto{
   };
 
   class Buffer;
+  class OrderParameterVisitor;
 
   class OrderParameter{
   public:
@@ -31,6 +32,7 @@ namespace TPProto{
     virtual bool unpackBuffer(Buffer* buf) = 0;
 
     virtual OrderParameter* clone() = 0;
+    virtual void visit(OrderParameterVisitor* opv) = 0;
 
     std::string getName();
     std::string getDescription();
