@@ -18,7 +18,9 @@ namespace TPProto{
   bool Object::unpackBuffer(Buffer* buf){
     id = buf->unpackInt();
     obtype = buf->unpackInt();
-    name = buf->unpackString();
+    char* strbuf = buf->unpackString();
+    name = strbuf;
+    delete strbuf;
     size = buf->unpackInt64();
     pos.unpack(buf);
     vel.unpack(buf);
@@ -37,6 +39,8 @@ namespace TPProto{
     buf->unpackInt();
     buf->unpackInt();
     buf->unpackInt();
+
+    type = ft02_Object;
 
     return true;
 

@@ -21,6 +21,7 @@ namespace TPProto{
 
   bool Sequence::unpackBuffer(Buffer* buf){
     num = buf->unpackInt();
+    type = ft02_Sequence;
     return true;
   }
 

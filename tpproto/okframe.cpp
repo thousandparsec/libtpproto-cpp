@@ -24,6 +24,9 @@ namespace TPProto{
     char* temp = buf->unpackString();
     info = temp;
     delete temp;
+    
+    type = ft02_OK;
+
     return true;
   }
 
