@@ -97,9 +97,9 @@ namespace TPProto{
     char *rtnstr = NULL;
     
     if (len > 0 && datalen >= dataptr + len) {
-      rtnstr = new char[len];
+      rtnstr = new char[len + 1];
       memcpy(rtnstr, data + dataptr, len);
-      
+      data[len] = '\0';
       dataptr += len;
     } else {
       //Logger::getLogger()->debug("len < 0 or length < upackptr + len");
