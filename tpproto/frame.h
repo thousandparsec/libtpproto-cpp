@@ -58,10 +58,14 @@ namespace TPProto{
     void setProtocolVersion(int ver);
     int getProtocolVersion();
 
+    void setSequenceNumber(unsigned int seq);
+    unsigned int getSequenceNumber();
+
     int getType();
 
   protected:
     int protoVer;
+    int seqnum;
     int type;
 
   private:

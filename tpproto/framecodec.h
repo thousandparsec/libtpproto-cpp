@@ -78,12 +78,16 @@ namespace TPProto{
 
     //Time
     int getTimeRemaining();
+
+    //polling
+    void pollForAsyncFrames();
     
     //send and receive frames
     void sendFrame(Frame * f);
     Frame* recvFrame();
 
   private:
+    Frame* recvOneFrame();
     Object* createObject(Buffer *buf);
 
     TPSocket * sock;

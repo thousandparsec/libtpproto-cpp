@@ -16,6 +16,14 @@ namespace TPProto{
     return protoVer;
   }
 
+  void Frame::setSequenceNumber(unsigned int seq){
+    seqnum = seq;
+  }
+
+  unsigned int Frame::getSequenceNumber(){
+    return seqnum;
+  }
+
   int Frame::getType(){
     return type;
   }

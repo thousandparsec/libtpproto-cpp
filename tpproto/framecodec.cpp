@@ -591,6 +591,38 @@ namespace TPProto {
     return -1;
   }
 
+  void FrameCodec::pollForAsyncFrames(){
+    if(status == 3){
+      if(sock->poll()){
+	Frame* frame = recvOneFrame();
+	if(frame != NULL){
+	  if(frame->getSequenceNumber() == 0){
+	    // async frame, send it on and try again.
+	    
+	    if(asynclistener != NULL){
+	      if(frame->getType() == ft02_Time_Remaining){
+		asynclistener->recvTimeRemaining((TimeRemaining*)frame);
+	      }else{
+		logger->warning("Unknown Async Frame type, ignoring");
+	      }
+	    }else{
+	      logger->warning("No AsyncFrameListener, discarding frame");
+	    }
+	  }else{
+	    logger->error("Was expecting Async frame but received a frame of type %d with sequence number %d",
+			  frame->getType(), frame->getSequenceNumber());
+	  }
+
+	  delete frame;
+	}else{
+	  logger->debug("Frame was null, should have been an async frame");
+	}
+      }
+
+    }else{
+      logger->warning("Trying to poll for async frames but not connected or logged in");
+    }
+  }
 
   void FrameCodec::sendFrame(Frame *f){
 
@@ -607,6 +639,29 @@ namespace TPProto {
   }
 
   Frame* FrameCodec::recvFrame(){
+    Frame* frame = recvOneFrame();
+
+    if(frame->getSequenceNumber() == 0){
+      // async frame, send it on and try again.
+
+      if(asynclistener != NULL){
+	if(frame != NULL && frame->getType() == ft02_Time_Remaining){
+	  asynclistener->recvTimeRemaining((TimeRemaining*)frame);
+	}
+      }
+
+      if(frame != NULL){
+	delete frame;
+      }
+
+      frame = recvFrame();
+    }
+    
+    return frame;
+
+  }
+
+  Frame* FrameCodec::recvOneFrame(){
     char* head, *body;
     int rlen = sock->recvHeader(16, head);
     if(rlen != 16){
@@ -696,6 +751,7 @@ namespace TPProto {
     
     if(frame != NULL){
       frame->setProtocolVersion(fver);
+      frame->setSequenceNumber(sequ);
       if(!frame->unpackBuffer(data)){
 	delete frame;
 	logger->error("Unpack Buffer failed");
@@ -703,24 +759,7 @@ namespace TPProto {
       }
     }
 
-    if(sequ == 0){
-      // async frame, send it on and try again.
-
-      if(asynclistener != NULL){
-	if(frame != NULL && frame->getType() == ft02_Time_Remaining){
-	  asynclistener->recvTimeRemaining((TimeRemaining*)frame);
-	}
-      }
-
-      if(frame != NULL){
-	delete frame;
-      }
-
-      frame = recvFrame();
-    }
-    
     return frame;
-
   }
 
   Object* FrameCodec::createObject(Buffer *buf){
