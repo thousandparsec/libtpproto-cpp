@@ -94,6 +94,12 @@ int main(int argc, char** argv){
 
 	    delete myboard;
 
+	    std::cout << "Starting Time test" << std::endl;
+
+	    std::cout << "Time remaining: " << myfc->getTimeRemaining() << std::endl;
+
+	    std::cout << "Time test complete, status " << myfc->getStatus() << std::endl;
+
 	  }else{
 	    std::cout << "Board test failed, board is NULL, status " << myfc->getStatus() << std::endl;
 	    status = 5;
