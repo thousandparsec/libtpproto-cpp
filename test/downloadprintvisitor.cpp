@@ -16,6 +16,10 @@
 #include <tpproto/timeparameter.h>
 #include <tpproto/objectparameter.h>
 #include <tpproto/listparameter.h>
+#include <tpproto/playerparameter.h>
+#include <tpproto/spacecoordrel.h>
+#include <tpproto/rangeparameter.h>
+#include <tpproto/stringparameter.h>
 
 #include "downloadprintvisitor.h"
 
@@ -216,6 +220,30 @@ void DownloadPrintVisitor::visitOrderParam(ObjectParameter* op){
 void DownloadPrintVisitor::visitOrderParam(ListParameter* op){
   printOParam((OrderParameter*)op);
   std::cout << "List parameter object and I'm lazy" << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(TPProto::PlayerParameter* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "PlayerId: " << op->getPlayerId() << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(TPProto::SpaceCoordinatesRel* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "Object Id: " << op->getObjectId() << std::endl;
+  std::cout << "Pos: <" << op->getPos().getX() << ", " << op->getPos().getY() << ", " << op->getPos().getZ() << ">" << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(TPProto::RangeParameter* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "Value: " << op->getValue() << std::endl;
+  std::cout << "Limits: " << op->getMinimum() << " to " << op->getMaximum() << std::endl;
+  std::cout << "Increment: " << op->getIncrement() << std::endl;
+}
+
+void DownloadPrintVisitor::visitOrderParam(TPProto::StringParameter* op){
+  printOParam((OrderParameter*)op);
+  std::cout << "Max length: " << op->getMaxLength() << std::endl;
+  std::cout << "String: " << op->getString() << std::endl;
 }
 
 void DownloadPrintVisitor::printOParam(OrderParameter* op){
