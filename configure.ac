@@ -49,6 +49,7 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
 
 
 AC_CONFIG_FILES([
+libtpproto.pc
 Makefile
 tpproto/Makefile
 test/Makefile
