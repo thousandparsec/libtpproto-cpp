@@ -20,9 +20,11 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor{
   void visit(TPProto::Object* ob);
 
   void setFrameCodec(TPProto::FrameCodec* nfc);
+  unsigned int getPlayableObject();
 
  private:
   TPProto::FrameCodec * fc;
+  unsigned int funobject;
 
 };
 
