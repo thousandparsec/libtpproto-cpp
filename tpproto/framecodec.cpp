@@ -22,6 +22,10 @@
 #include "getobjects.h"
 #include "object.h"
 #include "universe.h"
+#include "galaxy.h"
+#include "starsystem.h"
+#include "planet.h"
+#include "fleet.h"
 
 
 #include "framecodec.h"
@@ -273,6 +277,18 @@ namespace TPProto {
     switch(buf->peekInt(4)){
     case 0:
       ob = new Universe();
+      break;
+    case 1:
+      ob = new Galaxy();
+      break;
+    case 2:
+      ob = new StarSystem();
+      break;
+    case 3:
+      ob = new Planet();
+      break;
+    case 4:
+      ob = new Fleet();
       break;
 
     default:
