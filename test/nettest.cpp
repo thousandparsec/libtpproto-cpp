@@ -10,6 +10,7 @@
 #include <tpproto/order.h>
 #include <tpproto/getorder.h>
 #include <tpproto/removeorder.h>
+#include <tpproto/timeparameter.h>
 
 #include "downloadprintvisitor.h"
 #include "printasynclistener.h"
@@ -92,7 +93,8 @@ int main(int argc, char** argv){
 	    std::cout << "num params: " << order->getNumParameters() << std::endl;
 
 	    //mod order
-	    order->setOrderType(1);
+	    TimeParameter* timep = (TimeParameter*)order->getParameter(0);
+	    timep->setTurns(10);
 	    
 	    if(myfc->replaceOrder(order)){
 	      std::cout << "Successfully replaced order, status " << myfc->getStatus() << std::endl;
