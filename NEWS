@@ -1,0 +1,8 @@
+2004-11-06 Lee
+I'm releasing 0.0.1 so that people can start working on clients using the library.
+There are two big problems:
+1) it's not thread safe (could be a problem in graphical environments)
+2) there is no documentation
+I will work on these in the next release.  Probably documentation first.  The thread-safe issue
+is not easy to solve and might mean a complete rewrite, so it might not happen for a while.
+Let me know if you're using this library.  Any feedback is helpful.

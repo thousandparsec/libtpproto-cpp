@@ -1,3 +1,13 @@
 This is a client side protocol library for Thousand Parsec written in C++.
 More info at
 http://www.thousandparsec.net/tp/
+
+
+
+
+WARNING!!!!
+libtpproto-cpp is *not* even remotely thread safe.  This is bad and I know it.
+So be *very* careful about using it in multi-thread environments.
+
+Again:
+WARNING: libtpproto is NOT thread safe.
