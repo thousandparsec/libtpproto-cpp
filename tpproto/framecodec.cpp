@@ -14,6 +14,7 @@
 
 #include "okframe.h"
 #include "failframe.h"
+#include "sequence.h"
 #include "connect.h"
 #include "login.h"
 
@@ -63,7 +64,7 @@ namespace TPProto {
 	// send connect frame
 	Connect * cf = new Connect();
 	cf->setProtocolVersion(version);
-	cf->setClientString(std::string("libtpproto-") + VERSION + " " + clientid);
+	cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
 
 	sendFrame(cf);
 	delete cf;
@@ -184,7 +185,7 @@ namespace TPProto {
       break;
 
     case ft02_Sequence:
-
+      frame = new Sequence();
       break;
 
     default:
