@@ -6,6 +6,7 @@
 #include <tpproto/board.h>
 #include <tpproto/message.h>
 #include <tpproto/getmessage.h>
+#include <tpproto/removemessage.h>
 
 #include "downloadprintvisitor.h"
 
@@ -107,6 +108,20 @@ int main(int argc, char** argv){
 	      std::cout << "Body: " << mess->getBody() << std::endl;
 	      delete mess;
 	    }
+
+	    std::cout << "Message get and display complete, status " << myfc->getStatus() << std::endl;
+
+	    std::cout << "Starting message delete test" << std::endl;
+
+	    RemoveMessage* rm = myfc->createRemoveMessageFrame();
+	    rm->setBoard(myboard->getId());
+	    rm->removeMessageId(0); // remove the message we posted
+	    if(myfc->removeMessages(rm) == 1){
+	      std::cout << "Successfully removed the one message" << std::endl;
+	    }else{
+	      std::cout << "Failed to remove the one message" << std::endl;
+	    }
+	    delete rm;
 
 	    std::cout << "Message test complete, status " << myfc->getStatus() << std::endl;
 
