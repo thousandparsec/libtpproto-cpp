@@ -95,20 +95,22 @@ void DownloadPrintVisitor::visit(Planet* ob){
 
   std::cout << "Owned by: " << ob->getOwner() << std::endl;
 
-  std::cout << "Getting orders" << std::endl;
-
-  GetOrder* go = fc->createGetOrderFrame();
-  go->setObjectId(ob->getId());
-  go->addOrderRange(0, ob->getNumberOrders());
-  std::map<unsigned int, Order*> orders = fc->getOrders(go);
-  for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
-    std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
-    std::cout << "type: " << itcurr->second->getType() << std::endl;
-    std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
-    std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
-    
-    // for each parameter...
-
+  if(!ob->getAvailableOrders().empty() && ob->getNumberOrders() > 0){
+    std::cout << "Getting orders" << std::endl;
+    GetOrder* go = fc->createGetOrderFrame();
+    go->setObjectId(ob->getId());
+    go->addOrderRange(0, ob->getNumberOrders());
+    std::map<unsigned int, Order*> orders = fc->getOrders(go);
+    for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+      funobject = ob->getId();
+      std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
+      std::cout << "type: " << itcurr->second->getType() << std::endl;
+      std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
+      std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+      
+      // for each parameter...
+      
+    }
   }
 
   visit((Object*)ob);
@@ -128,19 +130,22 @@ void DownloadPrintVisitor::visit(Fleet* ob){
   std::cout << "ships: Scouts(" << ob->numShips(0) << "), Frigates(" << ob->numShips(1) << "), Battleships(" <<
     ob->numShips(2) << ")" << std::endl;
 
-  std::cout << "Getting orders" << std::endl;
-  GetOrder* go = fc->createGetOrderFrame();
-  go->setObjectId(ob->getId());
-  go->addOrderRange(0, ob->getNumberOrders());
-  std::map<unsigned int, Order*> orders = fc->getOrders(go);
-  for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+  if(!ob->getAvailableOrders().empty() && ob->getNumberOrders() > 0){
+    std::cout << "Getting orders" << std::endl;
+    GetOrder* go = fc->createGetOrderFrame();
+    go->setObjectId(ob->getId());
+    go->addOrderRange(0, ob->getNumberOrders());
+    std::map<unsigned int, Order*> orders = fc->getOrders(go);
+    for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+      funobject = ob->getId();
     std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
     std::cout << "type: " << itcurr->second->getType() << std::endl;
     std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
     std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
     
     // for each parameter...
-
+    
+    }
   }
 
   visit((Object*)ob);
@@ -170,4 +175,8 @@ void DownloadPrintVisitor::visit(Object* ob){
 
 void DownloadPrintVisitor::setFrameCodec(FrameCodec* nfc){
   fc = nfc;
+}
+
+unsigned int DownloadPrintVisitor::getPlayableObject(){
+  return funobject;
 }
