@@ -199,7 +199,7 @@ unsigned int DownloadPrintVisitor::getPlayableObject(){
 
 void DownloadPrintVisitor::visitOrderParam(SpaceCoordinates* op){
   printOParam((OrderParameter*)op);
-  std::cout << "Pos: <" << op->getX() << ", " << op->getY() << ", " << op->getZ() << ">" << std::endl;
+  std::cout << "Pos: <" << op->getPos().getX() << ", " << op->getPos().getY() << ", " << op->getPos().getZ() << ">" << std::endl;
 }
 
 void DownloadPrintVisitor::visitOrderParam(TimeParameter* op){

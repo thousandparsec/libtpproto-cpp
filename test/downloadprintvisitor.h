@@ -6,11 +6,6 @@
 
 namespace TPProto{
   class FrameCodec;
-  class OrderParameter;
-  class SpaceCoordinates;
-  class TimeParameter;
-  class ObjectParameter;
-  class ListParameter;
 }
 
 class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParameterVisitor{
