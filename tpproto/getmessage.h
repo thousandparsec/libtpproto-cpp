@@ -17,7 +17,7 @@ namespace TPProto{
     void setBoard(unsigned int board);
     void addMessageId(unsigned int id);
     void addMessageIds(std::set<unsigned int> ids);
-    // range is exclusive
+    // range is exclusive of end and inclusive of start
     void addMessageRange(unsigned int start, unsigned int end);
 
   private:
