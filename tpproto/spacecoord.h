@@ -1,6 +1,7 @@
 #ifndef TPPROTO_SPACECOORD_H
 #define TPPROTO_SPACECOORD_H
 
+#include <tpproto/vector3d.h>
 #include <tpproto/orderparameter.h>
 
 namespace TPProto{
@@ -17,16 +18,12 @@ namespace TPProto{
     OrderParameter* clone();
     void visit(OrderParameterVisitor* opv);
 
-    long long getX();
-    long long getY();
-    long long getZ();
+    Vector3d getPos();
 
-    void setAll(long long nx, long long ny, long long nz);
+    void setPos(const Vector3d& npos);
 
   private:
-    long long x;
-    long long y;
-    long long z;
+    Vector3d pos;
 
   };
 

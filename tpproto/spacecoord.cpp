@@ -8,31 +8,21 @@
 namespace TPProto{
 
   SpaceCoordinates::SpaceCoordinates(){
-    x = 0ll;
-    y = 0ll;
-    z = 0ll;
   }
 
   SpaceCoordinates::SpaceCoordinates(const SpaceCoordinates& rhs) : OrderParameter(rhs){
-    x = rhs.x;
-    y = rhs.y;
-    z = rhs.z;
+    pos = rhs.pos;
   }
 
   SpaceCoordinates::~SpaceCoordinates(){
   }
 
   void SpaceCoordinates::packBuffer(Buffer* buf){
-    buf->packInt64(x);
-    buf->packInt64(y);
-    buf->packInt64(z);
+    pos.pack(buf);
   }
 
   bool SpaceCoordinates::unpackBuffer(Buffer* buf){
-    x = buf->unpackInt64();
-    y = buf->unpackInt64();
-    z = buf->unpackInt64();
-
+    pos.unpack(buf);
     return true;
   }
 
@@ -44,22 +34,12 @@ namespace TPProto{
     opv->visitOrderParam(this);
   }
 
-  long long SpaceCoordinates::getX(){
-    return x;
+  Vector3d SpaceCoordinates::getPos(){
+    return pos;
   }
 
-  long long SpaceCoordinates::getY(){
-    return y;
-  }
-  
-  long long SpaceCoordinates::getZ(){
-    return z;
-  }
-
-  void SpaceCoordinates::setAll(long long nx, long long ny, long long nz){
-    x = nx;
-    y = ny;
-    z = nz;
+  void SpaceCoordinates::setPos(const Vector3d& npos){
+    pos = npos;
   }
 
 }
