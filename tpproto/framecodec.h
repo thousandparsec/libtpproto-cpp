@@ -17,6 +17,7 @@ namespace TPProto{
   class Board;
   class GetMessage;
   class Message;
+  class RemoveMessage;
 
   class FrameCodec{
   public:
@@ -56,6 +57,8 @@ namespace TPProto{
     std::map<unsigned int, Message*> getMessages(GetMessage* frame);
     Message* createMessageFrame();
     bool postMessage(Message* frame);
+    RemoveMessage* createRemoveMessageFrame();
+    int removeMessages(RemoveMessage* frame); // returns number removed
 
 
     //Time

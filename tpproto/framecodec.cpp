@@ -32,6 +32,7 @@
 #include "board.h"
 #include "getmessage.h"
 #include "message.h"
+#include "removemessage.h"
 #include "gettime.h"
 #include "timeremaining.h"
 
@@ -299,6 +300,38 @@ namespace TPProto {
     return false;
   }
 
+  RemoveMessage* FrameCodec::createRemoveMessageFrame(){
+    RemoveMessage* f = new RemoveMessage();
+    f->setProtocolVersion(version);
+    return f;
+  }
+
+  int FrameCodec::removeMessages(RemoveMessage* frame){
+    int removed = 0;
+    sendFrame(frame);
+
+    Frame* reply = recvFrame();
+    if(reply != NULL){
+      if(reply->getType() == ft02_Sequence){
+	int num = ((Sequence*)reply)->getNumber();
+	for(int i = 0; i < num; i++){
+	  Frame* f = recvFrame();
+	  if(f == NULL)
+	    break;
+	  if(f->getType() == ft02_OK){
+	    removed++;
+	  }
+	  delete f;
+	}
+      }else if(reply->getType() == ft02_OK){
+	removed++;
+      }else{
+	std::cout << "Waiting for sequence or ok, got " << reply->getType() << std::endl;
+      }
+      delete reply;
+    }
+    return removed;
+  }
 
   int FrameCodec::getTimeRemaining(){
     GetTime* gt = new GetTime();
