@@ -13,7 +13,7 @@ namespace TPProto{
 
   class OrderParameter;
 
-  /*! A description of orders as sent as a Frame.
+  /*! \brief A description of orders as sent as a Frame.
    */
   class OrderDescription : public Frame{
   public:

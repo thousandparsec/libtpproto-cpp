@@ -10,7 +10,7 @@
 
 namespace TPProto{
 
-  /*! The Frame for logging into a player on the server.
+  /*! \brief The Frame for logging into a player on the server.
    */
   class Login : public Frame{
   public:

@@ -10,7 +10,7 @@
 
 namespace TPProto{
 
-  /*! A Frame to get Orders from an Object on the server.
+  /*! \brief A Frame to get Orders from an Object on the server.
    */
   class GetOrder : public Frame{
   public:

@@ -10,7 +10,7 @@
 
 namespace TPProto{
 
-  /*! A Frame for getting OrderDescriptions.
+  /*! \brief A Frame for getting OrderDescriptions.
    */
   class GetOrderDescription : public Frame{
   public:
