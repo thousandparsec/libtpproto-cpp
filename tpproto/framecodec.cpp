@@ -293,13 +293,12 @@ namespace TPProto {
   Order* FrameCodec::createOrderFrame(int type){
     Order* f = new Order();
     f->setProtocolVersion(version);
-    f->setOrderType(type);
     //get description
 
     std::map<unsigned int, OrderDescription*>::iterator idesc = orderdescCache.find(type);
     if(idesc != orderdescCache.end()){
       // add parameters
-      f->setParameters((idesc->second)->getParameters());
+      f->setOrderType((idesc->second));
 
       return f;
     }

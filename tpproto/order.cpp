@@ -2,6 +2,7 @@
 
 #include "buffer.h"
 #include "orderparameter.h"
+#include "orderdesc.h"
 
 #include "order.h"
 
@@ -20,7 +21,7 @@ namespace TPProto{
   void Order::packBuffer(Buffer* buf){
     buf->packInt(object);
     buf->packInt(slot);
-    buf->packInt(otype);
+    buf->packInt(desc->getOrderType());
     buf->packInt(0); // numturns
     buf->packInt(0); // resource list
 
@@ -35,7 +36,8 @@ namespace TPProto{
   bool Order::unpackBuffer(Buffer* buf){
     object = buf->unpackInt();
     slot = buf->unpackInt();
-    otype = buf->unpackInt();
+    if(buf->unpackInt() != desc->getOrderType())
+      return false;
     numturns = buf->unpackInt();
     //resource lists are currently not used...
     buf->unpackInt(); // that had better be 0...
@@ -49,16 +51,24 @@ namespace TPProto{
     return true;
   }
 
+  std::string Order::getName(){
+    return desc->getName();
+  }
+
+  std::string Order::getDescription(){
+    return desc->getDescription();
+  }
+
+  unsigned int Order::getOrderType(){
+    return desc->getOrderType();
+  }
+
   unsigned int Order::getObjectId(){
     return object;
   }
 
   int Order::getSlot(){
     return slot;
-  }
-
-  unsigned int Order::getOrderType(){
-    return otype;
   }
 
   unsigned int Order::getNumTurns(){
@@ -90,12 +100,9 @@ namespace TPProto{
     slot = s;
   }
 
-  void Order::setOrderType(int t){
-    otype = t;
-  }
-
-  void Order::setParameters(const std::list<OrderParameter*>& nparams){
-    params = nparams;
+  void Order::setOrderType(OrderDescription* od){
+    desc = od;
+    params = od->getParameters();
   }
 
 }

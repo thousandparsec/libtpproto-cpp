@@ -2,11 +2,13 @@
 #define TPPROTO_ORDER_H
 
 #include <list>
+#include <string>
 #include <tpproto/frame.h>
 
 namespace TPProto{
 
   class OrderParameter;
+  class OrderDescription;
 
   class Order : public Frame{
   public:
@@ -16,9 +18,12 @@ namespace TPProto{
     void packBuffer(Buffer* buf);
     bool unpackBuffer(Buffer* buf);
 
+    std::string getName();
+    std::string getDescription();
+    unsigned int getOrderType();
+
     unsigned int getObjectId();
     int getSlot();
-    unsigned int getOrderType();
     unsigned int getNumTurns();
 
     unsigned int getNumParameters();
@@ -26,8 +31,7 @@ namespace TPProto{
 
     void setObjectId(unsigned int oid);
     void setSlot(int s);
-    void setOrderType(int t);
-    void setParameters(const std::list<OrderParameter*>& nparams);
+    void setOrderType(OrderDescription* od);
 
   private:
     unsigned int object;
@@ -36,6 +40,8 @@ namespace TPProto{
     unsigned int numturns;
 
     std::list<OrderParameter*> params;
+
+    OrderDescription* desc;
 
   };
 
