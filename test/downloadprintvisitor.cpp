@@ -9,6 +9,8 @@
 #include <tpproto/fleet.h>
 #include <tpproto/getobjectbyid.h>
 #include <tpproto/framecodec.h>
+#include <tpproto/getorder.h>
+#include <tpproto/order.h>
 
 #include "downloadprintvisitor.h"
 
@@ -89,8 +91,25 @@ void DownloadPrintVisitor::visit(Planet* ob){
     std::cout << (*itcurr) << " ";
   }
   std::cout << std::endl;
+  std::cout << "num orders: " << ob->getNumberOrders() << std::endl;
 
   std::cout << "Owned by: " << ob->getOwner() << std::endl;
+
+  std::cout << "Getting orders" << std::endl;
+
+  GetOrder* go = fc->createGetOrderFrame();
+  go->setObjectId(ob->getId());
+  go->addOrderRange(0, ob->getNumberOrders());
+  std::map<unsigned int, Order*> orders = fc->getOrders(go);
+  for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+    std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
+    std::cout << "type: " << itcurr->second->getType() << std::endl;
+    std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
+    std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+    
+    // for each parameter...
+
+  }
 
   visit((Object*)ob);
 }
@@ -102,11 +121,27 @@ void DownloadPrintVisitor::visit(Fleet* ob){
   std::cout << "name: " << ob->getName() << std::endl;
   std::cout << "type: " << ob->getObjectType() << std::endl;
   std::cout << "size: " << ob->getSize() << std::endl;
+  std::cout << "num orders: " << ob->getNumberOrders() << std::endl;
 
   std::cout << "Owned By: " << ob->getOwner() << std::endl;
   std::cout << "Damage: " << ob->getDamage() << std::endl;
   std::cout << "ships: Scouts(" << ob->numShips(0) << "), Frigates(" << ob->numShips(1) << "), Battleships(" <<
     ob->numShips(2) << ")" << std::endl;
+
+  std::cout << "Getting orders" << std::endl;
+  GetOrder* go = fc->createGetOrderFrame();
+  go->setObjectId(ob->getId());
+  go->addOrderRange(0, ob->getNumberOrders());
+  std::map<unsigned int, Order*> orders = fc->getOrders(go);
+  for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+    std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
+    std::cout << "type: " << itcurr->second->getType() << std::endl;
+    std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
+    std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+    
+    // for each parameter...
+
+  }
 
   visit((Object*)ob);
 }
