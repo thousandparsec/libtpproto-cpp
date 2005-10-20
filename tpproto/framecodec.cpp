@@ -1,4 +1,22 @@
-
+/*  FrameCodec class
+ *
+ *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 
 #ifdef HAVE_CONFIG_H
@@ -84,6 +102,8 @@ namespace TPProto {
       delete itcurr->second;
     }
     orderdescCache.clear();
+        clearIncomingFrames();
+
   }
 
   /*! \brief Sets the client string.
@@ -154,6 +174,7 @@ namespace TPProto {
   */
   bool FrameCodec::connect(){
     if(sock != NULL || status != 0){
+            clearIncomingFrames();
       if(sock->connect()){
 	logger->debug("Connection opened");
 	status = 1;
@@ -163,10 +184,14 @@ namespace TPProto {
 	cf->setProtocolVersion(version);
 	cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
 
-	sendFrame(cf);
+                uint32_t seqnum = sendFrame(cf);
 	delete cf;
 	
-	Frame * reply = recvFrame();
+                std::list<Frame*> replies = recvFrames(seqnum);
+                Frame * reply = NULL;
+                if(replies.size() >= 1){
+                    reply = replies.front();
+                }
 
 	if(reply != NULL && reply->getType() == ft02_OK){
 	  // expect OK back
@@ -204,10 +229,14 @@ namespace TPProto {
       login->setProtocolVersion(version);
       login->setUser(username);
       login->setPass(password);
-      sendFrame(login);
+      uint32_t seqnum = sendFrame(login);
       delete login;
 
-      	Frame * reply = recvFrame();
+            std::list<Frame*> replies = recvFrames(seqnum);
+            Frame * reply = NULL;
+            if(replies.size() >= 1){
+                reply = replies.front();
+            }
 
 	if(reply != NULL && reply->getType() == ft02_OK){
 	  // expect OK back
@@ -274,12 +303,12 @@ namespace TPProto {
   std::map<unsigned int, Object*> FrameCodec::getObjects(GetObjects * frame){
     std::map<unsigned int, Object*> out;
     std::set<unsigned int> ordertypes;
-    sendFrame(frame);
-    Frame * reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
-	  Frame * ob = recvFrame();
+        uint32_t seqnum = sendFrame(frame);
+
+        std::list<Frame*> replies = recvFrames(seqnum);
+
+        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
+            Frame * ob = *itcurr;
 	  if(ob != NULL && ob->getType() == ft02_Object){
 	    out[((Object*)ob)->getId()] = (Object*)ob;
 	    if(!((Object*)ob)->getAvailableOrders().empty()){
@@ -292,23 +321,7 @@ namespace TPProto {
 	    logger->debug("Expecting object frames, but got %d instead", ob->getType());
 	  }
 	}
-	delete reply;
-      }else if(reply->getType() == ft02_Object){
-	out[((Object*)reply)->getId()] = (Object*)reply;
-	if(!((Object*)reply)->getAvailableOrders().empty()){
-	  std::set<unsigned int> oldset = ordertypes;
-	  ordertypes.clear();
-	  std::set<unsigned int> obset = ((Object*)reply)->getAvailableOrders();
-	  set_union(oldset.begin(), oldset.end(), obset.begin(), obset.end(), inserter(ordertypes, ordertypes.begin()));
-	}
-      }else{
-	//error!
-	logger->debug("Expected object or sequence frame, got %d", reply->getType());
-	delete reply;
-      }
-    }else{
-      logger->debug("Frame was null, expecting object or sequence");
-    }
+
     if(!ordertypes.empty()){
       seedOrderDescriptionCache(ordertypes);
     }
@@ -323,17 +336,17 @@ namespace TPProto {
   Object* FrameCodec::getUniverse(){
     GetObjectByID * fr = createGetObjectByIDFrame();
     fr->addObjectID(0);
-    sendFrame(fr);
+        uint32_t seqnum = sendFrame(fr);
     delete fr;
-    Frame * reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	// hopefully only one 
-	delete reply;
-	reply = recvFrame();
-      }
-
-    }
+        std::list<Frame*> replies = recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+    
+        if(reply == NULL || reply->getType() != ft02_Object){
+            logger->error("Universe object isn't an object");
+        }
 
     return (Object*)reply;
 	
@@ -360,12 +373,12 @@ namespace TPProto {
   */
   std::map<unsigned int, Order*> FrameCodec::getOrders(GetOrder* frame){
     std::map<unsigned int, Order*> out;
-    sendFrame(frame);
-    Frame * reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
-	  Frame * ob = recvFrame();
+        uint32_t seqnum = sendFrame(frame);
+        delete frame;
+        std::list<Frame*> reply = recvFrames(seqnum);
+
+        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
+            Frame * ob = *itcurr;
 	  if(ob != NULL && ob->getType() == ft02_Order){
 	      out[((Order*)ob)->getSlot()] = (Order*)ob;
 	  }else if(ob != NULL){
@@ -376,17 +389,7 @@ namespace TPProto {
 	  
 	  }
 	}
-	delete reply;
-      }else if(reply->getType() == ft02_Order){
-	out[((Order*)reply)->getSlot()] = (Order*)reply;
-      }else{
-	//error!
-	logger->debug("Expected order or sequence frame, got %d", reply->getType());
-	delete reply;
-      }
-    }else{
-      logger->debug("Frame was null, expecting order or sequence");
-    }
+	
     return out;
   }
 
@@ -422,8 +425,12 @@ namespace TPProto {
   \returns True if successful, false otherwise.
   */
   bool FrameCodec::insertOrder(Order* frame){
-    sendFrame(frame);
-    Frame* reply = recvFrame();
+        uint32_t seqnum = sendFrame(frame);
+        std::list<Frame*> replies = recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
     if(reply != NULL){
       if(reply->getType() == ft02_OK){
 	
@@ -486,14 +493,11 @@ namespace TPProto {
   */
   int FrameCodec::removeOrders(RemoveOrder* frame){
     int removed = 0;
-    sendFrame(frame);
+        uint32_t seqnum = sendFrame(frame);
 
-    Frame* reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	int num = ((Sequence*)reply)->getNumber();
-	for(int i = 0; i < num; i++){
-	  Frame* f = recvFrame();
+        std::list<Frame*> replies = recvFrames(seqnum);
+        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
+            Frame* f = *itcurr;
 	  if(f == NULL)
 	    break;
 	  if(f->getType() == ft02_OK){
@@ -501,13 +505,6 @@ namespace TPProto {
 	  }
 	  delete f;
 	}
-      }else if(reply->getType() == ft02_OK){
-	removed++;
-      }else{
-	logger->debug("Waiting for sequence or ok, got %d", reply->getType());
-      }
-      delete reply;
-    }
     return removed;
   }
 
@@ -537,36 +534,24 @@ namespace TPProto {
       GetOrderDescription* god = new GetOrderDescription();
       god->setProtocolVersion(version);
       god->addOrderTypes(otypes);
-      sendFrame(god);
+            uint32_t seqnum = sendFrame(god);
       delete god;
       
-      Frame* reply = recvFrame();
-      if(reply != NULL){
-	if(reply->getType() == ft02_Sequence){
-	  for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
-	    Frame * ob = recvFrame();
-	    
+            std::list<Frame*> reply = recvFrames(seqnum);
+            for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
+                Frame * ob = *itcurr;
+
 	    if(ob != NULL && ob->getType() == ft02_OrderDesc){
 	      OrderDescription* od = (OrderDescription*)ob;
 	      orderdescCache[od->getOrderType()] = od;
 	    }else{
-	      logger->debug("Expected Order Desc frame, got %d", reply->getType());
+                    logger->debug("Expected Order Desc frame, got %d", ob->getType());
 	    }
 	  }
-	  delete reply;
-	}else if(reply->getType() == ft02_OrderDesc){
-	  OrderDescription* od = (OrderDescription*)reply;
-	  orderdescCache[od->getOrderType()] = od;
-	}else{
-	  logger->debug("Expected Order Desc frame, got %d", reply->getType());
-	}
-      }else{
-	logger->debug("Expected order desc or sequence frame, got NULL");
-      }
-      
+
     }
   }
-  
+
 
   /*! \brief Creates a GetBoard Frame.
 
@@ -587,27 +572,17 @@ namespace TPProto {
   */
   std::map<unsigned int, Board*> FrameCodec::getBoards(GetBoard* frame){
     std::map<unsigned int, Board*> out;
-    sendFrame(frame);
-    Frame * reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
-	  Frame * ob = recvFrame();
+        uint32_t seqnum = sendFrame(frame);
+        delete frame;
+        std::list<Frame*> reply = recvFrames(seqnum);
+        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
+            Frame * ob = *itcurr;
 	  if(ob != NULL && ob->getType() == ft02_Board){
 	    out[((Board*)ob)->getId()] = (Board*)ob;
 	  }else{
 	    logger->debug("Expecting Board frames, but got %d instead", ob->getType());
 	  }
 	}
-      }else if(reply->getType() == ft02_Board){
-	out[((Board*)reply)->getId()] = (Board*)reply;
-      }else{
-	//error!
-	logger->debug("Expected board or sequence frame, got %d", reply->getType());
-      }
-    }else{
-      logger->debug("Frame was null, expecting board or sequence");;
-    }
     return out;
   }
 
@@ -619,17 +594,14 @@ namespace TPProto {
   Board* FrameCodec::getPersonalBoard(){
     GetBoard * fr = createGetBoardFrame();
     fr->addBoardId(0);
-    sendFrame(fr);
+        uint32_t seqnum = sendFrame(fr);
     delete fr;
-    Frame * reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	// hopefully only one 
-	reply = recvFrame();
-      }
-      
-    }
-    
+        std::list<Frame*> replies = recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+
     return (Board*)reply;
   }
 
@@ -652,12 +624,11 @@ namespace TPProto {
   */
   std::map<unsigned int, Message*> FrameCodec::getMessages(GetMessage* frame){
     std::map<unsigned int, Message*> out;
-    sendFrame(frame);
-    Frame * reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	for(int i = 0; i < ((Sequence*)reply)->getNumber(); i++){
-	  Frame * ob = recvFrame();
+        uint32_t seqnum = sendFrame(frame);
+        delete frame;
+        std::list<Frame*> replies = recvFrames(seqnum);
+        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
+            Frame * ob = *itcurr;
 	  if(ob != NULL && ob->getType() == ft02_Message){
 	    out[((Message*)ob)->getSlot()] = (Message*)ob;
 	  }else if(ob != NULL){
@@ -666,17 +637,7 @@ namespace TPProto {
 	    logger->debug("Expecting message frames, but got NULL");
 	  }
 	}
-	delete reply;
-      }else if(reply->getType() == ft02_Message){
-	out[((Message*)reply)->getSlot()] = (Message*)reply;
-      }else{
-	//error!
-	logger->debug("Expected message or sequence frame, got %d", reply->getType());
-	delete reply;
-      }
-    }else{
-      logger->debug("Frame was null, expecting message or sequence");
-    }
+
     return out;
 
   }
@@ -699,8 +660,13 @@ namespace TPProto {
   \return True if successful, false otherwise.
   */
   bool FrameCodec::postMessage(Message* frame){
-    sendFrame(frame);
-    Frame* reply = recvFrame();
+        uint32_t seqnum = sendFrame(frame);
+        delete frame;
+        std::list<Frame*> replies = recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
     if(reply != NULL){
       if(reply->getType() == ft02_OK){
 
@@ -732,14 +698,12 @@ namespace TPProto {
   */
   int FrameCodec::removeMessages(RemoveMessage* frame){
     int removed = 0;
-    sendFrame(frame);
+        uint32_t seqnum = sendFrame(frame);
+        delete frame;
+        std::list<Frame*> reply = recvFrames(seqnum);
 
-    Frame* reply = recvFrame();
-    if(reply != NULL){
-      if(reply->getType() == ft02_Sequence){
-	int num = ((Sequence*)reply)->getNumber();
-	for(int i = 0; i < num; i++){
-	  Frame* f = recvFrame();
+        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
+            Frame* f = *itcurr;
 	  if(f == NULL)
 	    break;
 	  if(f->getType() == ft02_OK){
@@ -747,13 +711,7 @@ namespace TPProto {
 	  }
 	  delete f;
 	}
-      }else if(reply->getType() == ft02_OK){
-	removed++;
-      }else{
-	logger->debug("Waiting for sequence or ok, got %d", reply->getType());
-      }
-      delete reply;
-    }
+
     return removed;
   }
 
@@ -766,9 +724,14 @@ namespace TPProto {
   int FrameCodec::getTimeRemaining(){
     GetTime* gt = new GetTime();
     gt->setProtocolVersion(version);
-    sendFrame(gt);
-    delete gt;
-    Frame* reply = recvFrame();
+
+        uint32_t seqnum = sendFrame(gt);
+        delete gt;
+        std::list<Frame*> replies = recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
     if(reply != NULL && reply->getType() == ft02_Time_Remaining){
       int time = ((TimeRemaining*)reply)->getTimeRemaining();
       delete reply;
@@ -828,12 +791,13 @@ namespace TPProto {
   sequence number and increments the sequence number counter.
   \param f The Frame to send.
   */
-  void FrameCodec::sendFrame(Frame *f){
+  uint32_t FrameCodec::sendFrame(Frame *f){
     if(status >= 1){
       Buffer *data = new Buffer();
       f->packBuffer(data);
       Buffer *header = new Buffer();
-      header->createHeader(f->getProtocolVersion(), nextseqnum++, f->getType(), data->getLength());
+            uint32_t real_seqnum = nextseqnum++;
+            header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
       
       sock->send(header->getData(), header->getLength(), data->getData(), data->getLength());
       
@@ -843,7 +807,9 @@ namespace TPProto {
       if(nextseqnum == 0)
 	nextseqnum++;
       
+            return real_seqnum;
     }
+        return 0;
   }
 
   /*! \brief Receives a normal Frame.
@@ -852,7 +818,11 @@ namespace TPProto {
   to the AsyncFrameListener until a normal frame is received.
   \return The received Frame or NULL if no frame is received.
   */
-  Frame* FrameCodec::recvFrame(){
+    std::list<Frame*> FrameCodec::recvFrames(uint32_t seqnum){
+        if(seqnum != 0){
+            incomingframes[seqnum] = std::pair<uint32_t, std::list<Frame*>* >(1, new std::list<Frame*>());
+        }
+        while(seqnum == 0 || incomingframes[seqnum].first > incomingframes[seqnum].second->size()){
     Frame* frame = recvOneFrame();
     
     if(frame != NULL && frame->getSequenceNumber() == 0){
@@ -868,10 +838,35 @@ namespace TPProto {
 	delete frame;
       }
       
-      frame = recvFrame();
-    }
-    
-    return frame;
+            }else if(frame == NULL){
+                // connection closed, return what we have
+                break;
+            }else{
+                std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
+                if(framelist == NULL){
+                    framelist = new std::list<Frame*>();
+                    incomingframes[frame->getSequenceNumber()].second = framelist;
+                    incomingframes[frame->getSequenceNumber()].first = 1;
+                }
+                if(frame->getType() == ft02_Sequence){
+                    incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
+                    delete frame;
+                }else{
+                    framelist->push_back(frame);
+                }
+            }
+            if(seqnum == 0)
+                break;
+
+        }
+        if(seqnum != 0){
+            std::list<Frame*> rtv = *(incomingframes[seqnum].second);
+            delete incomingframes[seqnum].second;
+            incomingframes.erase(seqnum);
+            return rtv;
+        }else{
+            return std::list<Frame*>();
+        }
 
   }
 
@@ -1020,6 +1015,18 @@ namespace TPProto {
     return ob;
   }
 
-  
+    void FrameCodec::clearIncomingFrames(){
+        for(std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > >::iterator outeriter = incomingframes.begin();
+                outeriter != incomingframes.end(); ++outeriter){
+            std::list<Frame*> tmplist = *(outeriter->second.second);
+            for(std::list<Frame*>::iterator inneriter = tmplist.begin();
+                    inneriter != tmplist.end(); ++inneriter){
+                delete *inneriter;
+            }
+            delete outeriter->second.second;
+        }
+        incomingframes.clear();
+    }
+    
 }// namespace
 
