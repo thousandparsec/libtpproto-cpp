@@ -1,4 +1,5 @@
 #include <iostream>
+#include <stdarg.h>
 
 #include <tpproto/framecodec.h>
 #include <tpproto/tcpsocket.h>
@@ -11,11 +12,52 @@
 #include <tpproto/getorder.h>
 #include <tpproto/removeorder.h>
 #include <tpproto/timeparameter.h>
+#include <tpproto/logger.h>
 
 #include "downloadprintvisitor.h"
 #include "printasynclistener.h"
 
 using namespace TPProto;
+
+class StdoutLogger : public Logger{
+    public:
+        StdoutLogger(){}
+        virtual ~StdoutLogger(){}
+
+        void error(char* mesg, ...){
+            printf("[error] ");
+            va_list ap;
+            va_start(ap, mesg);
+            vprintf(mesg, ap);
+            va_end(ap);
+            printf("\n");
+        }
+        void warning(char* mesg, ...){
+            printf("[warning] ");
+            va_list ap;
+            va_start(ap, mesg);
+            vprintf(mesg, ap);
+            va_end(ap);
+            printf("\n");
+        }
+        void info(char* mesg, ...){
+            printf("[info] ");
+            va_list ap;
+            va_start(ap, mesg);
+            vprintf(mesg, ap);
+            va_end(ap);
+            printf("\n");
+        }
+        void debug(char* mesg, ...){
+            printf("[debug] ");
+            va_list ap;
+            va_start(ap, mesg);
+            vprintf(mesg, ap);
+            va_end(ap);
+            printf("\n");
+        }
+
+};
 
 int main(int argc, char** argv){
   int status = 0;
@@ -37,6 +79,7 @@ int main(int argc, char** argv){
       ts->setServerAddr(argv[1], argv[2]);
 
     FrameCodec *myfc = new FrameCodec();
+    myfc->setLogger(new StdoutLogger());
     myfc->setSocket(ts);
     myfc->setClientString("libtpproto-cpp_NetTest");
 
@@ -79,13 +122,13 @@ int main(int argc, char** argv){
 	  order->setSlot(0);
 	  if(myfc->insertOrder(order)){
 	    std::cout << "Successfully added order, status " << myfc->getStatus() << std::endl;
-	    delete order;
+	    //delete order;
 	    
 	    GetOrder* gor = myfc->createGetOrderFrame();
 	    gor->addOrderId(0);
 	    gor->setObjectId(pob);
 	    std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
-	    delete gor;
+	    //delete gor;
 	    order = orlist.begin()->second;
 	    std::cout << "Order: slot " << order->getSlot() << std::endl;
 	    std::cout << "obid: " << order->getObjectId() << std::endl;
@@ -100,13 +143,13 @@ int main(int argc, char** argv){
 	    if(myfc->replaceOrder(order)){
 	      std::cout << "Successfully replaced order, status " << myfc->getStatus() << std::endl;
 	      
-	      delete order;
+	      //delete order;
 	      
 	      gor = myfc->createGetOrderFrame();
 	      gor->addOrderRange(0, 10);
 	      gor->setObjectId(pob);
 	      std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
-	      delete gor;
+	      //delete gor;
 	      for(std::map<unsigned int, Order*>::iterator itcurr = orlist.begin(); itcurr != orlist.end(); ++itcurr){
 		std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
 		std::cout << "type: " << itcurr->second->getOrderType() << std::endl;
@@ -117,7 +160,7 @@ int main(int argc, char** argv){
 	      }
 
 	    }else{
-	      delete order;
+	      //delete order;
 	      std::cout << "Failed to replaced order, status " << myfc->getStatus() << std::endl; 
 	      status = 10;
 	    }
@@ -171,7 +214,7 @@ int main(int argc, char** argv){
 	      std::cout << "Failed to post message, status " << myfc->getStatus() << std::endl;
 	      status = 7;
 	    }
-	    delete mymess;
+	    //delete mymess;
 
 	    std::cout << "Re-fetching board" << std::endl;
 
@@ -182,7 +225,7 @@ int main(int argc, char** argv){
 	    gm->setBoard(myboard->getId());
 	    gm->addMessageRange(0, myboard->numMessages());
 	    std::map<unsigned int, Message*> messages = myfc->getMessages(gm);
-	    delete gm;
+	    //delete gm;
 	    std::cout << "Downloaded messages" << std::endl;
 	    for(std::map<unsigned int, Message*>::iterator itcurr = messages.begin(); itcurr != messages.end();
 		++itcurr){
@@ -206,7 +249,7 @@ int main(int argc, char** argv){
 	      std::cout << "Failed to remove the one message" << std::endl;
 	      status = 6;
 	    }
-	    delete rm;
+	    //delete rm;
 
 	    std::cout << "Message test complete, status " << myfc->getStatus() << std::endl;
 
