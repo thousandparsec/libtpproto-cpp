@@ -65,14 +65,14 @@ namespace TPProto{
   }
 
   /*! \brief Gets the name of this order type.
-    /return The name of the order.
+    \return The name of the order.
   */
   std::string Order::getName(){
     return desc->getName();
   }
 
   /*! \brief Gets the text description of this order type.
-    /return The text description of the order.
+    \return The text description of the order.
   */
   std::string Order::getDescription(){
     return desc->getDescription();
