@@ -2,7 +2,7 @@
 #define TPPROTO_GETOBJECTBYID_H
 
 /*! \file
-  \brief Declares GetObjectByID Frame class.
+  \brief Declares GetObjectById Frame class.
 */
 
 #include <tpproto/getobjects.h>
@@ -13,10 +13,10 @@ namespace TPProto{
   /*! \brief Frame to send to the server to get one or more
     Object by objectid.
   */
-  class GetObjectByID : public GetObjects{
+    class GetObjectById : public GetObjects{
   public:
-    GetObjectByID();
-    virtual ~GetObjectByID();
+        GetObjectById();
+        virtual ~GetObjectById();
 
     void packBuffer(Buffer* buf);
     bool unpackBuffer(Buffer* buf);
@@ -24,7 +24,7 @@ namespace TPProto{
     void addObjectID(unsigned int id);
     void addObjectIDs(std::set<unsigned int> ids);
 
-  private:
+        protected:
     std::set<unsigned int> idset;
     
 

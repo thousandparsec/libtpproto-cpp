@@ -9,13 +9,13 @@ namespace TPProto{
 
   /*! \brief Default constructor.
    */
-  OKFrame::OKFrame(){
+  OkFrame::OkFrame(){
     info = "";
   }
 
   /*! \brief Required virtual destructor.
    */
-  OKFrame::~OKFrame(){
+  OkFrame::~OkFrame(){
 
   }
 
@@ -24,7 +24,7 @@ namespace TPProto{
   This Frame does not get sent to the server, so this method asserts zero.
   \param buf Buffer to pack into, ignored.
   */ 
-  void OKFrame::packBuffer(Buffer *buf){
+  void OkFrame::packBuffer(Buffer *buf){
     // should never send an OK frame
     assert(0);
   }
@@ -33,7 +33,7 @@ namespace TPProto{
     \param buf The Buffer to unpack out of.
     \return True if successful, false otherwise.
   */
-  bool OKFrame::unpackBuffer(Buffer *buf){
+  bool OkFrame::unpackBuffer(Buffer *buf){
     char* temp = buf->unpackString();
     info = temp;
     delete[] temp;
@@ -46,7 +46,7 @@ namespace TPProto{
   /*! \brief Gets the informational string sent in the OKFrame.
     \return The informational string.
   */
-  std::string OKFrame::getInfo(){
+  std::string OkFrame::getInfo(){
     return info;
   }
 

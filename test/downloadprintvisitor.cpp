@@ -177,7 +177,7 @@ void DownloadPrintVisitor::visit(Object* ob){
  
   if(ob->getContainedObjectIds().size() > 0){
     
-    GetObjectByID* gobi = fc->createGetObjectByIDFrame();
+    GetObjectById* gobi = fc->createGetObjectByIdFrame();
     gobi->addObjectIDs(ob->getContainedObjectIds());
     std::map<unsigned int, Object*> oblist = fc->getObjects(gobi);
     delete gobi;

@@ -13,6 +13,7 @@ namespace TPProto{
   GetObjectByPos::GetObjectByPos(){
     pos = Vector3d(0ll, 0ll, 0ll);
     rad = 0ll;
+        type = ft02_Object_GetByPos;
   }
 
   /*! \brief Required virtual destructor.

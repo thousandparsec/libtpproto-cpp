@@ -34,22 +34,46 @@ namespace TPProto{
 
   class TPSocket;
   class Frame;
-  class GetObjectByID;
-  class GetObjectByPos;
-  class GetObjects;
-  class Object;
   class Buffer;
-  class GetBoard;
-  class Board;
-  class GetMessage;
-  class Message;
-  class RemoveMessage;
   class AsyncFrameListener;
-  class GetOrder;
-  class Order;
-  class RemoveOrder;
-  class OrderDescription;
   class Logger;
+    class FrameFactory;
+    class OkFrame;
+    class FailFrame;
+    class Sequence;
+    class Connect;
+    class Login;
+    class Redirect;
+    class GetFeatures;
+    class Features;
+    class Ping;
+    class GetObjects;
+    class GetObjectById;
+    class GetObjectByPos;
+    class Object;
+    class GetObjectIdsList;
+    class GetObjectIdsByPos;
+    class GetObjectIdsByContainer;
+    class ObjectIdsList;
+    class GetOrderDescription;
+    class OrderDescription;
+    class GetOrderTypesList;
+    class OrderTypesList;
+    class GetOrder;
+    class Order;
+    class RemoveOrder;
+    class ProbeOrder;
+    class GetTime;
+    class TimeRemaining;
+    class GetBoard;
+    class Board;
+    class GetBoardIdsList;
+    class BoardIdsList;
+    class GetMessage;
+    class Message;
+    class RemoveMessage;
+    class GetResourceDescription;
+    class ResourceDescription;
 
     /*! \brief FrameCodec is the main working class the lower layer of libtpproto-cpp.
 
@@ -71,6 +95,7 @@ namespace TPProto{
     void setSocket(TPSocket * nsock);
     void setAsyncFrameListener(AsyncFrameListener* afl);
     void setLogger(Logger* nlog);
+        void setFrameFactory(FrameFactory* ff);
 
     //status
     int getStatus();
@@ -82,7 +107,7 @@ namespace TPProto{
     
 
     //Objects
-    GetObjectByID* createGetObjectByIDFrame();
+    GetObjectById* createGetObjectByIdFrame();
     GetObjectByPos* createGetObjectByPosFrame();
     std::map<unsigned int, Object*> getObjects(GetObjects * frame);
     Object* getUniverse();
@@ -127,6 +152,7 @@ namespace TPProto{
     TPSocket * sock;
     AsyncFrameListener* asynclistener;
     Logger* logger;
+        FrameFactory* factory;
     int status;
     int version;
     std::string clientid;

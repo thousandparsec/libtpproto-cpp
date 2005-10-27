@@ -29,7 +29,7 @@
 
 #include "tpsocket.h"
 #include "buffer.h"
-
+#include "framefactory.h"
 // Frame Types
 
 #include "okframe.h"
@@ -80,6 +80,7 @@ namespace TPProto {
     sock = NULL;
     asynclistener = NULL;
     logger = new SilentLogger();
+        factory = new FrameFactory();
     status = 0;
     version = 2; // TPO2
     clientid = "Unknown client";
@@ -156,6 +157,21 @@ namespace TPProto {
     logger->debug("Logger set");
   }
 
+    /*! \brief Sets the FrameFactory.
+
+    This method sets a new FrameFactory.  The old FrameFactory is deleted.  If the pointer
+    to the new FrameFactory is NULL, the default FrameFactory is used.
+    /param ff The new FrameFactory to use, or NULL
+    */
+    void FrameCodec::setFrameFactory(FrameFactory* ff){
+        delete factory;
+        factory = ff;
+        if(factory == NULL){
+            factory = new FrameFactory();
+        }
+        logger->debug("FrameFactory set");
+    }
+
   /*! \brief Gets the status of the connection.
     \return The status (int).
   */
@@ -180,8 +196,9 @@ namespace TPProto {
 	status = 1;
 
 	// send connect frame
-	Connect * cf = new Connect();
-	cf->setProtocolVersion(version);
+            factory->setProtocolVersion(version);
+            Connect * cf = factory->createConnect();
+	//cf->setProtocolVersion(version);
 	cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
 
                 uint32_t seqnum = sendFrame(cf);
@@ -225,8 +242,8 @@ namespace TPProto {
   */
   bool FrameCodec::login(const std::string &username, const std::string &password){
     if(status == 2 && sock->isConnected()){
-      Login * login = new Login();
-      login->setProtocolVersion(version);
+            Login * login = factory->createLogin();
+      //login->setProtocolVersion(version);
       login->setUser(username);
       login->setPass(password);
       uint32_t seqnum = sendFrame(login);
@@ -276,9 +293,8 @@ namespace TPProto {
   Creates the GetObjectByID object and sets the protocol version.
   \returns A new GetObjectByID object.
   */
-  GetObjectByID* FrameCodec::createGetObjectByIDFrame(){
-    GetObjectByID* rtv = new GetObjectByID();
-    rtv->setProtocolVersion(version);
+  GetObjectById* FrameCodec::createGetObjectByIdFrame(){
+        GetObjectById* rtv = factory->createGetObjectById();
     return rtv;
   }
 
@@ -288,9 +304,8 @@ namespace TPProto {
   \returns A new GetObjectByPos object.
   */
   GetObjectByPos* FrameCodec::createGetObjectByPosFrame(){
-    GetObjectByPos* rtv = new GetObjectByPos();
-    rtv->setProtocolVersion(version);
-    return rtv;
+        GetObjectByPos* rtv = factory->createGetObjectByPos();
+      return rtv;
   }
 
   /*! \brief Gets objects from the server.
@@ -334,7 +349,7 @@ namespace TPProto {
   \return The Object of the Universe.
   */
   Object* FrameCodec::getUniverse(){
-    GetObjectByID * fr = createGetObjectByIDFrame();
+        GetObjectById * fr = factory->createGetObjectById();
     fr->addObjectID(0);
         uint32_t seqnum = sendFrame(fr);
     delete fr;
@@ -359,8 +374,7 @@ namespace TPProto {
   \return A new GetOrder frame.
   */
   GetOrder* FrameCodec::createGetOrderFrame(){
-    GetOrder* f = new GetOrder();
-    f->setProtocolVersion(version);
+        GetOrder* f = factory->createGetOrder();
     return f;
   }
   
@@ -401,8 +415,7 @@ namespace TPProto {
   \return The new Order.
   */
   Order* FrameCodec::createOrderFrame(int type){
-    Order* f = new Order();
-    f->setProtocolVersion(version);
+        Order* f = factory->createOrder();
     //get description
 
     std::map<unsigned int, OrderDescription*>::iterator idesc = orderdescCache.find(type);
@@ -457,8 +470,7 @@ namespace TPProto {
   bool FrameCodec::replaceOrder(Order* frame){
     if(frame->getSlot() >= 0 && insertOrder(frame)){
       
-      RemoveOrder* ro =  new RemoveOrder();
-      ro->setProtocolVersion(version);
+      RemoveOrder* ro =  factory->createRemoveOrder();
       ro->setObjectId(frame->getObjectId());
       ro->removeOrderId(frame->getSlot() + 1);
       if(removeOrders(ro) == 1){
@@ -480,8 +492,7 @@ namespace TPProto {
   \return A new RemoveOrder frame.
   */
   RemoveOrder* FrameCodec::createRemoveOrderFrame(){
-    RemoveOrder* f = new RemoveOrder();
-    f->setProtocolVersion(version);
+        RemoveOrder* f = factory->createRemoveOrder();
     return f;
   }
 
@@ -531,8 +542,7 @@ namespace TPProto {
     }
 
     if(!otypes.empty()){
-      GetOrderDescription* god = new GetOrderDescription();
-      god->setProtocolVersion(version);
+      GetOrderDescription* god = factory->createGetOrderDescription();
       god->addOrderTypes(otypes);
             uint32_t seqnum = sendFrame(god);
       delete god;
@@ -559,8 +569,7 @@ namespace TPProto {
   \return A new GetBoard Frame.
   */
   GetBoard* FrameCodec::createGetBoardFrame(){
-    GetBoard* f = new GetBoard();
-    f->setProtocolVersion(version);
+        GetBoard* f = factory->createGetBoard();
     return f;
   }
 
@@ -592,7 +601,7 @@ namespace TPProto {
   \return The Board object for the Player's Board.
   */
   Board* FrameCodec::getPersonalBoard(){
-    GetBoard * fr = createGetBoardFrame();
+        GetBoard * fr = factory->createGetBoard();
     fr->addBoardId(0);
         uint32_t seqnum = sendFrame(fr);
     delete fr;
@@ -611,8 +620,7 @@ namespace TPProto {
   \return A new GetMessage frame.
   */
   GetMessage* FrameCodec::createGetMessageFrame(){
-    GetMessage* f = new GetMessage();
-    f->setProtocolVersion(version);
+        GetMessage* f = factory->createGetMessage();
     return f;
   }
 
@@ -648,8 +656,7 @@ namespace TPProto {
   \return A new Message object.
   */
   Message* FrameCodec::createMessageFrame(){
-    Message* f = new Message();
-    f->setProtocolVersion(version);
+        Message* f = factory->createMessage();
     return f;
   }
 
@@ -685,8 +692,7 @@ namespace TPProto {
   \returns A new RemoveMessage frame.
   */
   RemoveMessage* FrameCodec::createRemoveMessageFrame(){
-    RemoveMessage* f = new RemoveMessage();
-    f->setProtocolVersion(version);
+        RemoveMessage* f = factory->createRemoveMessage();
     return f;
   }
 
@@ -722,8 +728,7 @@ namespace TPProto {
   -1 if there was an error.
   */
   int FrameCodec::getTimeRemaining(){
-    GetTime* gt = new GetTime();
-    gt->setProtocolVersion(version);
+        GetTime* gt = factory->createGetTimeRemaining();
 
         uint32_t seqnum = sendFrame(gt);
         delete gt;
@@ -922,15 +927,15 @@ namespace TPProto {
       // may need to switch on version too
       switch(type){
       case ft02_OK:
-	frame = new OKFrame();
+	frame = factory->createOk();
 	break;
 	
       case ft02_Fail:
-	frame = new FailFrame();
+	frame = factory->createFail();
 	break;
 	
       case ft02_Sequence:
-	frame = new Sequence();
+          frame = factory->createSequence();
 	break;
 	
       case ft02_Object:
@@ -938,7 +943,7 @@ namespace TPProto {
 	break;
 	
       case ft02_OrderDesc:
-	frame = new OrderDescription();
+          frame = factory->createOrderDescription();
 	break;
 	
       case ft02_Order:
@@ -946,15 +951,15 @@ namespace TPProto {
 	break;
 	
       case ft02_Time_Remaining:
-	frame = new TimeRemaining();
+          frame = factory->createTimeRemaining();
 	break;
 	
       case ft02_Board:
-	frame = new Board();
+          frame = factory->createBoard();
 	break;
 	
       case ft02_Message:
-	frame = new Message();
+          frame = factory->createMessage();
 	break;
 	
       default:
