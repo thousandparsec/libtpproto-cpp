@@ -30,6 +30,7 @@
 #include "tpsocket.h"
 #include "buffer.h"
 #include "framefactory.h"
+#include "framebuilder.h"
 // Frame Types
 
 #include "okframe.h"
@@ -73,6 +74,8 @@ namespace TPProto {
     - no TPSocket
     - no AsyncFrameListener
     - SilentLogger for the Logger
+    - FrameFactory default framefactory
+    - FrameBuilder default framebuilder
     - version 2 of the protocol
     - "Unknown client" for the client string
   */
@@ -81,6 +84,9 @@ namespace TPProto {
     asynclistener = NULL;
     logger = new SilentLogger();
         factory = new FrameFactory();
+        builder = new FrameBuilder();
+        builder->setFrameCodec(this);
+        builder->setFrameFactory(factory);
     status = 0;
     version = 2; // TPO2
     clientid = "Unknown client";
@@ -97,6 +103,8 @@ namespace TPProto {
       delete asynclistener;
     }
     delete logger;
+    delete factory;
+    delete builder;
 
     for(std::map<unsigned int, OrderDescription*>::iterator itcurr = orderdescCache.begin(); 
 	itcurr != orderdescCache.end(); ++itcurr){
@@ -146,7 +154,7 @@ namespace TPProto {
 
   This method sets a new Logger.  The old Logger is deleted.  If the pointer
   to the new Logger is NULL, the default SilentLogger is used.
-  /param nlog The new Logger to use, or NULL
+  \param nlog The new Logger to use, or NULL
   */  
   void FrameCodec::setLogger(Logger* nlog){
     delete logger;
@@ -161,7 +169,7 @@ namespace TPProto {
 
     This method sets a new FrameFactory.  The old FrameFactory is deleted.  If the pointer
     to the new FrameFactory is NULL, the default FrameFactory is used.
-    /param ff The new FrameFactory to use, or NULL
+    \param ff The new FrameFactory to use, or NULL
     */
     void FrameCodec::setFrameFactory(FrameFactory* ff){
         delete factory;
@@ -170,6 +178,23 @@ namespace TPProto {
             factory = new FrameFactory();
         }
         logger->debug("FrameFactory set");
+    }
+
+    /*! \brief Sets the FrameBuilder.
+
+    This method sets a new FrameBuilder.  The old FrameBuilder is deleted.  If the pointer
+    to the new FrameBuilder is NULL, the default FrameBuilder is used.
+    \param ff The new FrameBuilder to use, or NULL
+    */
+    void FrameCodec::setFrameBuilder(FrameBuilder* fb){
+        delete builder;
+        builder = fb;
+        if(builder == NULL){
+            builder = new FrameBuilder();
+        }
+        builder->setFrameCodec(this);
+        builder->setFrameFactory(factory);
+        logger->debug("FrameBuilder set");
     }
 
   /*! \brief Gets the status of the connection.
@@ -922,60 +947,14 @@ namespace TPProto {
       Buffer *data = new Buffer();
       data->setData(body, rlen);
       
-      Frame* frame = NULL;
-      
-      // may need to switch on version too
-      switch(type){
-      case ft02_OK:
-	frame = factory->createOk();
-	break;
-	
-      case ft02_Fail:
-	frame = factory->createFail();
-	break;
-	
-      case ft02_Sequence:
-          frame = factory->createSequence();
-	break;
-	
-      case ft02_Object:
-	frame = createObject(data);
-	break;
-	
-      case ft02_OrderDesc:
-          frame = factory->createOrderDescription();
-	break;
-	
-      case ft02_Order:
-	frame = createOrderFrame(data->peekInt(8));
-	break;
-	
-      case ft02_Time_Remaining:
-          frame = factory->createTimeRemaining();
-	break;
-	
-      case ft02_Board:
-          frame = factory->createBoard();
-	break;
-	
-      case ft02_Message:
-          frame = factory->createMessage();
-	break;
-	
-      default:
+      Frame* frame = builder->buildFrame(type, data);
+
+      if(frame == NULL){
 	//others...
 	logger->warning("Received frame of type %d but don't know what to do, setting return value to NULL", type);
-	break;
-      }
-      
-      if(frame != NULL){
+      }else{
 	frame->setProtocolVersion(fver);
 	frame->setSequenceNumber(sequ);
-	if(!frame->unpackBuffer(data)){
-	  delete frame;
-	  logger->error("Unpack Buffer failed");
-	  frame = NULL;
-	}
       }
       
       delete data;
@@ -983,41 +962,6 @@ namespace TPProto {
       return frame;
     }
     return NULL;
-  }
-
-  /*! \brief Creates the correct Object object from the Buffer.
-
-  Looks at the contents of the buffer in order to create the correct 
-  Object based on the object type number.
-  \param buf The Buffer to create the Object from.
-  \return The created Object.
-  */
-  Object* FrameCodec::createObject(Buffer *buf){
-    Object* ob;
-
-    switch(buf->peekInt(4)){
-    case 0:
-      ob = new Universe();
-      break;
-    case 1:
-      ob = new Galaxy();
-      break;
-    case 2:
-      ob = new StarSystem();
-      break;
-    case 3:
-      ob = new Planet();
-      break;
-    case 4:
-      ob = new Fleet();
-      break;
-
-    default:
-      ob = NULL;
-      break;
-    }
-
-    return ob;
   }
 
     void FrameCodec::clearIncomingFrames(){

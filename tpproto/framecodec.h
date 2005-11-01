@@ -38,6 +38,7 @@ namespace TPProto{
   class AsyncFrameListener;
   class Logger;
     class FrameFactory;
+    class FrameBuilder;
     class OkFrame;
     class FailFrame;
     class Sequence;
@@ -96,6 +97,7 @@ namespace TPProto{
     void setAsyncFrameListener(AsyncFrameListener* afl);
     void setLogger(Logger* nlog);
         void setFrameFactory(FrameFactory* ff);
+        void setFrameBuilder(FrameBuilder* fb);
 
     //status
     int getStatus();
@@ -146,13 +148,13 @@ namespace TPProto{
 
   private:
     Frame* recvOneFrame();
-    Object* createObject(Buffer *buf);
     void clearIncomingFrames();
 
     TPSocket * sock;
     AsyncFrameListener* asynclistener;
     Logger* logger;
         FrameFactory* factory;
+        FrameBuilder* builder;
     int status;
     int version;
     std::string clientid;
