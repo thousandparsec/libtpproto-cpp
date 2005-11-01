@@ -31,6 +31,8 @@
 
 namespace TPProto{
 
+    class ProtocolLayer;
+
     class OkFrame;
     class FailFrame;
     class Sequence;
@@ -105,6 +107,7 @@ namespace TPProto{
 
         void setProtocolVersion(int ver);
         int getProtocolVersion() const;
+        void setProtocolLayer(ProtocolLayer* pl);
 
         virtual OkFrame* createOk();
         virtual FailFrame* createFail();
@@ -170,6 +173,7 @@ namespace TPProto{
 
     protected:
         int pver;
+        ProtocolLayer* layer;
 
     };
 

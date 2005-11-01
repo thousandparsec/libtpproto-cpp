@@ -37,8 +37,7 @@ namespace TPProto{
   class Buffer;
   class AsyncFrameListener;
   class Logger;
-    class FrameFactory;
-    class FrameBuilder;
+    class ProtocolLayer;
     class OkFrame;
     class FailFrame;
     class Sequence;
@@ -83,7 +82,8 @@ namespace TPProto{
         avoids a lot of unneccessary handling by the client and higher 
         layers.  The FrameCodec class is not the best way for a client
         to access a tp server, use the upper layers for that, but it can
-        be used if necessary.
+        be used if necessary. A ProtocolLayer must be set (by setting
+        this object as the FrameCodec for the ProtocolLayer).
     */
   class FrameCodec{
   public:
@@ -96,8 +96,7 @@ namespace TPProto{
     void setSocket(TPSocket * nsock);
     void setAsyncFrameListener(AsyncFrameListener* afl);
     void setLogger(Logger* nlog);
-        void setFrameFactory(FrameFactory* ff);
-        void setFrameBuilder(FrameBuilder* fb);
+        void setProtocolLayer(ProtocolLayer* pl);
 
     //status
     int getStatus();
@@ -153,8 +152,7 @@ namespace TPProto{
     TPSocket * sock;
     AsyncFrameListener* asynclistener;
     Logger* logger;
-        FrameFactory* factory;
-        FrameBuilder* builder;
+        ProtocolLayer* layer;
     int status;
     int version;
     std::string clientid;

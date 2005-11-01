@@ -2,6 +2,7 @@
 #include <iostream>
 
 #include <tpproto/framecodec.h>
+#include <tpproto/protocollayer.h>
 
 #include "testsocket.h"
 
@@ -15,6 +16,8 @@ int main(int argc, char** argv){
   FrameCodec *myfc = new FrameCodec();
   myfc->setSocket(new TestSocket());
   myfc->setClientString("SimpleTest");
+    ProtocolLayer* layer = new ProtocolLayer();
+    layer->setFrameCodec(myfc);
 
   std::cout << "Test setup complete" << std::endl;
 

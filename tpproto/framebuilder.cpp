@@ -1,4 +1,4 @@
-/*  FrameCodec class
+/*  FrameBuilder class
  *
  *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
  *
@@ -25,6 +25,7 @@
 
 #include "framefactory.h"
 #include "framecodec.h"
+#include "protocollayer.h"
 #include "buffer.h"
 #include "getorderdesc.h"
 
@@ -67,7 +68,6 @@ namespace TPProto{
     /*! \brief Constructs object and sets up defaults.
     */
     FrameBuilder::FrameBuilder(){
-        //factory = new FrameFactory();
     }
 
     /*! \brief Destructor.
@@ -75,21 +75,11 @@ namespace TPProto{
     FrameBuilder::~FrameBuilder(){
     }
 
-    /*! \brief Sets the FrameFactory.
-
-    This method sets a new FrameFactory.  The old FrameFactory is deleted.  If the pointer
-    to the new FrameFactory is NULL, the default FrameFactory is used.
-    \param ff The new FrameFactory to use, or NULL
+    /*! \brief Sets the ProtocolLayer.
+    \param ff The ProtocolLayer to use.
     */
-    void FrameBuilder::setFrameFactory(FrameFactory* ff){
-        factory = ff;
-    }
-
-    /*! \brief Sets the FrameCodec to use.
-    \param fc The FrameCodec to use.
-    */
-    void FrameBuilder::setFrameCodec(FrameCodec* fc){
-        codec = fc;
+    void FrameBuilder::setProtocolLayer(ProtocolLayer* pl){
+        layer = pl;
     }
 
     /*! \brief Builds a frame from it's type.
@@ -103,15 +93,15 @@ namespace TPProto{
         // may need to switch on version too
         switch(type){
         case ft02_OK:
-            frame = factory->createOk();
+            frame = layer->getFrameFactory()->createOk();
             break;
 
         case ft02_Fail:
-            frame = factory->createFail();
+            frame = layer->getFrameFactory()->createFail();
             break;
 
         case ft02_Sequence:
-            frame = factory->createSequence();
+            frame = layer->getFrameFactory()->createSequence();
             break;
 
         case ft02_Object:
@@ -119,7 +109,7 @@ namespace TPProto{
             break;
 
         case ft02_OrderDesc:
-            frame = factory->createOrderDescription();
+            frame = layer->getFrameFactory()->createOrderDescription();
             break;
 
         case ft02_Order:
@@ -127,79 +117,79 @@ namespace TPProto{
             break;
 
         case ft02_Time_Remaining:
-            frame = factory->createTimeRemaining();
+            frame = layer->getFrameFactory()->createTimeRemaining();
             break;
 
         case ft02_Board:
-            frame = factory->createBoard();
+            frame = layer->getFrameFactory()->createBoard();
             break;
 
         case ft02_Message:
-            frame = factory->createMessage();
+            frame = layer->getFrameFactory()->createMessage();
             break;
 
         case ft02_ResDesc:
-            frame = factory->createResourceDescription();
+            frame = layer->getFrameFactory()->createResourceDescription();
             break;
             
         case ft03_Redirect:
-            frame = factory->createRedirect();
+            frame = layer->getFrameFactory()->createRedirect();
             break;
             
         case ft03_Features:
-            frame = factory->createFeatures();
+            frame = layer->getFrameFactory()->createFeatures();
             break;
             
         case ft03_ObjectIds:
-            frame = factory->createObjectIdsList();
+            frame = layer->getFrameFactory()->createObjectIdsList();
             break;
             
         case ft03_OrderTypes:
-            frame = factory->createOrderTypesList();
+            frame = layer->getFrameFactory()->createOrderTypesList();
             break;
             
         case ft03_BoardIds:
-            frame = factory->createBoardIdsList();
+            frame = layer->getFrameFactory()->createBoardIdsList();
             break;
             
         case ft03_ResourceTypes:
-            frame = factory->createResourceTypesList();
+            frame = layer->getFrameFactory()->createResourceTypesList();
             break;
             
         case ft03_Player:
-            frame = factory->createPlayer();
+            frame = layer->getFrameFactory()->createPlayer();
             break;
             
         case ft03_Category:
-            frame = factory->createCategory();
+            frame = layer->getFrameFactory()->createCategory();
             break;
             
         case ft03_CategoryIds:
-            frame = factory->createCategoryIdsList();
+            frame = layer->getFrameFactory()->createCategoryIdsList();
             break;
             
         case ft03_Design:
-            frame = factory->createDesign();
+            frame = layer->getFrameFactory()->createDesign();
             break;
             
         case ft03_DesignIds:
-            frame = factory->createDesignIdsList();
+            frame = layer->getFrameFactory()->createDesignIdsList();
             break;
             
         case ft03_Component:
-            frame = factory->createComponent();
+            frame = layer->getFrameFactory()->createComponent();
             break;
             
         case ft03_ComponentIds:
-            frame = factory->createComponentIdsList();
+            frame = layer->getFrameFactory()->createComponentIdsList();
             break;
             
         case ft03_Property:
-            frame = factory->createProperty();
+            frame = layer->getFrameFactory()->createProperty();
             break;
             
         case ft03_PropertyIds:
-            frame = factory->createPropertyIdsList();
+            frame = layer->getFrameFactory()->createPropertyIdsList();
             break;
 
         default:
@@ -255,12 +245,12 @@ namespace TPProto{
     \param type The Order type.
     */
     Order* FrameBuilder::buildOrder(uint32_t type){
-        GetOrderDescription* god = factory->createGetOrderDescription();
+        GetOrderDescription* god = layer->getFrameFactory()->createGetOrderDescription();
         god->addOrderType(type);
-        uint32_t seq = codec->sendFrame(god);
-        OrderDescription* od = dynamic_cast<OrderDescription*>(codec->recvFrames(seq).front());
+        uint32_t seq = layer->getFrameCodec()->sendFrame(god);
+        OrderDescription* od = dynamic_cast<OrderDescription*>(layer->getFrameCodec()->recvFrames(seq).front());
         if(od != NULL){
-            Order* f = factory->createOrder();
+            Order* f = layer->getFrameFactory()->createOrder();
             f->setOrderType(od);
             return f;
         }

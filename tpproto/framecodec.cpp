@@ -31,6 +31,7 @@
 #include "buffer.h"
 #include "framefactory.h"
 #include "framebuilder.h"
+#include "protocollayer.h"
 // Frame Types
 
 #include "okframe.h"
@@ -74,8 +75,6 @@ namespace TPProto {
     - no TPSocket
     - no AsyncFrameListener
     - SilentLogger for the Logger
-    - FrameFactory default framefactory
-    - FrameBuilder default framebuilder
     - version 2 of the protocol
     - "Unknown client" for the client string
   */
@@ -83,10 +82,6 @@ namespace TPProto {
     sock = NULL;
     asynclistener = NULL;
     logger = new SilentLogger();
-        factory = new FrameFactory();
-        builder = new FrameBuilder();
-        builder->setFrameCodec(this);
-        builder->setFrameFactory(factory);
     status = 0;
     version = 2; // TPO2
     clientid = "Unknown client";
@@ -103,8 +98,6 @@ namespace TPProto {
       delete asynclistener;
     }
     delete logger;
-    delete factory;
-    delete builder;
 
     for(std::map<unsigned int, OrderDescription*>::iterator itcurr = orderdescCache.begin(); 
 	itcurr != orderdescCache.end(); ++itcurr){
@@ -165,36 +158,14 @@ namespace TPProto {
     logger->debug("Logger set");
   }
 
-    /*! \brief Sets the FrameFactory.
+    /*! \brief Sets the ProtocolLayer.
 
-    This method sets a new FrameFactory.  The old FrameFactory is deleted.  If the pointer
-    to the new FrameFactory is NULL, the default FrameFactory is used.
-    \param ff The new FrameFactory to use, or NULL
+    This method sets the ProtocolLayer.
+    \param pl The ProtocolLayer to use.
     */
-    void FrameCodec::setFrameFactory(FrameFactory* ff){
-        delete factory;
-        factory = ff;
-        if(factory == NULL){
-            factory = new FrameFactory();
-        }
+    void FrameCodec::setProtocolLayer(ProtocolLayer* pl){
+        layer = pl;
         logger->debug("FrameFactory set");
-    }
-
-    /*! \brief Sets the FrameBuilder.
-
-    This method sets a new FrameBuilder.  The old FrameBuilder is deleted.  If the pointer
-    to the new FrameBuilder is NULL, the default FrameBuilder is used.
-    \param ff The new FrameBuilder to use, or NULL
-    */
-    void FrameCodec::setFrameBuilder(FrameBuilder* fb){
-        delete builder;
-        builder = fb;
-        if(builder == NULL){
-            builder = new FrameBuilder();
-        }
-        builder->setFrameCodec(this);
-        builder->setFrameFactory(factory);
-        logger->debug("FrameBuilder set");
     }
 
   /*! \brief Gets the status of the connection.
@@ -221,8 +192,8 @@ namespace TPProto {
 	status = 1;
 
 	// send connect frame
-            factory->setProtocolVersion(version);
-            Connect * cf = factory->createConnect();
+            layer->getFrameFactory()->setProtocolVersion(version);
+            Connect * cf = layer->getFrameFactory()->createConnect();
 	//cf->setProtocolVersion(version);
 	cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
 
@@ -267,7 +238,7 @@ namespace TPProto {
   */
   bool FrameCodec::login(const std::string &username, const std::string &password){
     if(status == 2 && sock->isConnected()){
-            Login * login = factory->createLogin();
+            Login * login = layer->getFrameFactory()->createLogin();
       //login->setProtocolVersion(version);
       login->setUser(username);
       login->setPass(password);
@@ -319,7 +290,7 @@ namespace TPProto {
   \returns A new GetObjectByID object.
   */
   GetObjectById* FrameCodec::createGetObjectByIdFrame(){
-        GetObjectById* rtv = factory->createGetObjectById();
+        GetObjectById* rtv = layer->getFrameFactory()->createGetObjectById();
     return rtv;
   }
 
@@ -329,7 +300,7 @@ namespace TPProto {
   \returns A new GetObjectByPos object.
   */
   GetObjectByPos* FrameCodec::createGetObjectByPosFrame(){
-        GetObjectByPos* rtv = factory->createGetObjectByPos();
+        GetObjectByPos* rtv = layer->getFrameFactory()->createGetObjectByPos();
       return rtv;
   }
 
@@ -374,7 +345,7 @@ namespace TPProto {
   \return The Object of the Universe.
   */
   Object* FrameCodec::getUniverse(){
-        GetObjectById * fr = factory->createGetObjectById();
+        GetObjectById * fr = layer->getFrameFactory()->createGetObjectById();
     fr->addObjectID(0);
         uint32_t seqnum = sendFrame(fr);
     delete fr;
@@ -399,7 +370,7 @@ namespace TPProto {
   \return A new GetOrder frame.
   */
   GetOrder* FrameCodec::createGetOrderFrame(){
-        GetOrder* f = factory->createGetOrder();
+        GetOrder* f = layer->getFrameFactory()->createGetOrder();
     return f;
   }
   
@@ -440,7 +411,7 @@ namespace TPProto {
   \return The new Order.
   */
   Order* FrameCodec::createOrderFrame(int type){
-        Order* f = factory->createOrder();
+        Order* f = layer->getFrameFactory()->createOrder();
     //get description
 
     std::map<unsigned int, OrderDescription*>::iterator idesc = orderdescCache.find(type);
@@ -495,7 +466,7 @@ namespace TPProto {
   bool FrameCodec::replaceOrder(Order* frame){
     if(frame->getSlot() >= 0 && insertOrder(frame)){
       
-      RemoveOrder* ro =  factory->createRemoveOrder();
+      RemoveOrder* ro = layer->getFrameFactory()->createRemoveOrder();
       ro->setObjectId(frame->getObjectId());
       ro->removeOrderId(frame->getSlot() + 1);
       if(removeOrders(ro) == 1){
@@ -517,7 +488,7 @@ namespace TPProto {
   \return A new RemoveOrder frame.
   */
   RemoveOrder* FrameCodec::createRemoveOrderFrame(){
-        RemoveOrder* f = factory->createRemoveOrder();
+        RemoveOrder* f = layer->getFrameFactory()->createRemoveOrder();
     return f;
   }
 
@@ -567,7 +538,7 @@ namespace TPProto {
     }
 
     if(!otypes.empty()){
-      GetOrderDescription* god = factory->createGetOrderDescription();
+      GetOrderDescription* god = layer->getFrameFactory()->createGetOrderDescription();
       god->addOrderTypes(otypes);
             uint32_t seqnum = sendFrame(god);
       delete god;
@@ -594,7 +565,7 @@ namespace TPProto {
   \return A new GetBoard Frame.
   */
   GetBoard* FrameCodec::createGetBoardFrame(){
-        GetBoard* f = factory->createGetBoard();
+        GetBoard* f = layer->getFrameFactory()->createGetBoard();
     return f;
   }
 
@@ -626,7 +597,7 @@ namespace TPProto {
   \return The Board object for the Player's Board.
   */
   Board* FrameCodec::getPersonalBoard(){
-        GetBoard * fr = factory->createGetBoard();
+        GetBoard * fr = layer->getFrameFactory()->createGetBoard();
     fr->addBoardId(0);
         uint32_t seqnum = sendFrame(fr);
     delete fr;
@@ -645,7 +616,7 @@ namespace TPProto {
   \return A new GetMessage frame.
   */
   GetMessage* FrameCodec::createGetMessageFrame(){
-        GetMessage* f = factory->createGetMessage();
+        GetMessage* f = layer->getFrameFactory()->createGetMessage();
     return f;
   }
 
@@ -681,7 +652,7 @@ namespace TPProto {
   \return A new Message object.
   */
   Message* FrameCodec::createMessageFrame(){
-        Message* f = factory->createMessage();
+        Message* f = layer->getFrameFactory()->createMessage();
     return f;
   }
 
@@ -717,7 +688,7 @@ namespace TPProto {
   \returns A new RemoveMessage frame.
   */
   RemoveMessage* FrameCodec::createRemoveMessageFrame(){
-        RemoveMessage* f = factory->createRemoveMessage();
+        RemoveMessage* f = layer->getFrameFactory()->createRemoveMessage();
     return f;
   }
 
@@ -753,7 +724,7 @@ namespace TPProto {
   -1 if there was an error.
   */
   int FrameCodec::getTimeRemaining(){
-        GetTime* gt = factory->createGetTimeRemaining();
+        GetTime* gt = layer->getFrameFactory()->createGetTimeRemaining();
 
         uint32_t seqnum = sendFrame(gt);
         delete gt;
@@ -947,7 +918,7 @@ namespace TPProto {
       Buffer *data = new Buffer();
       data->setData(body, rlen);
       
-      Frame* frame = builder->buildFrame(type, data);
+      Frame* frame = layer->getFrameBuilder()->buildFrame(type, data);
 
       if(frame == NULL){
 	//others...

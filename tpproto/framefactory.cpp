@@ -27,6 +27,8 @@
 #define VERSION "0.0.0"
 #endif
 
+#include "protocollayer.h"
+
 // Frame Types
 #include "frame.h"
 
@@ -122,7 +124,16 @@ namespace TPProto {
     int FrameFactory::getProtocolVersion() const{
         return pver;
     }
-    
+
+    /*! \brief Sets the ProtocolLayer.
+
+    This method sets the ProtocolLayer.
+    \param pl The ProtocolLayer to use.
+    */
+    void FrameFactory::setProtocolLayer(ProtocolLayer* pl){
+        layer = pl;
+    }
+
     OkFrame* FrameFactory::createOk(){
         OkFrame* ok = new OkFrame();
         ok->setProtocolVersion(pver);

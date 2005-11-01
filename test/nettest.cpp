@@ -13,6 +13,7 @@
 #include <tpproto/removeorder.h>
 #include <tpproto/timeparameter.h>
 #include <tpproto/logger.h>
+#include <tpproto/protocollayer.h>
 
 #include "downloadprintvisitor.h"
 #include "printasynclistener.h"
@@ -82,6 +83,9 @@ int main(int argc, char** argv){
     myfc->setLogger(new StdoutLogger());
     myfc->setSocket(ts);
     myfc->setClientString("libtpproto-cpp_NetTest");
+
+    ProtocolLayer* layer = new ProtocolLayer();
+    layer->setFrameCodec(myfc);
 
     PrintAsyncListener* pal = new PrintAsyncListener();
     myfc->setAsyncFrameListener(pal);

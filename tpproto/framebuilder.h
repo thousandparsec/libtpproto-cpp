@@ -28,8 +28,7 @@
 
 namespace TPProto{
 
-    class FrameFactory;
-    class FrameCodec;
+    class ProtocolLayer;
     class Frame;
     class Object;
     class Order;
@@ -40,15 +39,13 @@ namespace TPProto{
         FrameBuilder();
         virtual ~FrameBuilder();
 
-        void setFrameFactory(FrameFactory* ff);
-        void setFrameCodec(FrameCodec* fc);
+        void setProtocolLayer(ProtocolLayer* pl);
         virtual Frame* buildFrame(uint32_t type, Buffer* data);
         virtual Object* buildObject(uint32_t type);
         virtual Order* buildOrder(uint32_t type);
 
     protected:
-        FrameFactory* factory;
-        FrameCodec* codec;
+        ProtocolLayer* layer;
 
     };
 
