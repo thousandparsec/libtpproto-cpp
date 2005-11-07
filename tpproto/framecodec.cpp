@@ -83,7 +83,7 @@ namespace TPProto {
     asynclistener = NULL;
     logger = new SilentLogger();
     status = 0;
-    version = 2; // TPO2
+        version = 3; // TP03
     clientid = "Unknown client";
     nextseqnum = 1; // should be random
   }
@@ -900,13 +900,26 @@ namespace TPProto {
       }
       delete header;
       
-      if(fver != 2){
+        if(fver != 2 && fver != 3){
 	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fver, sequ, type, len);
 	sock->disconnect();
 	status = 0;
 	return NULL;
       }
       
+        if(fver != version){
+            //version mismatch
+            if(status == 1 && fver > 1 && fver <= 3){
+                version = fver;
+                layer->getFrameFactory()->setProtocolVersion(version);
+            }else{
+                logger->warning("Wrong verison of protocol (%d), server got it wrong, ", fver);
+                sock->disconnect();
+                status = 0;
+                return NULL;
+            }
+        }
+
       rlen = sock->recvBody(len, body);
       if(rlen != len){
 	//again, now what?

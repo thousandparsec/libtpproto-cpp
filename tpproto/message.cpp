@@ -21,12 +21,24 @@ namespace TPProto{
     \param buf The Buffer to pack into.
   */
   void Message::packBuffer(Buffer* buf){
-    buf->packInt(bid);
+    buf->packInt(bid); 
     buf->packInt(slot);
+        if(protoVer == 2){
     buf->packInt(1);
     buf->packInt(mtypes);
+        }else{
+            buf->packInt(0);
+        }
     buf->packString(subject.c_str());
     buf->packString(body.c_str());
+        if(protoVer > 2){
+            buf->packInt(0); // Turn number, set by server
+            buf->packInt(refs.size());
+            for(std::map<int32_t, uint32_t>::iterator itcurr = refs.begin(); itcurr != refs.end(); ++itcurr){
+                buf->packInt(itcurr->first);
+                buf->packInt(itcurr->second);
+            }
+        }
     
     type = ft02_Message_Post;
   }
@@ -38,14 +50,26 @@ namespace TPProto{
   bool Message::unpackBuffer(Buffer* buf){
     bid = buf->unpackInt();
     slot = buf->unpackInt();
+        if(protoVer == 2){
     buf->unpackInt(); // this had better be 1
     mtypes = buf->unpackInt();
+        }else{
+            buf->unpackInt(); // Should be 0
+        }
     char* temp = buf->unpackString();
     subject = temp;
     delete[] temp;
     temp = buf->unpackString();
     body = temp;
     delete[] temp;
+        if(protoVer > 2){
+            turn = buf->unpackInt();
+            uint32_t numrefs = buf->unpackInt();
+            for(uint32_t i = 0; i < numrefs; i++){
+                int32_t refid = buf->unpackInt();
+                refs[refid] = buf->unpackInt();
+            }
+        }
 
     type = ft02_Message;
 
@@ -89,6 +113,20 @@ namespace TPProto{
     return body;
   }
 
+    /*! \brief Gets the turn number this message was posted on.
+    \return The turn number.
+    */
+    uint32_t Message::getTurnNum() const{
+        return turn;
+    }
+
+    /*! \brief Gets the references for this message.
+    \return The map of references.
+    */
+    std::map<int32_t, uint32_t> Message::getReferences() const{
+        return refs;
+    }
+
   /*! \brief Sets the Board id for the message.
     \param board The Board this message should be posted to.
   */
@@ -125,6 +163,13 @@ namespace TPProto{
   void Message::setBody(const std::string &nb){
     body = nb;
   }
+
+    /*! \brief Sets the references for this message
+    \param rs The map of references.
+    */
+    void Message::setReferences(std::map<int32_t, uint32_t> rs){
+        refs = rs;
+    }
 
 }
 
