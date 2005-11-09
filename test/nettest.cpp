@@ -2,6 +2,7 @@
 #include <stdarg.h>
 
 #include <tpproto/framecodec.h>
+#include <tpproto/framefactory.h>
 #include <tpproto/tcpsocket.h>
 #include <tpproto/object.h>
 #include <tpproto/board.h>
@@ -86,6 +87,7 @@ int main(int argc, char** argv){
 
     ProtocolLayer* layer = new ProtocolLayer();
     layer->setFrameCodec(myfc);
+    FrameFactory* myff = layer->getFrameFactory();
 
     PrintAsyncListener* pal = new PrintAsyncListener();
     myfc->setAsyncFrameListener(pal);
@@ -108,6 +110,7 @@ int main(int argc, char** argv){
 	  std::cout << "Setting up Visitor test" << std::endl;
 	  DownloadPrintVisitor* dpv = new DownloadPrintVisitor();
 	  dpv->setFrameCodec(myfc);
+            dpv->setFrameFactory(myff);
 	  
 	  std::cout << "Starting Visitor test" << std::endl;
 	  universe->visit(dpv);
@@ -128,7 +131,7 @@ int main(int argc, char** argv){
 	    std::cout << "Successfully added order, status " << myfc->getStatus() << std::endl;
 	    //delete order;
 	    
-	    GetOrder* gor = myfc->createGetOrderFrame();
+	    GetOrder* gor = myff->createGetOrder();
 	    gor->addOrderId(0);
 	    gor->setObjectId(pob);
 	    std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
@@ -149,7 +152,7 @@ int main(int argc, char** argv){
 	      
 	      //delete order;
 	      
-	      gor = myfc->createGetOrderFrame();
+	      gor = myff->createGetOrder();
 	      gor->addOrderRange(0, 10);
 	      gor->setObjectId(pob);
 	      std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
@@ -172,7 +175,7 @@ int main(int argc, char** argv){
 	    // remove order
 	    std::cout << "Trying to remove order" << std::endl;
 
-	    RemoveOrder* ro = myfc->createRemoveOrderFrame();
+	    RemoveOrder* ro = myff->createRemoveOrder();
 	    ro->setObjectId(pob);
 	    ro->removeOrderId(0);
 	    if(myfc->removeOrders(ro) == 1){
@@ -207,7 +210,7 @@ int main(int argc, char** argv){
 
 	    std::cout << "Starting Message test, status " << myfc->getStatus() << std::endl;
 
-	    Message* mymess = myfc->createMessageFrame();
+	    Message* mymess = myff->createMessage();
 	    mymess->setSubject("Test");
 	    mymess->setBody("This is a test, pleace check this message is posted");
 	    mymess->setBoardId(myboard->getId());
@@ -225,7 +228,7 @@ int main(int argc, char** argv){
 	    delete myboard;
 	    myboard = myfc->getPersonalBoard();
 
-	    GetMessage* gm = myfc->createGetMessageFrame();
+	    GetMessage* gm = myff->createGetMessage();
 	    gm->setBoard(myboard->getId());
 	    gm->addMessageRange(0, myboard->numMessages());
 	    std::map<unsigned int, Message*> messages = myfc->getMessages(gm);
@@ -244,7 +247,7 @@ int main(int argc, char** argv){
 
 	    std::cout << "Starting message delete test" << std::endl;
 
-	    RemoveMessage* rm = myfc->createRemoveMessageFrame();
+	    RemoveMessage* rm = myff->createRemoveMessage();
 	    rm->setBoard(myboard->getId());
 	    rm->removeMessageId(0); // remove the message we posted
 	    if(myfc->removeMessages(rm) == 1){

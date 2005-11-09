@@ -6,6 +6,7 @@
 
 namespace TPProto{
   class FrameCodec;
+    class FrameFactory;
 }
 
 class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParameterVisitor{
@@ -21,6 +22,7 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParame
   void visit(TPProto::Object* ob);
 
   void setFrameCodec(TPProto::FrameCodec* nfc);
+    void setFrameFactory(TPProto::FrameFactory* nff);
   unsigned int getPlayableObject();
 
   void visitOrderParam(TPProto::SpaceCoordinates* op);
@@ -35,6 +37,7 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParame
 
  private:
   TPProto::FrameCodec * fc;
+    TPProto::FrameFactory* ff;
   unsigned int funobject;
 
 };

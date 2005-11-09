@@ -40,14 +40,8 @@
 #include "connect.h"
 #include "login.h"
 #include "getobjectbyid.h"
-#include "getobjectbypos.h"
 #include "getobjects.h"
 #include "object.h"
-#include "universe.h"
-#include "galaxy.h"
-#include "starsystem.h"
-#include "planet.h"
-#include "fleet.h"
 #include "getboard.h"
 #include "board.h"
 #include "getmessage.h"
@@ -284,25 +278,6 @@ namespace TPProto {
     status = 0;
   }
 
-  /*! \brief Creates an GetObjectByID Frame.
-
-  Creates the GetObjectByID object and sets the protocol version.
-  \returns A new GetObjectByID object.
-  */
-  GetObjectById* FrameCodec::createGetObjectByIdFrame(){
-        GetObjectById* rtv = layer->getFrameFactory()->createGetObjectById();
-    return rtv;
-  }
-
-  /*! \brief Creates an GetObjectByPos Frame.
-
-  Creates the GetObjectByPos object and sets the protocol version.
-  \returns A new GetObjectByPos object.
-  */
-  GetObjectByPos* FrameCodec::createGetObjectByPosFrame(){
-        GetObjectByPos* rtv = layer->getFrameFactory()->createGetObjectByPos();
-      return rtv;
-  }
 
   /*! \brief Gets objects from the server.
     
@@ -363,16 +338,6 @@ namespace TPProto {
 	
   }
 
-  /*! \brief Creates a GetOrder Frame.
-
-  This methods creates an GetOrder Frame and sets the correct
-  version number.
-  \return A new GetOrder frame.
-  */
-  GetOrder* FrameCodec::createGetOrderFrame(){
-        GetOrder* f = layer->getFrameFactory()->createGetOrder();
-    return f;
-  }
   
   /*! \brief Gets Orders from the server.
 
@@ -482,16 +447,6 @@ namespace TPProto {
 
   }
 
-  /*! \brief Creates a RemoveOrder Frame.
-    
-  Sets the protocol version as well.
-  \return A new RemoveOrder frame.
-  */
-  RemoveOrder* FrameCodec::createRemoveOrderFrame(){
-        RemoveOrder* f = layer->getFrameFactory()->createRemoveOrder();
-    return f;
-  }
-
   /*! \brief Removes Orders from the server.
     
   Sends the RemoveOrder frame to the server and receives reply.
@@ -558,17 +513,6 @@ namespace TPProto {
     }
   }
 
-
-  /*! \brief Creates a GetBoard Frame.
-
-  Also sets the protocol version number.
-  \return A new GetBoard Frame.
-  */
-  GetBoard* FrameCodec::createGetBoardFrame(){
-        GetBoard* f = layer->getFrameFactory()->createGetBoard();
-    return f;
-  }
-
   /*! \brief Gets Boards from the server.
 
   Sends the GetBoard Frame and gets the Boards back from the server.
@@ -610,16 +554,6 @@ namespace TPProto {
     return (Board*)reply;
   }
 
-  /*! \brief Creates a GetMessage Frame.
-
-  Also sets the protocol version.
-  \return A new GetMessage frame.
-  */
-  GetMessage* FrameCodec::createGetMessageFrame(){
-        GetMessage* f = layer->getFrameFactory()->createGetMessage();
-    return f;
-  }
-
   /*! \brief Gets Messages from the server.
 
   Sends the GetMessage Frame and receives the Message frames.
@@ -646,16 +580,6 @@ namespace TPProto {
 
   }
 
-  /*! \brief Creates a Message frame.
-
-  Also sets the protocol version.
-  \return A new Message object.
-  */
-  Message* FrameCodec::createMessageFrame(){
-        Message* f = layer->getFrameFactory()->createMessage();
-    return f;
-  }
-
   /*! \brief Posts a Message to the server.
     
   Sends the Message Frame to the server.
@@ -680,16 +604,6 @@ namespace TPProto {
       delete reply;
     }
     return false;
-  }
-
-  /*! \brief Creates a RemoveMessage frame.
-
-  Also sets the version number.
-  \returns A new RemoveMessage frame.
-  */
-  RemoveMessage* FrameCodec::createRemoveMessageFrame(){
-        RemoveMessage* f = layer->getFrameFactory()->createRemoveMessage();
-    return f;
   }
 
   /*! \brief Removes messages from the server.

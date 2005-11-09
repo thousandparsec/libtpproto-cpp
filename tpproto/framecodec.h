@@ -34,46 +34,20 @@ namespace TPProto{
 
   class TPSocket;
   class Frame;
-  class Buffer;
   class AsyncFrameListener;
   class Logger;
     class ProtocolLayer;
-    class OkFrame;
-    class FailFrame;
-    class Sequence;
-    class Connect;
-    class Login;
-    class Redirect;
-    class GetFeatures;
-    class Features;
-    class Ping;
     class GetObjects;
-    class GetObjectById;
-    class GetObjectByPos;
     class Object;
-    class GetObjectIdsList;
-    class GetObjectIdsByPos;
-    class GetObjectIdsByContainer;
-    class ObjectIdsList;
-    class GetOrderDescription;
     class OrderDescription;
-    class GetOrderTypesList;
-    class OrderTypesList;
     class GetOrder;
     class Order;
     class RemoveOrder;
-    class ProbeOrder;
-    class GetTime;
-    class TimeRemaining;
     class GetBoard;
     class Board;
-    class GetBoardIdsList;
-    class BoardIdsList;
     class GetMessage;
     class Message;
     class RemoveMessage;
-    class GetResourceDescription;
-    class ResourceDescription;
 
     /*! \brief FrameCodec is the main working class the lower layer of libtpproto-cpp.
 
@@ -108,30 +82,22 @@ namespace TPProto{
     
 
     //Objects
-    GetObjectById* createGetObjectByIdFrame();
-    GetObjectByPos* createGetObjectByPosFrame();
     std::map<unsigned int, Object*> getObjects(GetObjects * frame);
     Object* getUniverse();
 
     //Orders
-    GetOrder* createGetOrderFrame();
     std::map<unsigned int, Order*> getOrders(GetOrder* frame);
     Order* createOrderFrame(int type);
     bool insertOrder(Order* frame);
     bool replaceOrder(Order* frame);
-    RemoveOrder* createRemoveOrderFrame();
     int removeOrders(RemoveOrder* frame); // returns number removed
     void seedOrderDescriptionCache(std::set<unsigned int> otypes);
 
     //Boards and Messages
-    GetBoard* createGetBoardFrame();
     std::map<unsigned int, Board*> getBoards(GetBoard* frame);
     Board* getPersonalBoard();
-    GetMessage* createGetMessageFrame();
     std::map<unsigned int, Message*> getMessages(GetMessage* frame);
-    Message* createMessageFrame();
     bool postMessage(Message* frame);
-    RemoveMessage* createRemoveMessageFrame();
     int removeMessages(RemoveMessage* frame); // returns number removed
 
 
