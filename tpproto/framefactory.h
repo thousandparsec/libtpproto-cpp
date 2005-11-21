@@ -164,7 +164,7 @@ namespace TPProto{
         virtual DesignIdsList* createDesignIdsList();
         virtual GetComponent* createGetComponent();
         virtual Component* createComponent();
-        virtual GetComponentIdsList* createGetComponentIdsLIst();
+        virtual GetComponentIdsList* createGetComponentIdsList();
         virtual ComponentIdsList* createComponentIdsList();
         virtual GetProperty* createGetProperty();
         virtual Property* createProperty();

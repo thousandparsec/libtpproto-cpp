@@ -556,7 +556,7 @@ namespace TPProto {
         return NULL;
     }
     
-    GetComponentIdsList* FrameFactory::createGetComponentIdsLIst(){
+    GetComponentIdsList* FrameFactory::createGetComponentIdsList(){
         if(pver >= 3){
             GetComponentIdsList* f = new GetComponentIdsList();
             f->setProtocolVersion(pver);
