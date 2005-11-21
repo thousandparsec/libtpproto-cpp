@@ -37,6 +37,7 @@ void TestSocket::send(char* header, int hlen, char* data, int len){
   int dlen = ntohl(*(unsigned int*)(header + 12));
   if(dlen != len){
     std::cout << "FileSocket::send(): Data length mismatch, header said " << dlen << " param said " << len << std::endl;
+        connected = false;
   }
   int type = ntohl(*(unsigned int*)(header + 8));
   seqnum = ntohl(*(unsigned int*)(header+4));
