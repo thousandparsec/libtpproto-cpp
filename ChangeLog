@@ -1,3 +1,9 @@
+2005-11-22 Lee
+	* Split into High level (GameLayer) and low level (ProtocolLayer) layers.
+	* All non-optional parts of TP03 supported.
+	* Large re-write.
+	* version 0.1.0
+
 2005-01-25 Lee
 	* Doxygen comments for all library classes.
 	* make doc creates the docs.

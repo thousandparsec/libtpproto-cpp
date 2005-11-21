@@ -1,3 +1,9 @@
+2005-11-22 Lee
+Massive changes in 0.1.0. Split into high level and low level interfaces.
+Support for TP03. Still not thread safe, but should be easier to get there now.
+No, I am not playing catchup with the version number.  There was a big improvement
+over the 0.0.x series.
+
 2005-01-25 Lee
 No code changes in 0.0.3.  Just doxygen documentation for all classes in the 
 library.  Should be binary identical except for one byte (last part of the 
