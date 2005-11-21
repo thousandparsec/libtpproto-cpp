@@ -48,9 +48,13 @@ namespace TPProto{
       availableorders.insert(buf->unpackInt());
     }
     numorders = buf->unpackInt();
-    //4 unint32 padding
-    buf->unpackInt();
-    buf->unpackInt();
+    //4 unint32 padding (TP02), or modtime and 2 uint32 padding (TP03)
+    if(protoVer == 2){
+        buf->unpackInt();
+        buf->unpackInt();
+    }else{
+        modtime = buf->unpackInt64();
+    }
     buf->unpackInt();
     buf->unpackInt();
 
@@ -124,6 +128,13 @@ namespace TPProto{
   int Object::getNumberOrders(){
     return numorders;
   }
+
+    /*! \brief Gets the last time this object was modified.
+    \return The timestamp the object was last modified.
+    */
+    uint64_t Object::getLastModifiedTime(){
+        return modtime;
+    }
 
 }
 

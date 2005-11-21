@@ -42,7 +42,7 @@ namespace TPProto{
     std::set<unsigned int> getContainedObjectIds();
     std::set<unsigned int> getAvailableOrders();
     int getNumberOrders();
-
+    uint64_t getLastModifiedTime();
     
     
 
@@ -84,6 +84,10 @@ namespace TPProto{
     The id of the orders are 0 to numorders-1.
     */
     int numorders;
+
+    /*! \brief The last modification time of this object.
+    */
+    uint64_t modtime;
 
   };
 
