@@ -212,7 +212,7 @@ namespace TPProto {
         return f;
     }
     
-    GetObjectIdsList* FrameFactory::createGetObjectsIdsList(){
+    GetObjectIdsList* FrameFactory::createGetObjectIdsList(){
         if(pver >= 3){
             GetObjectIdsList* f = new GetObjectIdsList();
             f->setProtocolVersion(pver);

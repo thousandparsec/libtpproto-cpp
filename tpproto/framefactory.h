@@ -120,7 +120,7 @@ namespace TPProto{
         virtual Ping* createPing();
         virtual GetObjectById* createGetObjectById();
         virtual GetObjectByPos* createGetObjectByPos();
-        virtual GetObjectIdsList* createGetObjectsIdsList();
+        virtual GetObjectIdsList* createGetObjectIdsList();
         virtual GetObjectIdsByPos* createGetObjectIdsByPos();
         virtual GetObjectIdsByContainer* createGetObjectIdsByContainer();
         virtual ObjectIdsList* createObjectIdsList();
