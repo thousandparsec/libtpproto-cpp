@@ -27,12 +27,14 @@ namespace TPProto{
     std::string getName();
     std::string getDescription();
     std::list<OrderParameter*> getParameters();
+    uint64_t getLastModifiedTime();
 
   private:
     int otype;
     std::string name;
     std::string desc;
     std::list<OrderParameter*> params;
+    uint64_t modtime;
 
   };
 

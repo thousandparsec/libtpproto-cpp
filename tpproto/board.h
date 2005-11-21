@@ -28,14 +28,14 @@ namespace TPProto{
     std::string getDescription();
 
     int numMessages();
-
+    uint64_t getLastModifiedTime();
 
   private:
     unsigned int id;
     std::string name;
     std::string desc;
     int nummess;
-
+    uint64_t modtime;
 
   };
 

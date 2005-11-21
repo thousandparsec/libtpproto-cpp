@@ -43,6 +43,9 @@ namespace TPProto{
     delete[] temp;
 
     nummess = buf->unpackInt();
+    if(protoVer >= 3){
+        modtime = buf->unpackInt64();
+    }
 
     type = ft02_Board;
 
@@ -79,4 +82,11 @@ namespace TPProto{
     return nummess;
   }
   
+    /*! \brief Gets the last time this board was modified.
+    \return The timestamp of the last modification time.
+    */
+    uint64_t Board::getLastModifiedTime(){
+        return modtime;
+    }
+
 }

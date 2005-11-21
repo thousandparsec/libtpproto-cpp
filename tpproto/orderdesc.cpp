@@ -91,6 +91,9 @@ namespace TPProto{
       }
       delete[] temp;
     }
+    if(protoVer >= 3){
+        modtime = buf->unpackInt64();
+    }
     
     type = ft02_OrderDesc;
 
@@ -128,6 +131,13 @@ namespace TPProto{
     }
     return np;
   }
+
+    /*! \brief Returns the timestamp of the last time this order description was modified.
+    \return The timestamp of the modification time.
+    */
+    uint64_t OrderDescription::getLastModifiedTime(){
+        return modtime;
+    }
 
 }
 
