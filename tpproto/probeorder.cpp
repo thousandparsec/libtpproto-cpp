@@ -21,6 +21,7 @@
 #include "buffer.h"
 #include "orderparameter.h"
 #include "orderdesc.h"
+#include "order.h"
 
 #include "probeorder.h"
 
@@ -48,7 +49,7 @@ namespace TPProto{
   void ProbeOrder::packBuffer(Buffer* buf){
     buf->packInt(object);
     buf->packInt(slot);
-    buf->packInt(desc->getOrderType());
+    buf->packInt(otype);
     buf->packInt(0); // numturns
     buf->packInt(0); // resource list
 
@@ -69,25 +70,12 @@ namespace TPProto{
     return false;
   }
 
-  /*! \brief Gets the name of this order type.
-    \return The name of the order.
-  */
-  std::string ProbeOrder::getName(){
-    return desc->getName();
-  }
-
-  /*! \brief Gets the text description of this order type.
-    \return The text description of the order.
-  */
-  std::string ProbeOrder::getDescription(){
-    return desc->getDescription();
-  }
 
   /*! \brief Gets the order type number of this order.
     \return The order type number.
   */
   unsigned int ProbeOrder::getOrderType(){
-    return desc->getOrderType();
+    return otype;
   }
 
   /*! \brief Gets the Object id this order is on.
@@ -104,13 +92,6 @@ namespace TPProto{
   */
   int ProbeOrder::getSlot(){
     return slot;
-  }
-
-  /*! \brief Gets the number of turns until this order is completed.
-    \return The number of turns before completion.
-  */
-  unsigned int ProbeOrder::getNumTurns(){
-    return numturns;
   }
 
   /*! \brief Gets the number of OrderParameters this order has.
@@ -154,13 +135,26 @@ namespace TPProto{
     slot = s;
   }
 
-  /*! \brief Sets the order type using an OrderDescription.
-    \param od The OrderDescription describing the order type required.
-  */
-  void ProbeOrder::setOrderType(OrderDescription* od){
-    desc = od;
-    params = od->getParameters();
-  }
+    /*! \brief Sets the order type.
+        \param ot The order type number.
+    */
+    void ProbeOrder::setOrderType(uint32_t ot){
+        otype = ot;
+    }
+
+    /*! \brief Copies the fields from an Order.
+    This allows the client to check what an Order will do without adding
+    it.
+    \param ord The Order to copy.
+    */
+    void ProbeOrder::copyFromOrder(Order* ord){
+        object = ord->getObjectId();
+        slot = ord->getSlot();
+        otype = ord->getOrderType();
+        for(uint32_t i = 0; i < ord->getNumParameters(); i++){
+            params.push_back(ord->getParameter(i)->clone());
+        }
+    }
 
 }
 

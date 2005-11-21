@@ -30,6 +30,8 @@
 
 namespace TPProto{
 
+    class Design;
+
     /*! \brief A Frame to Modify Designs on the server.
     */
     class ModifyDesign : public Frame{
@@ -49,6 +51,8 @@ namespace TPProto{
         void setPlayerOwner(uint32_t player);
         void setComponents(std::map<uint32_t, uint32_t> comps);
         //design feedback and property values set by server
+
+        void copyFromDesign(Design* d);
 
     private:
         uint32_t designid;

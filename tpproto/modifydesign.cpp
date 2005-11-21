@@ -21,6 +21,7 @@
 #include <cassert>
 
 #include "buffer.h"
+#include "design.h"
 
 #include "modifydesign.h"
 
@@ -115,6 +116,18 @@ namespace TPProto{
     */
     void ModifyDesign::setComponents(std::map<uint32_t, uint32_t> comps){
         components = comps;
+    }
+
+    /*! \brief Copies the contents of a design to add to the server.
+    \param d The design to copy from.
+    */
+    void ModifyDesign::copyFromDesign(Design* d){
+        designid = d->getDesignId();
+        categories = d->getCategories();
+        name = d->getName();
+        description = d->getDescription();
+        owner = d->getPlayerOwner();
+        components = d->getComponents();
     }
 
 }

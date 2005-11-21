@@ -30,6 +30,8 @@
 
 namespace TPProto{
 
+    class Design;
+
     /*! \brief A Frame to hold AddDesigns frames to send to the server.
     */
     class AddDesign : public Frame{
@@ -48,6 +50,8 @@ namespace TPProto{
         void setPlayerOwner(uint32_t player);
         void setComponents(std::map<uint32_t, uint32_t> comps);
         //design feeback and property values set by server
+
+        void copyFromDesign(Design* d);
 
     private:
         std::set<uint32_t> categories;

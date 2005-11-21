@@ -30,6 +30,7 @@
 
 namespace TPProto{
 
+    class Order;
     class OrderParameter;
     class OrderDescription;
 
@@ -43,30 +44,26 @@ namespace TPProto{
         void packBuffer(Buffer* buf);
         bool unpackBuffer(Buffer* buf);
 
-        std::string getName();
-        std::string getDescription();
         unsigned int getOrderType();
 
         unsigned int getObjectId();
         int getSlot();
-        unsigned int getNumTurns();
 
         unsigned int getNumParameters();
         OrderParameter* getParameter(unsigned int which);
 
         void setObjectId(unsigned int oid);
         void setSlot(int s);
-        void setOrderType(OrderDescription* od);
+            void setOrderType(uint32_t ot);
+
+        void copyFromOrder(Order* ord);
 
     private:
         unsigned int object;
         int slot;
         unsigned int otype;
-        unsigned int numturns;
 
         std::list<OrderParameter*> params;
-
-        OrderDescription* desc;
 
     };
 

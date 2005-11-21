@@ -92,7 +92,7 @@ namespace TPProto{
         Order* createOrderFrame(int type);
         bool insertOrder(Order* frame);
         bool replaceOrder(Order* frame);
-        bool probeOrder(Order* frame);
+        Order* probeOrder(Order* frame);
         bool removeOrder(uint32_t obid, uint32_t slot);
 
         //Boards and Messages
@@ -114,10 +114,12 @@ namespace TPProto{
         //Designs
         std::set<uint32_t> getCategoryIds();
         Category* getCategory(uint32_t catid);
+        Category* createCategory();
         bool addCategory(Category* cat);
         bool removeCategory(uint32_t catid);
         std::set<uint32_t> getDesignIds();
         Design* getDesign(uint32_t designid);
+        Design* createDesign();
         bool addDesign(Design* d);
         bool modifyDesign(Design* d);
         bool removeDesign(uint32_t designid);

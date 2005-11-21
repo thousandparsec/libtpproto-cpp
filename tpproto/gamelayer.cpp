@@ -64,6 +64,34 @@
 #include "redirect.h"
 #include "getobjectidslist.h"
 #include "objectidslist.h"
+#include "getboardidslist.h"
+#include "boardidslist.h"
+#include "getcategoryidslist.h"
+#include "categoryidslist.h"
+#include "getdesignidslist.h"
+#include "designidslist.h"
+#include "getcomponentidslist.h"
+#include "componentidslist.h"
+#include "getpropertyidslist.h"
+#include "propertyidslist.h"
+#include "getresourcedesc.h"
+#include "resourcedesc.h"
+#include "getplayer.h"
+#include "player.h"
+#include "getcategory.h"
+#include "category.h"
+#include "getdesign.h"
+#include "design.h"
+#include "getcomponent.h"
+#include "component.h"
+#include "getproperty.h"
+#include "property.h"
+#include "probeorder.h"
+#include "addcategory.h"
+#include "removecategory.h"
+#include "adddesign.h"
+#include "modifydesign.h"
+#include "removedesign.h"
 
 #include "gamelayer.h"
 
@@ -458,6 +486,32 @@ namespace TPProto {
         return false;
     }
 
+    /*! \brief Probes an Order.
+    
+    Sends the order to the server to be probed, returning the order that would have been added
+    to the object.
+    \param frame The Order to probe.
+    \return The reply Order with read-only fields filled.
+    */
+    Order* GameLayer::probeOrder(Order* frame){
+        ProbeOrder * fr = protocol->getFrameFactory()->createProbeOrder();
+        fr->copyFromOrder(frame);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply == NULL || reply->getType() != ft02_Order){
+            logger->error("The returned frame isn't an order");
+        }
+        
+        return static_cast<Order*>(reply);
+        
+    }
+
     /*! \brief Removes an Order from the server.
     
     Sends the RemoveOrder frame to the server and receives reply.
@@ -492,48 +546,34 @@ namespace TPProto {
         return false;
     }
 
-  /*! \brief Fetches the OrderDescription for the given OrderTypes.
-    
-  /param otypes Set of order types to get for the cache.
-  */
-// void FrameCodec::seedOrderDescriptionCache(std::set<unsigned int> otypes){
-//     
-//     for(std::set<unsigned int>::iterator itcurr = otypes.begin(); 
-//         itcurr != otypes.end(); ++itcurr){
-//             if(orderdescCache[*itcurr] != NULL){
-//                 std::set<unsigned int>::iterator itnew = itcurr;
-// 	// this is not ideal...
-//                 if(itcurr == otypes.begin())
-//                     ++itnew;
-//                 else
-//                     --itnew;
-//                 
-//                 otypes.erase(itcurr);
-//                 itcurr = itnew;
-//                 
-//             }
-//         }
-//     
-//     if(!otypes.empty()){
-//         GetOrderDescription* god = protocol->getFrameFactory()->createGetOrderDescription();
-//         god->addOrderTypes(otypes);
-//         uint32_t seqnum = sendFrame(god);
-//         delete god;
-//         
-//         std::list<Frame*> reply = recvFrames(seqnum);
-//         for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
-//             Frame * ob = *itcurr;
-//             
-//             if(ob != NULL && ob->getType() == ft02_OrderDesc){
-//                 OrderDescription* od = (OrderDescription*)ob;
-//                 orderdescCache[od->getOrderType()] = od;
-//             }else{
-//                 logger->debug("Expected Order Desc frame, got %d", ob->getType());
-//             }
-//         }
-//         
-//     }
-// }
+    /*! \brief Gets boardids from the server.
+        
+        Gets the complete list of Board ids.
+    \return The set of board id.
+    */
+    std::set<uint32_t> GameLayer::getBoardIds(){
+        std::set<uint32_t> out;
+        GetBoardIdsList *frame = protocol->getFrameFactory()->createGetBoardIdsList();
+        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft03_BoardIds){
+            std::map<uint32_t, uint64_t> ids = static_cast<BoardIdsList*>(reply)->getIds();
+            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                out.insert(itcurr->first);
+            }
+        }else{
+            logger->debug("Expecting boardidlist frame, but got %d instead", reply->getType());
+        }
+        
+            return out;
+    }
 
     /*! \brief Gets a Board from the server.
     
@@ -690,6 +730,429 @@ namespace TPProto {
         
         return false;
     }
+
+
+    /*! \brief Gets a Resource Description from the server.
+    
+    Gets and returns a Resource Description from the server..
+    \param restype The type of resource to get the description for.
+    \return The ResourceDescription..
+    */
+    ResourceDescription* GameLayer::getResourceDescription(uint32_t restype){
+        GetResourceDescription * fr = protocol->getFrameFactory()->createGetResourceDescription();
+        fr->addResourceType(restype);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply == NULL || reply->getType() != ft02_ResDesc){
+            logger->error("The returned frame isn't a resource description");
+        }
+        
+        return static_cast<ResourceDescription*>(reply);
+        
+    }
+
+    /*! \brief Gets a player from the server.
+    
+    Gets a player from the server and returns the Player.
+    \param playerid The player id of the player to get.
+    \return The Player.
+    */
+    Player* GameLayer::getPlayer(uint32_t playerid){
+        GetPlayer * fr = protocol->getFrameFactory()->createGetPlayer();
+        fr->addPlayerId(playerid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+    
+        if(reply == NULL || reply->getType() != ft03_Player){
+            logger->error("The returned frame isn't a player");
+        }
+    
+        return static_cast<Player*>(reply);
+        
+    }
+
+    /*! \brief Gets Category ids from the server.
+    
+    Gets the complete list of Category ids.
+    \return The set of category id.
+    */
+    std::set<uint32_t> GameLayer::getCategoryIds(){
+        std::set<uint32_t> out;
+        GetCategoryIdsList *frame = protocol->getFrameFactory()->createGetCategoryIdsList();
+        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+    
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft03_CategoryIds){
+            std::map<uint32_t, uint64_t> ids = static_cast<CategoryIdsList*>(reply)->getIds();
+            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                out.insert(itcurr->first);
+            }
+        }else{
+            logger->debug("Expecting categoryidlist frame, but got %d instead", reply->getType());
+        }
+        
+        return out;
+    }
+
+    /*! \brief Gets a category from the server.
+    
+    Gets a category from the server and returns it.
+    \param catid The Category id of the category to get.
+    \return The Category.
+    */
+    Category* GameLayer::getCategory(uint32_t catid){
+        GetCategory * fr = protocol->getFrameFactory()->createGetCategory();
+        fr->addCategoryId(catid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply == NULL || reply->getType() != ft03_Category){
+            logger->error("The returned frame isn't a category");
+        }
+        
+        return static_cast<Category*>(reply);
+        
+    }
+
+    /*! \brief Creates a Category object.
+    \return A new category object.
+    */
+    Category* GameLayer::createCategory(){
+        return protocol->getFrameFactory()->createCategory();
+    }
+
+    /*! \brief Adds a Category to the server.
+    
+    Sends the Category Frame to the server.
+    \param cat The Category to add.
+    \return True if successful, false otherwise.
+    */
+    bool GameLayer::addCategory(Category* cat){
+        AddCategory* frame = protocol->getFrameFactory()->createAddCategory();
+        frame->setName(cat->getName());
+        frame->setDescription(cat->getDescription());
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        if(reply != NULL){
+            if(reply->getType() == ft02_OK){
+                
+                delete reply;
+                
+                return true;
+            }
+            delete reply;
+        }
+        return false;
+    }
+
+    /*! \brief Removes a category from the server.
+    
+    Sends the RemoveCategory frame and receives the reply.
+    \param catid The Category Id to remove.
+    \return True if sucessful, false otherwise.
+  */
+    bool GameLayer::removeCategory(uint32_t catid){
+        RemoveCategory* frame = protocol->getFrameFactory()->createRemoveCategory();
+        frame->removeCategoryId(catid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        delete frame;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft02_OK){
+            delete reply;
+            return true;
+            
+        }
+        delete reply;
+        
+        return false;
+    }
+    
+
+    /*! \brief Gets designids from the server.
+    
+    Gets the complete list of Design ids.
+    \return The set of design id.
+    */
+    std::set<uint32_t> GameLayer::getDesignIds(){
+        std::set<uint32_t> out;
+        GetDesignIdsList *frame = protocol->getFrameFactory()->createGetDesignIdsList();
+        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft03_DesignIds){
+            std::map<uint32_t, uint64_t> ids = static_cast<DesignIdsList*>(reply)->getIds();
+            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                out.insert(itcurr->first);
+            }
+        }else{
+            logger->debug("Expecting designidlist frame, but got %d instead", reply->getType());
+        }
+        
+        return out;
+    }
+
+    /*! \brief Gets a design from the server.
+    
+    Gets a design from the server and returns the Design.
+    \param designid The Design id of the design to get.
+    \return The Design.
+    */
+    Design* GameLayer::getDesign(uint32_t designid){
+        GetDesign * fr = protocol->getFrameFactory()->createGetDesign();
+        fr->addDesignId(designid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply == NULL || reply->getType() != ft03_Design){
+            logger->error("The returned frame isn't a design");
+        }
+        
+        return static_cast<Design*>(reply);
+        
+    }
+
+    /*! \brief Creates a Design object.
+    \return A new design object.
+    */
+    Design* GameLayer::createDesign(){
+        return protocol->getFrameFactory()->createDesign();
+    }
+
+    /*! \brief Adds a Design to the server.
+    
+    Sends the Design Frame to the server.
+    \param d The Design to add.
+    \return True if successful, false otherwise.
+    */
+    bool GameLayer::addDesign(Design* d){
+        AddDesign* frame = protocol->getFrameFactory()->createAddDesign();
+        frame->copyFromDesign(d);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        if(reply != NULL){
+            if(reply->getType() == ft02_OK){
+                
+                delete reply;
+                
+                return true;
+            }
+            delete reply;
+        }
+        return false;
+    }
+
+    /*! \brief Modifies a Design on the server.
+    
+    Sends a ModifyDesign Frame to the server.
+    \param d The Design to modify.
+    \return True if successful, false otherwise.
+    */
+    bool GameLayer::modifyDesign(Design* d){
+        ModifyDesign* frame = protocol->getFrameFactory()->createModifyDesign();
+        frame->copyFromDesign(d);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        if(reply != NULL){
+            if(reply->getType() == ft02_OK){
+                
+                delete reply;
+                
+                return true;
+            }
+            delete reply;
+        }
+        return false;
+    }
+    
+    /*! \brief Removes a design from the server.
+    
+    Sends the RemoveDesign frame and receives the reply.
+    \param designid The Design Id to remove.
+    \return True if sucessful, false otherwise.
+    */
+    bool GameLayer::removeDesign(uint32_t designid){
+        RemoveDesign* frame = protocol->getFrameFactory()->createRemoveDesign();
+        frame->removeDesignId(designid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        delete frame;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft02_OK){
+            delete reply;
+            return true;
+            
+        }
+        delete reply;
+        
+        return false;
+    }
+
+
+    /*! \brief Gets component ids from the server.
+    
+    Gets the complete list of Component ids.
+    \return The set of component id.
+    */
+    std::set<uint32_t> GameLayer::getComponentIds(){
+        std::set<uint32_t> out;
+        GetComponentIdsList *frame = protocol->getFrameFactory()->createGetComponentIdsList();
+        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft03_ComponentIds){
+            std::map<uint32_t, uint64_t> ids = static_cast<ComponentIdsList*>(reply)->getIds();
+            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                out.insert(itcurr->first);
+            }
+        }else{
+            logger->debug("Expecting componentidlist frame, but got %d instead", reply->getType());
+        }
+        
+        return out;
+    }
+
+    /*! \brief Gets a Component from the server.
+    
+    Gets a component from the server and returns the Component.
+    \param compid The Component id of the component to get.
+    \return The Component.
+    */
+    Component* GameLayer::getComponent(uint32_t compid){
+        GetComponent * fr = protocol->getFrameFactory()->createGetComponent();
+        fr->addComponentId(compid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply == NULL || reply->getType() != ft03_Component){
+            logger->error("The returned frame isn't a component");
+        }
+        
+        return static_cast<Component*>(reply);
+        
+    }
+
+
+    /*! \brief Gets propertyids from the server.
+    
+    Gets the complete list of Property ids.
+    \return The set of property id.
+    */
+    std::set<uint32_t> GameLayer::getPropertyIds(){
+        std::set<uint32_t> out;
+        GetPropertyIdsList *frame = protocol->getFrameFactory()->createGetPropertyIdsList();
+        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+        
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply != NULL && reply->getType() == ft03_PropertyIds){
+            std::map<uint32_t, uint64_t> ids = static_cast<PropertyIdsList*>(reply)->getIds();
+            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                out.insert(itcurr->first);
+            }
+        }else{
+            logger->debug("Expecting objectidlist frame, but got %d instead", reply->getType());
+        }
+        
+        return out;
+    }
+
+    /*! \brief Gets a Property from the server.
+    
+    Gets a property from the server and returns the Property.
+    \param propid The property id of the property to get.
+    \return The Property.
+    */
+    Property* GameLayer::getProperty(uint32_t propid){
+        GetProperty * fr = protocol->getFrameFactory()->createGetProperty();
+        fr->addPropertyId(propid);
+        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+        delete fr;
+        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+        Frame * reply = NULL;
+        if(replies.size() >= 1){
+            reply = replies.front();
+        }
+        
+        if(reply == NULL || reply->getType() != ft03_Property){
+            logger->error("The returned frame isn't a property");
+        }
+        
+        return static_cast<Property*>(reply);
+        
+    }
+
 
     /*! \brief Gets the time remaining before the end of turn.
     
