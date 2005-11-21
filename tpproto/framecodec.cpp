@@ -23,38 +23,17 @@
 #include "config.h"
 #endif
 
-#ifndef VERSION
-#define VERSION "0.0.0"
-#endif
-
 #include "tpsocket.h"
 #include "buffer.h"
 #include "framefactory.h"
 #include "framebuilder.h"
 #include "protocollayer.h"
-// Frame Types
 
-#include "okframe.h"
-#include "failframe.h"
+#include "frame.h"
 #include "sequence.h"
-#include "connect.h"
-#include "login.h"
-#include "getobjectbyid.h"
-#include "getobjects.h"
-#include "object.h"
-#include "getboard.h"
-#include "board.h"
-#include "getmessage.h"
-#include "message.h"
-#include "removemessage.h"
-#include "gettime.h"
 #include "timeremaining.h"
 #include "asyncframelistener.h"
-#include "order.h"
-#include "getorder.h"
-#include "removeorder.h"
-#include "orderdesc.h"
-#include "getorderdesc.h"
+
 #include "logger.h"
 #include "silentlogger.h"
 
@@ -70,7 +49,6 @@ namespace TPProto {
     - no AsyncFrameListener
     - SilentLogger for the Logger
     - version unknown
-    - "Unknown client" for the client string
   */
   FrameCodec::FrameCodec(){
     sock = NULL;
