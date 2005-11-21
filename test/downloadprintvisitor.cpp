@@ -7,10 +7,7 @@
 #include <tpproto/starsystem.h>
 #include <tpproto/planet.h>
 #include <tpproto/fleet.h>
-#include <tpproto/getobjectbyid.h>
-#include <tpproto/framecodec.h>
-#include <tpproto/framefactory.h>
-#include <tpproto/getorder.h>
+
 #include <tpproto/order.h>
 #include <tpproto/orderparameter.h>
 #include <tpproto/spacecoord.h>
@@ -21,6 +18,8 @@
 #include <tpproto/spacecoordrel.h>
 #include <tpproto/rangeparameter.h>
 #include <tpproto/stringparameter.h>
+
+#include <tpproto/gamelayer.h>
 
 #include "downloadprintvisitor.h"
 
@@ -109,20 +108,20 @@ void DownloadPrintVisitor::visit(Planet* ob){
     funobject = ob->getId();
     if(ob->getNumberOrders() > 0){
       std::cout << "Getting orders" << std::endl;
-      GetOrder* go = ff->createGetOrder();
-      go->setObjectId(ob->getId());
-      go->addOrderRange(0, ob->getNumberOrders());
-      std::map<unsigned int, Order*> orders = fc->getOrders(go);
-      for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+//       GetOrder* go = ff->createGetOrder();
+//       go->setObjectId(ob->getId());
+//       go->addOrderRange(0, ob->getNumberOrders());
+      std::list<Order*> orders = fc->getOrders(ob->getId(), ob->getNumberOrders());
+      for(std::list<Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
 	
-	std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
-	std::cout << "type: " << itcurr->second->getOrderType() << std::endl;
-	std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
-	std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+	std::cout << "Order: slot " << (*itcurr)->getSlot() << std::endl;
+	std::cout << "type: " << (*itcurr)->getOrderType() << std::endl;
+	std::cout << "num turns: " << (*itcurr)->getNumTurns() << std::endl;
+	std::cout << "num params: " << (*itcurr)->getNumParameters() << std::endl;
 	
 	// for each parameter...
-	for(unsigned int i = 0; i < itcurr->second->getNumParameters(); i++){
-	  itcurr->second->getParameter(i)->visit(this);
+	for(unsigned int i = 0; i < (*itcurr)->getNumParameters(); i++){
+	  (*itcurr)->getParameter(i)->visit(this);
 	}
 	
       }
@@ -150,20 +149,20 @@ void DownloadPrintVisitor::visit(Fleet* ob){
     funobject = ob->getId();
     if(ob->getNumberOrders() > 0){
       std::cout << "Getting orders" << std::endl;
-      GetOrder* go = ff->createGetOrder();
-      go->setObjectId(ob->getId());
-      go->addOrderRange(0, ob->getNumberOrders());
-      std::map<unsigned int, Order*> orders = fc->getOrders(go);
-      for(std::map<unsigned int, Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
+//       GetOrder* go = ff->createGetOrder();
+//       go->setObjectId(ob->getId());
+//       go->addOrderRange(0, ob->getNumberOrders());
+      std::list<Order*> orders = fc->getOrders(ob->getId(), ob->getNumberOrders());
+      for(std::list<Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
 	
-	std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
-	std::cout << "type: " << itcurr->second->getOrderType() << std::endl;
-	std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
-	std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
+	std::cout << "Order: slot " << (*itcurr)->getSlot() << std::endl;
+	std::cout << "type: " << (*itcurr)->getOrderType() << std::endl;
+	std::cout << "num turns: " << (*itcurr)->getNumTurns() << std::endl;
+	std::cout << "num params: " << (*itcurr)->getNumParameters() << std::endl;
 	
 	// for each parameter...
-	for(unsigned int i = 0; i < itcurr->second->getNumParameters(); i++){
-	  itcurr->second->getParameter(i)->visit(this);
+	for(unsigned int i = 0; i < (*itcurr)->getNumParameters(); i++){
+	  (*itcurr)->getParameter(i)->visit(this);
 	}
       }
     }
@@ -178,28 +177,28 @@ void DownloadPrintVisitor::visit(Object* ob){
  
   if(ob->getContainedObjectIds().size() > 0){
     
-    GetObjectById* gobi = ff->createGetObjectById();
-    gobi->addObjectIDs(ob->getContainedObjectIds());
-    std::map<unsigned int, Object*> oblist = fc->getObjects(gobi);
-    delete gobi;
+//     GetObjectById* gobi = ff->createGetObjectById();
+//     gobi->addObjectIDs(ob->getContainedObjectIds());
+    std::set<uint32_t> oblist = ob->getContainedObjectIds();
     std::cout << "Visiting contained objects, " << oblist.size() << " to visit" << std::endl;
-    for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
-      (itcurr->second)->visit(this);
+    for(std::set<uint32_t>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
+        Object* newob = fc->getObject(*itcurr);
+//     delete gobi;
+//     std::cout << "Visiting contained objects, " << oblist.size() << " to visit" << std::endl;
+//     for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
+        newob->visit(this);
+        delete newob;
     }
     
-    std::cout << "Cleaning up" << std::endl;
-    for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
-      delete (itcurr->second);
-    }
+//     std::cout << "Cleaning up" << std::endl;
+//     for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
+//       delete (itcurr->second);
+//     }
   }
 }
 
-void DownloadPrintVisitor::setFrameCodec(FrameCodec* nfc){
+void DownloadPrintVisitor::setGameLayer(GameLayer* nfc){
   fc = nfc;
-}
-
-void DownloadPrintVisitor::setFrameFactory(FrameFactory* nff){
-    ff = nff;
 }
 
 unsigned int DownloadPrintVisitor::getPlayableObject(){

@@ -69,7 +69,7 @@ namespace TPProto {
     - no TPSocket
     - no AsyncFrameListener
     - SilentLogger for the Logger
-    - version 2 of the protocol
+    - version unknown
     - "Unknown client" for the client string
   */
   FrameCodec::FrameCodec(){
@@ -77,8 +77,7 @@ namespace TPProto {
     asynclistener = NULL;
     logger = new SilentLogger();
     status = 0;
-        version = 3; // TP03
-    clientid = "Unknown client";
+        version = 0;
     nextseqnum = 1; // should be random
   }
 
@@ -93,24 +92,8 @@ namespace TPProto {
     }
     delete logger;
 
-    for(std::map<unsigned int, OrderDescription*>::iterator itcurr = orderdescCache.begin(); 
-	itcurr != orderdescCache.end(); ++itcurr){
-      delete itcurr->second;
-    }
-    orderdescCache.clear();
         clearIncomingFrames();
 
-  }
-
-  /*! \brief Sets the client string.
-
-  The client string can be set to anything.  The perferred format is
-  "name/version".  The library name and version is added the the client
-  string later.
-  \param name The client name string.
-  */
-  void FrameCodec::setClientString(const std::string & name){
-    clientid = name;
   }
 
   /*! \brief Sets the TPSocket to be used for communicating with the server.
@@ -121,7 +104,7 @@ namespace TPProto {
     if(sock != NULL)
       delete sock;
     sock = nsock;
-    status = 0;
+        version = 0;
   }
 
   /*! \brief Sets the AsyncFrameListener.
@@ -171,491 +154,7 @@ namespace TPProto {
     }
     return status;
   }
-  
-  /*! \brief Connects to the server.
-  
-  Establishes a connection to the server via the TPSocket, sends the Connect
-  Frame and waits for the OkFrame to signal it has connected successfully.
-  \return True if connected, false otherwise.
-  */
-  bool FrameCodec::connect(){
-    if(sock != NULL || status != 0){
-            clearIncomingFrames();
-      if(sock->connect()){
-	logger->debug("Connection opened");
-	status = 1;
 
-	// send connect frame
-            layer->getFrameFactory()->setProtocolVersion(version);
-            Connect * cf = layer->getFrameFactory()->createConnect();
-	//cf->setProtocolVersion(version);
-	cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
-
-                uint32_t seqnum = sendFrame(cf);
-	delete cf;
-	
-                std::list<Frame*> replies = recvFrames(seqnum);
-                Frame * reply = NULL;
-                if(replies.size() >= 1){
-                    reply = replies.front();
-                }
-
-	if(reply != NULL && reply->getType() == ft02_OK){
-	  // expect OK back
-	  //  or maybe error
-	  status = 2;
-	  logger->info("Connected");
-	  delete reply;
-	  return true;
-	}else{
-	  status = 0;
-	  logger->error("Could not connect");
-	  sock->disconnect();
-	  if(reply != NULL)
-	    delete reply;
-	}
-      }else{
-	logger->error("Could not open socket to server");
-      }
-    }else{
-      logger->warning("Already connected or no socket, ignoring connect attempt");
-    }
-    return false;
-  }
-  
-  /*! \brief Logs in to the server.
-
-  Sends a Login Frame to the server and waits for a reply.
-  \param username The username to connect as.
-  \param password The password of the account of the username.
-  \return True if successful, false otherwise.
-  */
-  bool FrameCodec::login(const std::string &username, const std::string &password){
-    if(status == 2 && sock->isConnected()){
-            Login * login = layer->getFrameFactory()->createLogin();
-      //login->setProtocolVersion(version);
-      login->setUser(username);
-      login->setPass(password);
-      uint32_t seqnum = sendFrame(login);
-      delete login;
-
-            std::list<Frame*> replies = recvFrames(seqnum);
-            Frame * reply = NULL;
-            if(replies.size() >= 1){
-                reply = replies.front();
-            }
-
-	if(reply != NULL && reply->getType() == ft02_OK){
-	  // expect OK back
-	  //  or maybe error
-	  status = 3;
-	  logger->info("Logged in");
-	  delete reply;
-	  return true;
-	}else{
-	  logger->warning("Did not log in");
-	  //status = 0;
-	  //sock->disconnect();
-	  if(reply != NULL)
-	    delete reply;
-	}
-
-    }
-    if(!sock->isConnected())
-      status = 0;
-    return false;
-  }
-
-  /*! \brief Disconnects from server.
-
-  Closes the underlying TPSocket.
-  */
-  void FrameCodec::disconnect(){
-    if(status != 0 && sock != NULL){
-      sock->disconnect();
-      logger->info("Disconnected");
-    }
-    status = 0;
-  }
-
-
-  /*! \brief Gets objects from the server.
-    
-  Sends the given GetObjects Frame (either GetObjectByID or GetObjectByPos 
-  Frame) and returns the Objects.
-  \param frame The GetObjects Frame to request some objects.
-  \return A map of object id and Object pairs.
-  */
-  std::map<unsigned int, Object*> FrameCodec::getObjects(GetObjects * frame){
-    std::map<unsigned int, Object*> out;
-    std::set<unsigned int> ordertypes;
-        uint32_t seqnum = sendFrame(frame);
-
-        std::list<Frame*> replies = recvFrames(seqnum);
-
-        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
-            Frame * ob = *itcurr;
-	  if(ob != NULL && ob->getType() == ft02_Object){
-	    out[((Object*)ob)->getId()] = (Object*)ob;
-	    if(!((Object*)ob)->getAvailableOrders().empty()){
-	      std::set<unsigned int> oldset = ordertypes;
-	      ordertypes.clear();
-	      std::set<unsigned int> obset = ((Object*)ob)->getAvailableOrders();
-	      set_union(oldset.begin(), oldset.end(), obset.begin(), obset.end(), inserter(ordertypes, ordertypes.begin()));
-	    }
-	  }else{
-	    logger->debug("Expecting object frames, but got %d instead", ob->getType());
-	  }
-	}
-
-    if(!ordertypes.empty()){
-      seedOrderDescriptionCache(ordertypes);
-    }
-    return out;
-  }
-
-  /*! \brief Gets the Universe Object.
-    
-  A handy method to get the Universe Object.
-  \return The Object of the Universe.
-  */
-  Object* FrameCodec::getUniverse(){
-        GetObjectById * fr = layer->getFrameFactory()->createGetObjectById();
-    fr->addObjectID(0);
-        uint32_t seqnum = sendFrame(fr);
-    delete fr;
-        std::list<Frame*> replies = recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-    
-        if(reply == NULL || reply->getType() != ft02_Object){
-            logger->error("Universe object isn't an object");
-        }
-
-    return (Object*)reply;
-	
-  }
-
-  
-  /*! \brief Gets Orders from the server.
-
-  This method sends the GetOrder Frame to the server and returns the
-  Order Frames.
-  \param frame The GetOrder Frame to send.
-  \return Map of OrderId and Order pairs.
-  */
-  std::map<unsigned int, Order*> FrameCodec::getOrders(GetOrder* frame){
-    std::map<unsigned int, Order*> out;
-        uint32_t seqnum = sendFrame(frame);
-        delete frame;
-        std::list<Frame*> reply = recvFrames(seqnum);
-
-        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
-            Frame * ob = *itcurr;
-	  if(ob != NULL && ob->getType() == ft02_Order){
-	      out[((Order*)ob)->getSlot()] = (Order*)ob;
-	  }else if(ob != NULL){
-	      logger->debug("Expecting order frames, but got %d instead", ob->getType());
-	      delete ob;
-	  }else{
-	    logger->debug("Expecting order frames, but got NULL");
-	  
-	  }
-	}
-	
-    return out;
-  }
-
-  /*! \brief Creates an Order Frame of a given type.
-
-  This method creates a new Order Frame, sets the protocol version and
-  sets up the order for the given type, including parameters.
-  \param type The type number for the order type.
-  \return The new Order.
-  */
-  Order* FrameCodec::createOrderFrame(int type){
-        Order* f = layer->getFrameFactory()->createOrder();
-    //get description
-
-    std::map<unsigned int, OrderDescription*>::iterator idesc = orderdescCache.find(type);
-    if(idesc != orderdescCache.end()){
-      // add parameters
-      f->setOrderType((idesc->second));
-
-      return f;
-    }
-
-    logger->debug("No order description in cache for type %d", type);
-
-    delete f;
-    return NULL;
-  }
-
-  /*! \brief Inserts an Order into the objects order queue.
-
-  \param frame The Order to insert.
-  \returns True if successful, false otherwise.
-  */
-  bool FrameCodec::insertOrder(Order* frame){
-        uint32_t seqnum = sendFrame(frame);
-        std::list<Frame*> replies = recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-    if(reply != NULL){
-      if(reply->getType() == ft02_OK){
-	
-	delete reply;
-	
-	return true;
-      }else{
-	logger->debug("Expected ok frame, got %d", reply->getType());
-      }
-      delete reply;
-    }else{
-      logger->debug("Expected ok frame, got NULL");
-    }
-    return false;
-  }
-
-  /*! \brief Replaces a current Order with a new one.
-
-  First inserts the new Order, then removes the old one.
-  Can fail with or without the new order in the order queue.
-  \param frame The Order that will replace the current one.
-  \return True if successful, false otherwise.
-  */
-  bool FrameCodec::replaceOrder(Order* frame){
-    if(frame->getSlot() >= 0 && insertOrder(frame)){
-      
-      RemoveOrder* ro = layer->getFrameFactory()->createRemoveOrder();
-      ro->setObjectId(frame->getObjectId());
-      ro->removeOrderId(frame->getSlot() + 1);
-      if(removeOrders(ro) == 1){
-	delete ro;
-	return true;
-      }
-
-      delete ro;
-
-    }
-    
-    return false;
-
-  }
-
-  /*! \brief Removes Orders from the server.
-    
-  Sends the RemoveOrder frame to the server and receives reply.
-  \param frame The RemoveOrder frame to send.
-  \return The number of Orders removed.
-  */
-  int FrameCodec::removeOrders(RemoveOrder* frame){
-    int removed = 0;
-        uint32_t seqnum = sendFrame(frame);
-
-        std::list<Frame*> replies = recvFrames(seqnum);
-        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
-            Frame* f = *itcurr;
-	  if(f == NULL)
-	    break;
-	  if(f->getType() == ft02_OK){
-	    removed++;
-	  }
-	  delete f;
-	}
-    return removed;
-  }
-
-  /*! \brief Fetches the OrderDescription for the given OrderTypes.
-    
-  /param otypes Set of order types to get for the cache.
-  */
-  void FrameCodec::seedOrderDescriptionCache(std::set<unsigned int> otypes){
-
-    for(std::set<unsigned int>::iterator itcurr = otypes.begin(); 
-	itcurr != otypes.end(); ++itcurr){
-      if(orderdescCache[*itcurr] != NULL){
-	std::set<unsigned int>::iterator itnew = itcurr;
-	// this is not ideal...
-	if(itcurr == otypes.begin())
-	  ++itnew;
-	else
-	  --itnew;
-
-	otypes.erase(itcurr);
-	itcurr = itnew;
-
-      }
-    }
-
-    if(!otypes.empty()){
-      GetOrderDescription* god = layer->getFrameFactory()->createGetOrderDescription();
-      god->addOrderTypes(otypes);
-            uint32_t seqnum = sendFrame(god);
-      delete god;
-      
-            std::list<Frame*> reply = recvFrames(seqnum);
-            for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
-                Frame * ob = *itcurr;
-
-	    if(ob != NULL && ob->getType() == ft02_OrderDesc){
-	      OrderDescription* od = (OrderDescription*)ob;
-	      orderdescCache[od->getOrderType()] = od;
-	    }else{
-                    logger->debug("Expected Order Desc frame, got %d", ob->getType());
-	    }
-	  }
-
-    }
-  }
-
-  /*! \brief Gets Boards from the server.
-
-  Sends the GetBoard Frame and gets the Boards back from the server.
-  \param frame The GetBoard frame to send to the server.
-  \return A map of BoardId and Board pairs.
-  */
-  std::map<unsigned int, Board*> FrameCodec::getBoards(GetBoard* frame){
-    std::map<unsigned int, Board*> out;
-        uint32_t seqnum = sendFrame(frame);
-        delete frame;
-        std::list<Frame*> reply = recvFrames(seqnum);
-        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
-            Frame * ob = *itcurr;
-	  if(ob != NULL && ob->getType() == ft02_Board){
-	    out[((Board*)ob)->getId()] = (Board*)ob;
-	  }else{
-	    logger->debug("Expecting Board frames, but got %d instead", ob->getType());
-	  }
-	}
-    return out;
-  }
-
-  /*! \brief Gets the logged in player's personal Board.
-    
-  A little easier and quicker than FrameCodec::getBoards.
-  \return The Board object for the Player's Board.
-  */
-  Board* FrameCodec::getPersonalBoard(){
-        GetBoard * fr = layer->getFrameFactory()->createGetBoard();
-    fr->addBoardId(0);
-        uint32_t seqnum = sendFrame(fr);
-    delete fr;
-        std::list<Frame*> replies = recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-
-    return (Board*)reply;
-  }
-
-  /*! \brief Gets Messages from the server.
-
-  Sends the GetMessage Frame and receives the Message frames.
-  \param frame The GetMessage frame to send.
-  \return Map of MessageId and Message pairs.
-  */
-  std::map<unsigned int, Message*> FrameCodec::getMessages(GetMessage* frame){
-    std::map<unsigned int, Message*> out;
-        uint32_t seqnum = sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = recvFrames(seqnum);
-        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
-            Frame * ob = *itcurr;
-	  if(ob != NULL && ob->getType() == ft02_Message){
-	    out[((Message*)ob)->getSlot()] = (Message*)ob;
-	  }else if(ob != NULL){
-	    logger->debug("Expecting message frames, but got %d instead", ob->getType());
-	  }else{
-	    logger->debug("Expecting message frames, but got NULL");
-	  }
-	}
-
-    return out;
-
-  }
-
-  /*! \brief Posts a Message to the server.
-    
-  Sends the Message Frame to the server.
-  \param frame The Message to post.
-  \return True if successful, false otherwise.
-  */
-  bool FrameCodec::postMessage(Message* frame){
-        uint32_t seqnum = sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-    if(reply != NULL){
-      if(reply->getType() == ft02_OK){
-
-	delete reply;
-
-	return true;
-      }
-      delete reply;
-    }
-    return false;
-  }
-
-  /*! \brief Removes messages from the server.
-
-  Sends the RemoveMessage frame and receives the replies.
-  \param frame The RemoveMessage frame to send.
-  \return The number of Messages removed.
-  */
-  int FrameCodec::removeMessages(RemoveMessage* frame){
-    int removed = 0;
-        uint32_t seqnum = sendFrame(frame);
-        delete frame;
-        std::list<Frame*> reply = recvFrames(seqnum);
-
-        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
-            Frame* f = *itcurr;
-	  if(f == NULL)
-	    break;
-	  if(f->getType() == ft02_OK){
-	    removed++;
-	  }
-	  delete f;
-	}
-
-    return removed;
-  }
-
-  /*! \brief Gets the time remaining before the end of turn.
-
-  Fetches the time remaining till the end of turn from the server.
-  \returns The time in seconds before the end of turn, or
-  -1 if there was an error.
-  */
-  int FrameCodec::getTimeRemaining(){
-        GetTime* gt = layer->getFrameFactory()->createGetTimeRemaining();
-
-        uint32_t seqnum = sendFrame(gt);
-        delete gt;
-        std::list<Frame*> replies = recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-    if(reply != NULL && reply->getType() == ft02_Time_Remaining){
-      int time = ((TimeRemaining*)reply)->getTimeRemaining();
-      delete reply;
-      return time;
-    }
-    if(reply != NULL)
-      delete reply;
-    return -1;
-  }
 
   /*! \brief Checks the connection for any AsyncFrames.
 
@@ -707,7 +206,7 @@ namespace TPProto {
   \param f The Frame to send.
   */
   uint32_t FrameCodec::sendFrame(Frame *f){
-    if(status >= 1){
+    if(sock->isConnected()){
       Buffer *data = new Buffer();
       f->packBuffer(data);
       Buffer *header = new Buffer();
@@ -791,7 +290,7 @@ namespace TPProto {
   \return The received Frame or NULL.
   */
   Frame* FrameCodec::recvOneFrame(){
-    if(status >= 1){
+    if(sock->isConnected()){
       char* head, *body;
       int rlen = sock->recvHeader(16, head);
       if(rlen != 16){
@@ -823,7 +322,7 @@ namespace TPProto {
       
         if(fver != version){
             //version mismatch
-            if(status == 1 && fver > 1 && fver <= 3){
+            if(version == 0 && fver > 1 && fver <= 3){
                 version = fver;
                 layer->getFrameFactory()->setProtocolVersion(version);
             }else{

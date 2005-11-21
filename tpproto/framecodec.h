@@ -66,7 +66,6 @@ namespace TPProto{
 
     //config & setup
 
-    void setClientString(const std::string & name);
     void setSocket(TPSocket * nsock);
     void setAsyncFrameListener(AsyncFrameListener* afl);
     void setLogger(Logger* nlog);
@@ -74,35 +73,6 @@ namespace TPProto{
 
     //status
     int getStatus();
-
-    //connect, login and disconnect
-    bool connect();
-    bool login(const std::string &user, const std::string &password);
-    void disconnect();
-    
-
-    //Objects
-    std::map<unsigned int, Object*> getObjects(GetObjects * frame);
-    Object* getUniverse();
-
-    //Orders
-    std::map<unsigned int, Order*> getOrders(GetOrder* frame);
-    Order* createOrderFrame(int type);
-    bool insertOrder(Order* frame);
-    bool replaceOrder(Order* frame);
-    int removeOrders(RemoveOrder* frame); // returns number removed
-    void seedOrderDescriptionCache(std::set<unsigned int> otypes);
-
-    //Boards and Messages
-    std::map<unsigned int, Board*> getBoards(GetBoard* frame);
-    Board* getPersonalBoard();
-    std::map<unsigned int, Message*> getMessages(GetMessage* frame);
-    bool postMessage(Message* frame);
-    int removeMessages(RemoveMessage* frame); // returns number removed
-
-
-    //Time
-    int getTimeRemaining();
 
     //polling
     void pollForAsyncFrames();
@@ -121,10 +91,8 @@ namespace TPProto{
         ProtocolLayer* layer;
     int status;
     int version;
-    std::string clientid;
     int nextseqnum;
 
-    std::map<unsigned int, OrderDescription*> orderdescCache;
     std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > > incomingframes;
 
   };

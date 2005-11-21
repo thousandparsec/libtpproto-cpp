@@ -5,8 +5,7 @@
 #include <tpproto/orderparametervisitor.h>
 
 namespace TPProto{
-  class FrameCodec;
-    class FrameFactory;
+  class GameLayer;
 }
 
 class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParameterVisitor{
@@ -21,8 +20,7 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParame
   void visit(TPProto::Fleet* ob);
   void visit(TPProto::Object* ob);
 
-  void setFrameCodec(TPProto::FrameCodec* nfc);
-    void setFrameFactory(TPProto::FrameFactory* nff);
+  void setGameLayer(TPProto::GameLayer* nfc);
   unsigned int getPlayableObject();
 
   void visitOrderParam(TPProto::SpaceCoordinates* op);
@@ -36,8 +34,7 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParame
   void printOParam(TPProto::OrderParameter* op);
 
  private:
-  TPProto::FrameCodec * fc;
-    TPProto::FrameFactory* ff;
+  TPProto::GameLayer * fc;
   unsigned int funobject;
 
 };

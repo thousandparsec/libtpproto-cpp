@@ -1,20 +1,13 @@
 #include <iostream>
 #include <stdarg.h>
 
-#include <tpproto/framecodec.h>
-#include <tpproto/framefactory.h>
-#include <tpproto/tcpsocket.h>
 #include <tpproto/object.h>
 #include <tpproto/board.h>
 #include <tpproto/message.h>
-#include <tpproto/getmessage.h>
-#include <tpproto/removemessage.h>
 #include <tpproto/order.h>
-#include <tpproto/getorder.h>
-#include <tpproto/removeorder.h>
 #include <tpproto/timeparameter.h>
 #include <tpproto/logger.h>
-#include <tpproto/protocollayer.h>
+#include <tpproto/gamelayer.h>
 
 #include "downloadprintvisitor.h"
 #include "printasynclistener.h"
@@ -74,29 +67,16 @@ int main(int argc, char** argv){
     status = 1;
   }else{
 
-    TcpSocket * ts = new TcpSocket();
-    if(argc == 2)
-      ts->setServerAddr(argv[1]);
-    else
-      ts->setServerAddr(argv[1], argv[2]);
-
-    FrameCodec *myfc = new FrameCodec();
+    GameLayer *myfc = new GameLayer();
     myfc->setLogger(new StdoutLogger());
-    myfc->setSocket(ts);
     myfc->setClientString("libtpproto-cpp_NetTest");
 
-    ProtocolLayer* layer = new ProtocolLayer();
-    layer->setFrameCodec(myfc);
-    FrameFactory* myff = layer->getFrameFactory();
-
-    PrintAsyncListener* pal = new PrintAsyncListener();
-    myfc->setAsyncFrameListener(pal);
 
     std::cout << "Test setup complete" << std::endl;
 
     std::cout << "Starting status: " << myfc->getStatus() << std::endl;
 
-    if(myfc->connect()){
+    if(myfc->connect(argv[1])){
       std::cout << "Connected ok, status: " << myfc->getStatus() << std::endl;
       
       if(myfc->login("test", "test")){
@@ -109,8 +89,8 @@ int main(int argc, char** argv){
 
 	  std::cout << "Setting up Visitor test" << std::endl;
 	  DownloadPrintVisitor* dpv = new DownloadPrintVisitor();
-	  dpv->setFrameCodec(myfc);
-            dpv->setFrameFactory(myff);
+            dpv->setGameLayer(myfc);
+
 	  
 	  std::cout << "Starting Visitor test" << std::endl;
 	  universe->visit(dpv);
@@ -129,14 +109,9 @@ int main(int argc, char** argv){
 	  order->setSlot(0);
 	  if(myfc->insertOrder(order)){
 	    std::cout << "Successfully added order, status " << myfc->getStatus() << std::endl;
-	    //delete order;
-	    
-	    GetOrder* gor = myff->createGetOrder();
-	    gor->addOrderId(0);
-	    gor->setObjectId(pob);
-	    std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
-	    //delete gor;
-	    order = orlist.begin()->second;
+
+	    Order* order = myfc->getOrder(pob, 0);
+
 	    std::cout << "Order: slot " << order->getSlot() << std::endl;
 	    std::cout << "obid: " << order->getObjectId() << std::endl;
 	    std::cout << "type: " << order->getOrderType() << std::endl;
@@ -149,21 +124,15 @@ int main(int argc, char** argv){
 	    
 	    if(myfc->replaceOrder(order)){
 	      std::cout << "Successfully replaced order, status " << myfc->getStatus() << std::endl;
-	      
-	      //delete order;
-	      
-	      gor = myff->createGetOrder();
-	      gor->addOrderRange(0, 10);
-	      gor->setObjectId(pob);
-	      std::map<unsigned int, Order*> orlist = myfc->getOrders(gor);
-	      //delete gor;
-	      for(std::map<unsigned int, Order*>::iterator itcurr = orlist.begin(); itcurr != orlist.end(); ++itcurr){
-		std::cout << "Order: slot " << itcurr->second->getSlot() << std::endl;
-		std::cout << "type: " << itcurr->second->getOrderType() << std::endl;
-		std::cout << "num turns: " << itcurr->second->getNumTurns() << std::endl;
-		std::cout << "num params: " << itcurr->second->getNumParameters() << std::endl;
 
-		delete itcurr->second;
+	      std::list<Order*> orlist = myfc->getOrders(pob, 10);
+	      for(std::list<Order*>::iterator itcurr = orlist.begin(); itcurr != orlist.end(); ++itcurr){
+		std::cout << "Order: slot " << (*itcurr)->getSlot() << std::endl;
+		std::cout << "type: " << (*itcurr)->getOrderType() << std::endl;
+		std::cout << "num turns: " << (*itcurr)->getNumTurns() << std::endl;
+		std::cout << "num params: " << (*itcurr)->getNumParameters() << std::endl;
+
+		delete *itcurr;
 	      }
 
 	    }else{
@@ -175,16 +144,12 @@ int main(int argc, char** argv){
 	    // remove order
 	    std::cout << "Trying to remove order" << std::endl;
 
-	    RemoveOrder* ro = myff->createRemoveOrder();
-	    ro->setObjectId(pob);
-	    ro->removeOrderId(0);
-	    if(myfc->removeOrders(ro) == 1){
+	    if(myfc->removeOrder(pob, 0)){
 	      std::cout << "Successfully removed the one order" << std::endl;
 	    }else{
 	      std::cout << "Failed to remove the one order" << std::endl;
 	      status = 9;
 	    }
-	    delete ro;
 
 	  }else{
 	    delete order;
@@ -210,7 +175,7 @@ int main(int argc, char** argv){
 
 	    std::cout << "Starting Message test, status " << myfc->getStatus() << std::endl;
 
-	    Message* mymess = myff->createMessage();
+	    Message* mymess = myfc->createMessage();
 	    mymess->setSubject("Test");
 	    mymess->setBody("This is a test, pleace check this message is posted");
 	    mymess->setBoardId(myboard->getId());
@@ -228,15 +193,12 @@ int main(int argc, char** argv){
 	    delete myboard;
 	    myboard = myfc->getPersonalBoard();
 
-	    GetMessage* gm = myff->createGetMessage();
-	    gm->setBoard(myboard->getId());
-	    gm->addMessageRange(0, myboard->numMessages());
-	    std::map<unsigned int, Message*> messages = myfc->getMessages(gm);
-	    //delete gm;
+	    std::list<Message*> messages = myfc->getMessages(myboard->getId(), myboard->numMessages());
+
 	    std::cout << "Downloaded messages" << std::endl;
-	    for(std::map<unsigned int, Message*>::iterator itcurr = messages.begin(); itcurr != messages.end();
+	    for(std::list<Message*>::iterator itcurr = messages.begin(); itcurr != messages.end();
 		++itcurr){
-	      Message* mess = (itcurr->second);
+	      Message* mess = *itcurr;
 	      std::cout << "Message on " << mess->getBoardId() << " in slot " << mess->getSlot() << " with type " << mess->getMessageType() << std::endl;
 	      std::cout << "Subject: " << mess->getSubject() << std::endl;
 	      std::cout << "Body: " << mess->getBody() << std::endl;
@@ -247,16 +209,13 @@ int main(int argc, char** argv){
 
 	    std::cout << "Starting message delete test" << std::endl;
 
-	    RemoveMessage* rm = myff->createRemoveMessage();
-	    rm->setBoard(myboard->getId());
-	    rm->removeMessageId(0); // remove the message we posted
-	    if(myfc->removeMessages(rm) == 1){
+
+	    if(myfc->removeMessage(myboard->getId(), 0)){ // remove the message we posted
 	      std::cout << "Successfully removed the one message" << std::endl;
 	    }else{
 	      std::cout << "Failed to remove the one message" << std::endl;
 	      status = 6;
 	    }
-	    //delete rm;
 
 	    std::cout << "Message test complete, status " << myfc->getStatus() << std::endl;
 
@@ -267,12 +226,6 @@ int main(int argc, char** argv){
 	    std::cout << "Time remaining: " << myfc->getTimeRemaining() << std::endl;
 
 	    std::cout << "Time test complete, status " << myfc->getStatus() << std::endl;
-
-	    std::cout << "Starting Async frame polling test" << std::endl;
-
-	    myfc->pollForAsyncFrames();
-
-	    std::cout << "Async frame polling test complete, status " << myfc->getStatus() << std::endl;
 
 	  }else{
 	    std::cout << "Board test failed, board is NULL, status " << myfc->getStatus() << std::endl;
