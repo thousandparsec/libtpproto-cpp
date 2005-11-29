@@ -62,7 +62,7 @@ int main(int argc, char** argv){
   if(argc < 2){
     
     std::cerr << "Need at least one argument" << std::endl;
-    std::cerr << "nettest <hostname-or-ip> [<port> [<username> <password>]]" << std::endl;
+    std::cerr << "nettest <tp server url> [<username> <password>]" << std::endl;
 
     status = 1;
   }else{
@@ -78,8 +78,13 @@ int main(int argc, char** argv){
 
     if(myfc->connect(argv[1])){
       std::cout << "Connected ok, status: " << myfc->getStatus() << std::endl;
-      
-      if(myfc->login("test", "test")){
+        std::string user = "test";
+        std::string pass = "test";
+        if(argc == 4){
+            user = argv[2];
+            pass = argv[3];
+        }
+        if(myfc->login(user, pass)){
 	std::cout << "Login ok, status: " << myfc->getStatus() << std::endl;
 
 	Object* universe = myfc->getUniverse();
