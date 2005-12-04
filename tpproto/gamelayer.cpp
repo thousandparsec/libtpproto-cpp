@@ -36,6 +36,9 @@
 #include "framecodec.h"
 #include "framebuilder.h"
 #include "tcpsocket.h"
+#ifdef HAVE_LIBGNUTLS
+#include "tlssocket.h"
+#endif
 
 // Frame Types
 
@@ -174,7 +177,7 @@ namespace TPProto {
         }
         host = address.substr(tpos, ppos - tpos);
 
-        TPSocket *sock;
+        TPSocket *sock = NULL;
         if(type.empty() || type == "tp"){
             if(port.empty()){
                 port = "6923";
@@ -185,7 +188,10 @@ namespace TPProto {
             if(port.empty()){
                 port = "6924";
             }
-            //TODO
+#ifdef HAVE_LIBGNUTLS
+            sock = new TlsSocket();
+            static_cast<TlsSocket*>(sock)->setServerAddr(host.c_str(), port.c_str());
+#endif
         }else if(type == "http"){
             if(port.empty()){
                 port = "80";
@@ -200,7 +206,11 @@ namespace TPProto {
             logger->error("Type of connection to create was not known");
             return false;
         }
-        return connect(sock);
+        if(sock != NULL){
+            return connect(sock);
+        }else{
+            return false;
+        }
     }
         
     bool GameLayer::connect(TPSocket* nsock){

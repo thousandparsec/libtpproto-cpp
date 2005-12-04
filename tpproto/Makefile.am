@@ -2,9 +2,9 @@
 
 lib_LTLIBRARIES = libtpproto.la
 
-
+libtpproto_la_LIBADD = $(LIBGNUTLS_LIBS)
 libtpproto_la_LDFLAGS = -version-info 1:0:0
-libtpproto_la_SOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
+COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     connect.cpp okframe.cpp failframe.cpp login.cpp tcpsocket.cpp sequence.cpp\
     getobjectbyid.cpp vector3d.cpp getobjectbypos.cpp object.cpp \
     universe.cpp galaxy.cpp starsystem.cpp planet.cpp fleet.cpp \
@@ -24,7 +24,7 @@ libtpproto_la_SOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     property.cpp addcategory.cpp adddesign.cpp modifydesign.cpp getobjectidsbypos.cpp \
     getobjectidsbycontainer.cpp framebuilder.cpp protocollayer.cpp gamelayer.cpp
 libtpprotodir = $(includedir)/tpproto
-libtpproto_HEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
+COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
     getobjects.h getobjectbyid.h vector3d.h getobjectbypos.h object.h \
     objectvisitor.h universe.h galaxy.h starsystem.h planet.h fleet.h \
@@ -44,6 +44,14 @@ libtpproto_HEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     property.h addcategory.h adddesign.h modifydesign.h getobjectidsbypos.h \
     getobjectidsbycontainer.h framebuilder.h protocollayer.h gamelayer.h
 
+if GNUTLS
+GNUTLSSOURCES = tlssocket.cpp
+GNUTLSHEADERS = tlssocket.h
+else
+GNUTLSSOURCES =
+GNUTLSHEADERS =
+endif
 
-
+libtpproto_la_SOURCES = $(COMMONSOURCES) $(GNUTLSSOURCES)
+libtpproto_HEADERS = $(COMMONHEADERS) $(GNUTLSHEADERS)
 
