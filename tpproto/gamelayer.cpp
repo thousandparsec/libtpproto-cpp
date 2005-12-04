@@ -38,6 +38,7 @@
 #include "tcpsocket.h"
 #ifdef HAVE_LIBGNUTLS
 #include "tlssocket.h"
+#include "httpssocket.h"
 #endif
 
 // Frame Types
@@ -201,7 +202,11 @@ namespace TPProto {
             if(port.empty()){
                 port = "443";
             }
-            //TODO
+#ifdef HAVE_LIBGNUTLS
+            sock = new HttpsSocket();
+            static_cast<HttpsSocket*>(sock)->setServerAddr(host.c_str(), port.c_str());
+            //need to have set proxy address already (is static)
+#endif
         }else{
             logger->error("Type of connection to create was not known");
             return false;
