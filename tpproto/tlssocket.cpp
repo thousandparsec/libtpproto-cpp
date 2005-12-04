@@ -72,14 +72,8 @@ namespace TPProto{
         /* put the x509 credentials to the current session
         */
         gnutls_credentials_set (session, GNUTLS_CRD_CERTIFICATE, credentials);
-//         
-//         gnutls_anon_client_credentials_t anoncred;
-//         gnutls_anon_allocate_client_credentials (&anoncred);
         
         gnutls_set_default_priority (session);
-//         const int kx_prio[] = { GNUTLS_KX_ANON_DH, GNUTLS_KX_DHE_DSS, GNUTLS_KX_DHE_RSA, GNUTLS_KX_RSA_EXPORT, 0 };
-//         gnutls_kx_set_priority (session, kx_prio);
-//         gnutls_credentials_set (session, GNUTLS_CRD_ANON, anoncred);
 
 #ifdef HAVE_IPV6
       
