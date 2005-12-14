@@ -37,7 +37,7 @@
 #include "framebuilder.h"
 #include "tcpsocket.h"
 #ifdef HAVE_LIBGNUTLS
-#include "tlssocket.h"
+#include "tpssocket.h"
 #include "httpssocket.h"
 #endif
 
@@ -190,8 +190,8 @@ namespace TPProto {
                 port = "6924";
             }
 #ifdef HAVE_LIBGNUTLS
-            sock = new TlsSocket();
-            static_cast<TlsSocket*>(sock)->setServerAddr(host.c_str(), port.c_str());
+            sock = new TpsSocket();
+            static_cast<TpsSocket*>(sock)->setServerAddr(host.c_str(), port.c_str());
 #endif
         }else if(type == "http"){
             if(port.empty()){

@@ -51,130 +51,136 @@ namespace TPProto{
 
   /*! \brief Connects to the host and port over TCP.
     
-  If HAVE_IPV6 is defined, it will use either IPv4 or IPv6 to
+  <p>If HAVE_IPV6 is defined, it will use either IPv4 or IPv6 to
   make the connection, otherwise it will only use IPv4 (old APIs). They follow 
-  different code paths.
+  different code paths.</p>
+  <p>After a connection is made, but before TLS is negotiated the virtual
+  method onConnect is called.</p>
+  \param host The host to connect to.
+  \param port The port to connect on.
   \return True if a new connection is made, false if already connected or
   if an error occured.
   */
-  bool TlsSocket::connect(){
-    if(status == 0 && hostname != NULL && portname != NULL){
+    bool TlsSocket::connect(const std::string& host, const std::string& port){
+        if(status == 0 && !host.empty() && !port.empty()){
       
-        gnutls_init (&session, GNUTLS_CLIENT);
+            gnutls_init (&session, GNUTLS_CLIENT);
         
         
-        gnutls_set_default_priority (session);
-        const int cert_type_priority[3] = { GNUTLS_CRT_X509,
-            //GNUTLS_CRT_OPENPGP, 
-            0
-        };
-        gnutls_certificate_type_set_priority (session, cert_type_priority);
-        /* put the x509 credentials to the current session
-        */
-        gnutls_credentials_set (session, GNUTLS_CRD_CERTIFICATE, credentials);
+            gnutls_set_default_priority (session);
+            const int cert_type_priority[3] = { GNUTLS_CRT_X509,
+                //GNUTLS_CRT_OPENPGP, 
+                0
+            };
+            gnutls_certificate_type_set_priority (session, cert_type_priority);
+            /* put the x509 credentials to the current session
+            */
+            gnutls_credentials_set (session, GNUTLS_CRD_CERTIFICATE, credentials);
         
-        gnutls_set_default_priority (session);
+            gnutls_set_default_priority (session);
 
-#ifdef HAVE_IPV6
+    #ifdef HAVE_IPV6
       
-      struct addrinfo hints, *res, *ressave;
-      int n;
-      
-      memset(&hints, 0, sizeof(struct addrinfo));
-      
-      hints.ai_family = AF_UNSPEC;
-      hints.ai_socktype = SOCK_STREAM;
-      
-      n = getaddrinfo(hostname, portname, &hints, &res);
-      
-      if (n <0) {
-	fprintf(stderr,
-		"getaddrinfo error:: [%s]\n",
-		gai_strerror(n));
-	return false;
-      }
-      
-      ressave = res;
-      
-      sockfd=-1;
-      while (res) {
-	sockfd = socket(res->ai_family,
-			res->ai_socktype,
-			res->ai_protocol);
-	
-	if (!(sockfd < 0)) {
-	  if (::connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
-	    break;
-	  
-	  close(sockfd);
-	  sockfd=-1;
-	}
-	res=res->ai_next;
-      }
-      
-      freeaddrinfo(ressave);
-      
+            struct addrinfo hints, *res, *ressave;
+            int n;
+        
+            memset(&hints, 0, sizeof(struct addrinfo));
+        
+            hints.ai_family = AF_UNSPEC;
+            hints.ai_socktype = SOCK_STREAM;
+            
+            n = getaddrinfo(host.c_str(), port.c_str(), &hints, &res);
+            
+            if (n <0) {
+                fprintf(stderr,
+                        "getaddrinfo error:: [%s]\n",
+                        gai_strerror(n));
+                return false;
+            }
+            
+            ressave = res;
+            
+            sockfd=-1;
+            while (res) {
+                sockfd = socket(res->ai_family,
+                                res->ai_socktype,
+                                res->ai_protocol);
+                
+                if (!(sockfd < 0)) {
+                    if (::connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+                        break;
+                
+                    close(sockfd);
+                    sockfd=-1;
+                }
+                res=res->ai_next;
+            }
+            
+            freeaddrinfo(ressave);
+        
 #else
-      // IPv4 only
-      
-      struct sockaddr_in sin;
-      struct hostent *phe;
-      struct servent *pse;
-      
-      memset(&sin, 0, sizeof(sin));
-      
-      sin.sin_family=AF_INET;
-      
-      if ( pse = getservbyname(portname, "tcp") ) {
-	sin.sin_port = pse->s_port;
-	
-      } else if ((sin.sin_port = htons((u_short)atoi(service)))==0) {
-	fprintf(stderr, "ipv4_only_connect:: could not get service=[%s]\n",
-		service);
-	return false;
-      }
-      
-      if (phe = gethostbyname(hostname)) {
-	memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
-	
-      } else if ( (sin.sin_addr.s_addr = inet_addr(hostname)) == 
-		  INADDR_NONE) {
-	fprintf(stderr, "ipv4_only_connect:: could not get host=[%s]\n", hostname);
-	return false;
-      }
-      
-      if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  
-	fprintf(stderr, "ipv4_only_connect:: could not open socket\n");
-	return false;
-      }
-      
-      if (connect(sockfd,(struct sockaddr *)&sin, sizeof(sin)) < 0) {
-	fprintf(stderr, "ipv4_only_connect:: could not connect to host=[%s]\n", hostname);
-	return false;
-      }
-      
-#endif
-      
-      if(!(sockfd < 0)){
-        gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) sockfd);
-        int ret = gnutls_handshake (session);
-
-        if (ret < 0)
-        {
-            fprintf (stderr, "*** Handshake failed\n");
-            gnutls_perror (ret);
-            close(sockfd);
-            sockfd = 0;
-            gnutls_deinit (session);
-            return false;
+// IPv4 only
+        
+            struct sockaddr_in sin;
+            struct hostent *phe;
+            struct servent *pse;
+            
+            memset(&sin, 0, sizeof(sin));
+            
+            sin.sin_family=AF_INET;
+            
+            if ( pse = getservbyname(port.c_str(), "tcp") ) {
+                sin.sin_port = pse->s_port;
+                
+            } else if ((sin.sin_port = htons((u_short)atoi(port.c_str())))==0) {
+                fprintf(stderr, "ipv4_only_connect:: could not get service=[%s]\n",
+                        post.c_str());
+                return false;
+            }
+            
+            if (phe = gethostbyname(host.c_str())) {
+                memcpy(&sin.sin_addr, phe->h_addr, phe->h_length);
+                
+            } else if ( (sin.sin_addr.s_addr = inet_addr(host.c_str())) == 
+                        INADDR_NONE) {
+                fprintf(stderr, "ipv4_only_connect:: could not get host=[%s]\n", host.c_str());
+                return false;
+            }
+            
+            if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  
+                fprintf(stderr, "ipv4_only_connect:: could not open socket\n");
+                return false;
+            }
+            
+            if (connect(sockfd,(struct sockaddr *)&sin, sizeof(sin)) < 0) {
+                fprintf(stderr, "ipv4_only_connect:: could not connect to host=[%s]\n", host.c_str());
+                return false;
+            }
+        
+    #endif
+        
+            if(!(sockfd < 0) && onConnect()){
+                gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) sockfd);
+                int ret = gnutls_handshake (session);
+    
+                if (ret < 0){
+                    fprintf (stderr, "*** Handshake failed\n");
+                    gnutls_perror (ret);
+                    close(sockfd);
+                    sockfd = 0;
+                    gnutls_deinit (session);
+                    return false;
+                }
+                
+                //check cert. TODO
+                
+                status = 1;
+                return true;
+            }
         }
-	status = 1;
-	return true;
-      }
-    }
-    
-    
-    return false;
+        
+        
+        return false;
   }
 
   /*! \brief Closes the connection.
@@ -285,4 +291,11 @@ namespace TPProto{
     strncpy(portname, port, strlen(port) + 1);
   }
 
+  /*! \brief Called by connect when connection is established by before TLS handshake.
+    \return True to continue, false if there is an error and need to abort.
+  */
+    bool TlsSocket::onConnect(){
+        return true;
+    }
+  
 }

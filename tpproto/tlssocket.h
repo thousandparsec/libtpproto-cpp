@@ -5,6 +5,7 @@
   \brief Declares TlsSocket class.
 */
 
+#include <string>
 #include <tpproto/tpsocket.h>
 
 typedef struct gnutls_session_int* gnutls_session_t;
@@ -21,7 +22,6 @@ namespace TPProto{
 
     bool isConnected();
     
-    bool connect();
     void disconnect();
     
     void send(char* header, int hlen, char *data, int len);
@@ -30,9 +30,11 @@ namespace TPProto{
 
     bool poll();
 
-    void setServerAddr(const char* host, const char* port = "6924");
+    void setServerAddr(const char* host, const char* port);
 
-  private:
+    protected:
+    virtual bool onConnect();
+    bool connect(const std::string& host, const std::string& port);
     int sockfd;
     int status;
     char* hostname;

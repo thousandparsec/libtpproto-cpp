@@ -45,8 +45,8 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     getobjectidsbycontainer.h framebuilder.h protocollayer.h gamelayer.h
 
 if GNUTLS
-GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp
-GNUTLSHEADERS = tlssocket.h httpssocket.h
+GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp
+GNUTLSHEADERS = tlssocket.h httpssocket.h tpssocket.h
 else
 GNUTLSSOURCES =
 GNUTLSHEADERS =
