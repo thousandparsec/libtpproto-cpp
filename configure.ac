@@ -24,7 +24,7 @@ AC_HEADER_STDC
 
 
 
-#AC_CHECK_LIB(pthread, pthread_create,,AC_MSG_ERROR(TP Server requires pthread library))
+AC_CHECK_LIB(pthread, pthread_create,,AC_MSG_ERROR(libtpproto-cpp requires pthread library))
 #check headers, functions, etc
 
 AC_C_BIGENDIAN
