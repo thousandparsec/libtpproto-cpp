@@ -5,6 +5,8 @@
   \brief Declares the Planet Object.
 */
 
+#include <map>
+
 #include <tpproto/object.h>
 
 namespace TPProto{
@@ -21,9 +23,11 @@ namespace TPProto{
     void visit(ObjectVisitor* vis);
 
     int getOwner();
+    std::map<uint32_t, std::pair<uint32_t, uint32_t> > getResources() const;
 
   private:
     int owner;
+    std::map<uint32_t, std::pair<uint32_t, uint32_t> > resources;
 
   };
 

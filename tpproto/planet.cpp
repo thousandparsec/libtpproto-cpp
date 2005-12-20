@@ -26,6 +26,13 @@ namespace TPProto{
   bool Planet::unpackBuffer(Buffer* buf){
     Object::unpackBuffer(buf);
     owner = buf->unpackInt();
+        for(uint32_t i = buf->unpackInt(); i > 0; i--){
+            uint32_t resid = buf->unpackInt();
+            uint32_t numsurface = buf->unpackInt();
+            uint32_t totalamount = buf->unpackInt();
+            buf->unpackInt(); //the amount "unminable"
+            resources[resid] = std::pair<uint32_t, uint32_t>(numsurface, totalamount);
+        }
     return true;
   }
 
@@ -42,5 +49,12 @@ namespace TPProto{
   int Planet::getOwner(){
     return owner;
   }
+
+    /*! \brief Get the resources on the planet.
+    \return The map of resource ids to amount of surface and total amount pairs.
+    */
+    std::map<uint32_t, std::pair<uint32_t, uint32_t> > Planet::getResources() const{
+        return resources;
+    }
 
 }
