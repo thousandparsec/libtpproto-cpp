@@ -162,8 +162,8 @@ namespace TPProto {
     if(status == 3){
     if(pthread_mutex_trylock(rmutex) == 0){
       if(sock->poll()){
-	Frame* frame = recvOneFrame();
         pthread_mutex_unlock(rmutex);
+	Frame* frame = recvOneFrame();
 	if(frame != NULL){
 	  if(frame->getSequenceNumber() == 0){
 	    // async frame, send it on and try again.
@@ -247,9 +247,7 @@ namespace TPProto {
         }
         while(incomingframes[seqnum].second != NULL && incomingframes[seqnum].first > incomingframes[seqnum].second->size()){
             pthread_mutex_unlock(smutex);
-            pthread_mutex_lock(rmutex);
     Frame* frame = recvOneFrame();
-            pthread_mutex_unlock(rmutex);
     if(frame != NULL && frame->getSequenceNumber() == 0){
       // async frame, send it on and try again.
       
@@ -307,6 +305,7 @@ namespace TPProto {
   Frame* FrameCodec::recvOneFrame(){
     if(sock->isConnected()){
       char* head, *body;
+        pthread_mutex_lock(rmutex);
       int rlen = sock->recvHeader(16, head);
       if(rlen != 16){
 	//now what?
@@ -355,7 +354,7 @@ namespace TPProto {
 	delete body;
 	return NULL;
       }
-      
+      pthread_mutex_unlock(rmutex);
       Buffer *data = new Buffer();
       data->setData(body, rlen);
       
