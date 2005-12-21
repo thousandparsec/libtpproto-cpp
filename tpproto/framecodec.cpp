@@ -180,7 +180,16 @@ namespace TPProto {
 	    logger->error("Was expecting Async frame but received a frame of type %d with sequence number %d",
 			  frame->getType(), frame->getSequenceNumber());
             pthread_mutex_lock(smutex);
-
+            if(incomingframes.find(frame->getSequenceNumber()) != incomingframes.end() &&
+                    incomingframes[frame->getSequenceNumber()].first > incomingframes[frame->getSequenceNumber()].second->size()){
+                std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
+                if(frame->getType() == ft02_Sequence){
+                    incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
+                    delete frame;
+                }else{
+                    framelist->push_back(frame);
+                }
+            }
             pthread_mutex_unlock(smutex);
 	  }
 
@@ -268,11 +277,6 @@ namespace TPProto {
             }else{
                 pthread_mutex_lock(smutex);
                 std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
-                if(framelist == NULL){
-                    framelist = new std::list<Frame*>();
-                    incomingframes[frame->getSequenceNumber()].second = framelist;
-                    incomingframes[frame->getSequenceNumber()].first = 1;
-                }
                 if(frame->getType() == ft02_Sequence){
                     incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
                     delete frame;
