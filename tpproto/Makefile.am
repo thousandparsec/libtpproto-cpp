@@ -42,7 +42,8 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     categoryidslist.h designidslist.h componentidslist.h propertyidslist.h \
     featuresframe.h player.h resourcedesc.h category.h design.h component.h \
     property.h addcategory.h adddesign.h modifydesign.h getobjectidsbypos.h \
-    getobjectidsbycontainer.h framebuilder.h protocollayer.h gamelayer.h
+    getobjectidsbycontainer.h framebuilder.h protocollayer.h gamelayer.h \
+    gamestatuslistener.h
 
 if GNUTLS
 GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp

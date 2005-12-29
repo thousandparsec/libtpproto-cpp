@@ -32,6 +32,7 @@
 #include "framefactory.h"
 #include "protocollayer.h"
 #include "logger.h"
+#include "gamestatuslistener.h"
 #include "silentlogger.h"
 #include "framecodec.h"
 #include "framebuilder.h"
@@ -108,8 +109,8 @@ namespace TPProto {
         - Disconnected state.
         - "Unknown client" for the client string
     */
-    GameLayer::GameLayer() : protocol(NULL), logger(NULL), status(gsDisconnected), clientid("Unknown client"),
-            serverfeatures(NULL){
+    GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
+            clientid("Unknown client"), serverfeatures(NULL){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -148,12 +149,22 @@ namespace TPProto {
         protocol->getFrameCodec()->setLogger(nlog);
     }
 
+    /*! \brief Sets the GameStatusListener to use.
+    \param gsl The new GameStatusListener to use.
+    */
+    void GameLayer::setGameStatusListener(GameStatusListener* gsl){
+        statuslistener = gsl;
+    }
+
     /*! \brief Gets the state of the game.
     \return The GameStatus enum value for the current state.
     */
     GameStatus GameLayer::getStatus(){
-        if(sock == NULL || !sock->isConnected())
+        if(sock == NULL || !sock->isConnected()){
             status = gsDisconnected;
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
+        }
         return status;
     }
 
@@ -260,12 +271,15 @@ namespace TPProto {
                 // expect OK back
                 //  or maybe error
                 status = gsConnected;
+                if(statuslistener != NULL)
+                    statuslistener->connected();
                 logger->info("Connected");
                 delete reply;
                 return true;
             }else if(reply != NULL && reply->getType() == ft03_Redirect){
                 //signal we are redirecting 
-                //TODO listener
+                if(statuslistener != NULL)
+                    statuslistener->redirected(static_cast<Redirect*>(reply)->getUrl());
                 bool rtv = connect(static_cast<Redirect*>(reply)->getUrl());
                 delete reply;
                 return rtv;
@@ -307,6 +321,8 @@ namespace TPProto {
                 // expect OK back
                 //  or maybe error
                 status = gsLoggedIn;
+                if(statuslistener != NULL)
+                    statuslistener->loggedIn();
                 logger->info("Logged in");
                 delete reply;
                 return true;
@@ -317,8 +333,11 @@ namespace TPProto {
             }
             
         }
-        if(!sock->isConnected())
+        if(!sock->isConnected()){
             status = gsDisconnected;
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
+        }
         return false;
     }
 
@@ -330,6 +349,8 @@ namespace TPProto {
         if(status != gsDisconnected && sock != NULL){
             sock->disconnect();
             logger->info("Disconnected");
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
         }
         status = gsDisconnected;
     }
@@ -1206,6 +1227,8 @@ namespace TPProto {
         if(reply != NULL && reply->getType() == ft02_Time_Remaining){
             int time = ((TimeRemaining*)reply)->getTimeRemaining();
             delete reply;
+            if(statuslistener != NULL)
+                statuslistener->timeToEot(time);
             return time;
         }
         if(reply != NULL)

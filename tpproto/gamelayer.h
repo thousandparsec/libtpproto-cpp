@@ -46,6 +46,7 @@ namespace TPProto{
     class Component;
     class Property;
     class Features;
+    class GameStatusListener;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -71,6 +72,7 @@ namespace TPProto{
 
         void setClientString(const std::string & name);
         void setLogger(Logger* nlog);
+        void setGameStatusListener(GameStatusListener* gsl);
 
         //status
         GameStatus getStatus();
@@ -135,6 +137,7 @@ namespace TPProto{
     private:
         ProtocolLayer* protocol;
         Logger* logger;
+        GameStatusListener* statuslistener;
         TPSocket* sock;
         GameStatus status;
         std::string clientid;
