@@ -12,7 +12,7 @@ simpletest_LDADD= \
 
 
 nettest_SOURCES = nettest.cpp downloadprintvisitor.h downloadprintvisitor.cpp \
-    printasynclistener.h printasynclistener.cpp
+    printgamestatelistener.h printgamestatelistener.cpp
 
 nettest_LDADD= \
     $(top_srcdir)/tpproto/libtpproto.la

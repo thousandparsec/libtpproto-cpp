@@ -10,7 +10,7 @@
 #include <tpproto/gamelayer.h>
 
 #include "downloadprintvisitor.h"
-#include "printasynclistener.h"
+#include "printgamestatelistener.h"
 
 using namespace TPProto;
 
@@ -69,6 +69,7 @@ int main(int argc, char** argv){
 
     GameLayer *myfc = new GameLayer();
     myfc->setLogger(new StdoutLogger());
+    myfc->setGameStatusListener(new PrintGameStateListener());
     myfc->setClientString("libtpproto-cpp_NetTest");
 
 
