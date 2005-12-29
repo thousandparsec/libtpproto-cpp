@@ -43,8 +43,14 @@ namespace TPProto{
         std::map<uint32_t, uint64_t> getIds() const;
 
     protected:
+        /*! \brief The sequence key for this sequence.
+        */
         uint32_t seqkey;
+        /*! \brief The number of items remaining in the sequence to be fetched.
+        */
         uint32_t remaining;
+        /*! \brief The map of ids and modification times.
+        */
         std::map<uint32_t, uint64_t> idlist;
 
     };

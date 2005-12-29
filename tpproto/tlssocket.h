@@ -8,7 +8,11 @@
 #include <string>
 #include <tpproto/tpsocket.h>
 
+/*! \brief The gnutls session structure.
+*/
 typedef struct gnutls_session_int* gnutls_session_t;
+/*! \brief The gnutls certificate credentials structure.
+*/
 typedef struct gnutls_certificate_credentials_st *gnutls_certificate_credentials_t;
 
 namespace TPProto{
@@ -35,11 +39,24 @@ namespace TPProto{
     protected:
     virtual bool onConnect();
     bool connect(const std::string& host, const std::string& port);
+    /*! \brief The Sock file descriptor for this connection.
+    */
     int sockfd;
+    /*! \brief The status of the connection.
+        Set to 0 when disconnected.
+    */
     int status;
+    /*! \brief The hostname (or address) to connect to.
+    */
     char* hostname;
+    /*! \brief The portname (or number) to connect to.
+    */
     char* portname;
+    /*! \brief The TLS session structure for this connection.
+    */
     gnutls_session_t session;
+    /*! \brief The TLS credentials structure for this connection.
+    */
     gnutls_certificate_credentials_t credentials;
   };
 

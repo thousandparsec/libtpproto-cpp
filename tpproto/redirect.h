@@ -41,6 +41,8 @@ namespace TPProto{
         std::string getUrl();
 
     protected:
+        /*! \brief The url that we have been told to redirect to.
+        */
         std::string url;
 
     };

@@ -84,7 +84,7 @@ namespace TPProto {
     /*! \brief Sets the FrameBuilder
     Deletes the previous FrameBuilder if any. If NULL is
     passed in, the default FrameBuilder is created.
-    \param fd The FrameBuilder, or NULL.
+    \param fb The FrameBuilder, or NULL.
     */
     void ProtocolLayer::setFrameBuilder(FrameBuilder* fb){
         delete builder;

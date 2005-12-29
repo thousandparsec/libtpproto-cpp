@@ -44,8 +44,14 @@ namespace TPProto{
         std::string getRaceName() const;
 
     protected:
+        /*! \brief The Player's Id number.
+        */
         uint32_t playerid;
+        /*! \brief The Player's name.
+        */
         std::string name;
+        /*! \brief The Player's race.
+        */
         std::string race;
 
     };

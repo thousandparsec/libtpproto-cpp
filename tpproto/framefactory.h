@@ -172,7 +172,11 @@ namespace TPProto{
         virtual PropertyIdsList* createPropertyIdsList();
 
     protected:
+        /*! \brief The Protocol Version to make frames for.
+        */
         int pver;
+        /*! \brief The ProtocolLayer this FrameFactory is part of.
+        */
         ProtocolLayer* layer;
 
     };

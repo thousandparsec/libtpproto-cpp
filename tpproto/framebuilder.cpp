@@ -76,7 +76,7 @@ namespace TPProto{
     }
 
     /*! \brief Sets the ProtocolLayer.
-    \param ff The ProtocolLayer to use.
+    \param pl The ProtocolLayer to use.
     */
     void FrameBuilder::setProtocolLayer(ProtocolLayer* pl){
         layer = pl;
@@ -86,6 +86,7 @@ namespace TPProto{
     Builds a frame subclass object that corresponds to the type given, or
     NULL if none is found.
     \param type The type of frame to build.
+    \param data The Buffer of data that is the contents of the frame.
     \return The frame for the type, or NULL.
     */
     Frame* FrameBuilder::buildFrame(uint32_t type, Buffer* data){

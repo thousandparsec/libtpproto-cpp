@@ -48,6 +48,8 @@ namespace TPProto{
         bool isSet(uint32_t val) const;
 
     protected:
+        /*! \brief The set of features supported by the server.
+        */
         std::set<uint32_t> features;
     };
 

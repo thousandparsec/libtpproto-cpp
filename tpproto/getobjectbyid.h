@@ -25,6 +25,8 @@ namespace TPProto{
     void addObjectIDs(std::set<unsigned int> ids);
 
         protected:
+        /*! \brief The set of object ids of the objects to get.
+        */
     std::set<unsigned int> idset;
     
 

@@ -50,14 +50,32 @@ namespace TPProto{
         uint64_t getModTime() const;
 
     protected:
+        /*! \brief The Resource's type number
+        */
         uint32_t resid;
+        /*! \brief The name of the resource in singular form.
+        */
         std::string namesing;
+        /*! \brief The name of the resource in plural form.
+        */
         std::string nameplur;
+        /*! \brief The units of the resource in signular form.
+        */
         std::string unitsing;
+        /*! \brief The units of the resource in plural form.
+        */
         std::string unitplur;
+        /*! \brief The description of the resource.
+        */
         std::string desc;
+        /*! \brief The mass of one unit of the resource.
+        */
         uint32_t mass;
+        /*! \brief The "volume" of one unit of the resource.
+        */
         uint32_t size;
+        /*! \brief The unix timestamp of the last time this resource description changed.
+        */
         uint64_t modtime;
 
     };

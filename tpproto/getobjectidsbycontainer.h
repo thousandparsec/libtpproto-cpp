@@ -43,6 +43,8 @@ namespace TPProto{
         void setId(uint32_t ni);
 
     protected:
+        /*! \brief The object to get the object ids of the objects that are contained by it.
+        */
         uint32_t obid;
 
     };

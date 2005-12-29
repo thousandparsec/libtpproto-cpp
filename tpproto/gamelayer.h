@@ -47,7 +47,8 @@ namespace TPProto{
     class Property;
     class Features;
 
-    
+    /*! \brief GameStatus enum for the state of the game.
+    */
     enum GameStatus{
         gsDisconnected,
         gsConnecting,

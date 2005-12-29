@@ -34,6 +34,10 @@ namespace TPProto{
     class Order;
     class Buffer;
 
+    /*! \brief Builds Frames from frame type and Buffer.
+
+    Also creates  Objects from object type, and Orders from order types.
+    */
     class FrameBuilder{
     public:
         FrameBuilder();
@@ -45,6 +49,8 @@ namespace TPProto{
         virtual Order* buildOrder(uint32_t type);
 
     protected:
+        /*! \brief The ProtocolLayer this FrameBuilder is part of.
+        */
         ProtocolLayer* layer;
 
     };

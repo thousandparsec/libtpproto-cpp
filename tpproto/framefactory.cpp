@@ -134,36 +134,54 @@ namespace TPProto {
         layer = pl;
     }
 
+    /*! \brief Creates an OkFrame.
+    \return A new OkFrame.
+    */
     OkFrame* FrameFactory::createOk(){
         OkFrame* ok = new OkFrame();
         ok->setProtocolVersion(pver);
         return ok;
     }
 
+    /*! \brief Creates a FailFrame.
+    \return A new FailFrame.
+    */
     FailFrame* FrameFactory::createFail(){
         FailFrame* f = new FailFrame();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a Sequence Frame.
+    \return A new Sequence Frame.
+    */
     Sequence* FrameFactory::createSequence(){
         Sequence* f = new Sequence();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a Connect Frame.
+    \return A new Connect Frame.
+    */
     Connect* FrameFactory::createConnect(){
         Connect* f = new Connect();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a Login Frame.
+    \return A new Login Frame.
+    */
     Login* FrameFactory::createLogin(){
         Login* f = new Login();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a Redirect Frame.
+    \return A new Redirect Frame.
+    */
     Redirect* FrameFactory::createRedirect(){
         if(pver >= 3){
             Redirect* f = new Redirect();
@@ -172,7 +190,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetFeatures Frame.
+    \return A new GetFeatures Frame.
+    */
     GetFeatures* FrameFactory::createGetFeatures(){
         if(pver >= 3){
             GetFeatures* f = new GetFeatures();
@@ -181,7 +202,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Features Frame.
+    \return A new Features Frame.
+    */
     Features* FrameFactory::createFeatures(){
         if(pver >= 3){
             Features* f = new Features();
@@ -190,7 +214,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Ping Frame.
+    \return A new Ping Frame.
+    */
     Ping* FrameFactory::createPing(){
         if(pver >= 3){
             Ping* f = new Ping();
@@ -199,19 +226,28 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetObjectById Frame.
+    \return A new GetObjectById Frame.
+    */
     GetObjectById* FrameFactory::createGetObjectById(){
         GetObjectById* f = new GetObjectById();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetObjectByPos Frame.
+    \return A new GetObjectByPos Frame.
+    */
     GetObjectByPos* FrameFactory::createGetObjectByPos(){
         GetObjectByPos* f = new GetObjectByPos();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetObjectIdsList Frame.
+    \return A new GetObjectIdsList Frame.
+    */
     GetObjectIdsList* FrameFactory::createGetObjectIdsList(){
         if(pver >= 3){
             GetObjectIdsList* f = new GetObjectIdsList();
@@ -220,7 +256,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetObjectIdsByPos Frame.
+    \return A new GetObjectIdsByPos Frame.
+    */
     GetObjectIdsByPos* FrameFactory::createGetObjectIdsByPos(){
         if(pver >= 3){
             GetObjectIdsByPos* f = new GetObjectIdsByPos();
@@ -229,7 +268,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetObjectIdsByContainer Frame.
+    \return A new GetObjectIdsByContainer Frame.
+    */
     GetObjectIdsByContainer* FrameFactory::createGetObjectIdsByContainer(){
         if(pver >= 3){
             GetObjectIdsByContainer* f = new GetObjectIdsByContainer();
@@ -238,7 +280,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates an ObjectIdsList Frame.
+    \return A new ObjectIdsList Frame.
+    */
     ObjectIdsList* FrameFactory::createObjectIdsList(){
         if(pver >= 3){
             ObjectIdsList* f = new ObjectIdsList();
@@ -247,19 +292,28 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetOrderDescription Frame.
+    \return A new GetOrderDescription Frame.
+    */
     GetOrderDescription* FrameFactory::createGetOrderDescription(){
         GetOrderDescription* f = new GetOrderDescription();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates an OrderDescription Frame.
+    \return A new OrderDescription Frame.
+    */
     OrderDescription* FrameFactory::createOrderDescription(){
         OrderDescription* f = new OrderDescription();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetOrderTypesList Frame.
+    \return A new GetOrderTypesList Frame.
+    */
     GetOrderTypesList* FrameFactory::createGetOrderTypesList(){
         if(pver >= 3){
             GetOrderTypesList* f = new GetOrderTypesList();
@@ -268,7 +322,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates an OrderTypesList Frame.
+    \return A new OrderTypesList Frame.
+    */
     OrderTypesList* FrameFactory::createOrderTypesList(){
         if(pver >= 3){
             OrderTypesList* f = new OrderTypesList();
@@ -277,29 +334,44 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetOrder Frame.
+    \return A new GetOrder Frame.
+    */
     GetOrder* FrameFactory::createGetOrder(){
         GetOrder* f = new GetOrder();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates an Order Frame.
+    \return A new Order Frame.
+    */
     Order* FrameFactory::createOrder(){
         Order* f = new Order();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates an InsertOrder Frame.
+    \return A new InsertOrder Frame.
+    */
     Order* FrameFactory::createInsertOrder(){
         return createOrder();
     }
-    
+
+     /*! \brief Creates a RemoveOrder Frame.
+    \return A new RemoveOrder Frame.
+    */
     RemoveOrder* FrameFactory::createRemoveOrder(){
         RemoveOrder* f = new RemoveOrder();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a ProbeOrder Frame.
+    \return A new ProbeOrder Frame.
+    */
     ProbeOrder* FrameFactory::createProbeOrder(){
         if(pver >= 3){
             ProbeOrder* f = new ProbeOrder();
@@ -308,31 +380,46 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetTimeRemaining Frame.
+    \return A new GetTimeRemaining Frame.
+    */
     GetTime* FrameFactory::createGetTimeRemaining(){
         GetTime* f = new GetTime();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a TimeRemaining Frame.
+    \return A new TimeRemaining Frame.
+    */
     TimeRemaining* FrameFactory::createTimeRemaining(){
         TimeRemaining* f = new TimeRemaining();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetBoard Frame.
+    \return A new GetBoard Frame.
+    */
     GetBoard* FrameFactory::createGetBoard(){
         GetBoard* f = new GetBoard();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a Board Frame.
+    \return A new Board Frame.
+    */
     Board* FrameFactory::createBoard(){
         Board* f = new Board();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetBoardIdsList Frame.
+    \return A new GetBoardIdsList Frame.
+    */
     GetBoardIdsList* FrameFactory::createGetBoardIdsList(){
         if(pver >= 3){
             GetBoardIdsList* f = new GetBoardIdsList();
@@ -341,7 +428,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a BoardIdsList Frame.
+    \return A new BoardIdsList Frame.
+    */
     BoardIdsList* FrameFactory::createBoardIdsList(){
         if(pver >= 3){
             BoardIdsList* f = new BoardIdsList();
@@ -350,41 +440,62 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetMessage Frame.
+    \return A new GetMessage Frame.
+    */
     GetMessage* FrameFactory::createGetMessage(){
         GetMessage* f = new GetMessage();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a Message Frame.
+    \return A new Message Frame.
+    */
     Message* FrameFactory::createMessage(){
         Message* f = new Message();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a PostMessage Frame.
+    \return A new PostMessage Frame.
+    */
     Message* FrameFactory::createPostMessage(){
         return createMessage();
     }
-    
+
+     /*! \brief Creates a RemoveMessage Frame.
+    \return A new RemoveMessage Frame.
+    */
     RemoveMessage* FrameFactory::createRemoveMessage(){
         RemoveMessage* f = new RemoveMessage();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetResoureceDescription Frame.
+    \return A new GetResourceDescription Frame.
+    */
     GetResourceDescription* FrameFactory::createGetResourceDescription(){
         GetResourceDescription* f = new GetResourceDescription();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a ResourceDescription Frame.
+    \return A new ResourceDescription Frame.
+    */
     ResourceDescription* FrameFactory::createResourceDescription(){
         ResourceDescription* f = new ResourceDescription();
         f->setProtocolVersion(pver);
         return f;
     }
-    
+
+     /*! \brief Creates a GetResourceTypesList Frame.
+    \return A new GetResourceTypesList Frame.
+    */
     GetResourceTypesList* FrameFactory::createGetResourceTypesList(){
         if(pver >= 3){
             GetResourceTypesList* f = new GetResourceTypesList();
@@ -393,7 +504,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a ResourceTypesList Frame.
+    \return A new ResourceTypesList Frame.
+    */
     ResourceTypesList* FrameFactory::createResourceTypesList(){
         if(pver >= 3){
             ResourceTypesList* f = new ResourceTypesList();
@@ -402,7 +516,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetPlayer Frame.
+    \return A new GetPlayer Frame.
+    */
     GetPlayer* FrameFactory::createGetPlayer(){
         if(pver >= 3){
             GetPlayer* f = new GetPlayer();
@@ -411,7 +528,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Player Frame.
+    \return A new Player Frame.
+    */
     Player* FrameFactory::createPlayer(){
         if(pver >= 3){
             Player* f = new Player();
@@ -420,7 +540,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetCategory Frame.
+    \return A new GetCategory Frame.
+    */
     GetCategory* FrameFactory::createGetCategory(){
         if(pver >= 3){
             GetCategory* f = new GetCategory();
@@ -429,7 +552,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Category Frame.
+    \return A new Category Frame.
+    */
     Category* FrameFactory::createCategory(){
         if(pver >= 3){
             Category* f = new Category();
@@ -438,7 +564,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates an AddCategory Frame.
+    \return A new AddCategory Frame.
+    */
     AddCategory* FrameFactory::createAddCategory(){
         if(pver >= 3){
             AddCategory* f = new AddCategory();
@@ -447,7 +576,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a RemoveCategory Frame.
+    \return A new RemoveCategory Frame.
+    */
     RemoveCategory* FrameFactory::createRemoveCategory(){
         if(pver >= 3){
             RemoveCategory* f = new RemoveCategory();
@@ -456,7 +588,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetCategoryIdsList Frame.
+    \return A new GetCategoryIdsList Frame.
+    */
     GetCategoryIdsList* FrameFactory::createGetCategoryIdsList(){
         if(pver >= 3){
             GetCategoryIdsList* f = new GetCategoryIdsList();
@@ -465,7 +600,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a CategoryIdsList Frame.
+    \return A new CategoryIdsList Frame.
+    */
     CategoryIdsList* FrameFactory::createCategoryIdsList(){
         if(pver >= 3){
             CategoryIdsList* f = new CategoryIdsList();
@@ -474,7 +612,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetDesign Frame.
+    \return A new GetDesign Frame.
+    */
     GetDesign* FrameFactory::createGetDesign(){
         if(pver >= 3){
             GetDesign* f = new GetDesign();
@@ -483,7 +624,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Design Frame.
+    \return A new Design Frame.
+    */
     Design* FrameFactory::createDesign(){
         if(pver >= 3){
             Design* f = new Design();
@@ -492,7 +636,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates an AddDesign Frame.
+    \return A new AddDesign Frame.
+    */
     AddDesign* FrameFactory::createAddDesign(){
         if(pver >= 3){
             AddDesign* f = new AddDesign();
@@ -501,7 +648,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a ModifyDesign Frame.
+    \return A new ModifyDesign Frame.
+    */
     ModifyDesign* FrameFactory::createModifyDesign(){
         if(pver >= 3){
             ModifyDesign* f = new ModifyDesign();
@@ -510,7 +660,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a RemoveDesign Frame.
+    \return A new RemoveDesign Frame.
+    */
     RemoveDesign* FrameFactory::createRemoveDesign(){
         if(pver >= 3){
             RemoveDesign* f = new RemoveDesign();
@@ -519,7 +672,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetDesignIdsList Frame.
+    \return A new GetDesignIdsList Frame.
+    */
     GetDesignIdsList* FrameFactory::createGetDesignIdsList(){
         if(pver >= 3){
             GetDesignIdsList* f = new GetDesignIdsList();
@@ -528,7 +684,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a DesignIdsList Frame.
+    \return A new DesignIdsList Frame.
+    */
     DesignIdsList* FrameFactory::createDesignIdsList(){
         if(pver >= 3){
             DesignIdsList* f = new DesignIdsList();
@@ -537,7 +696,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetComponent Frame.
+    \return A new GetComponent Frame.
+    */
     GetComponent* FrameFactory::createGetComponent(){
         if(pver >= 3){
             GetComponent* f = new GetComponent();
@@ -546,7 +708,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Component Frame.
+    \return A new Component Frame.
+    */
     Component* FrameFactory::createComponent(){
         if(pver >= 3){
             Component* f = new Component();
@@ -555,7 +720,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetComponentIdsList Frame.
+    \return A new GetCompenentIdsList Frame.
+    */
     GetComponentIdsList* FrameFactory::createGetComponentIdsList(){
         if(pver >= 3){
             GetComponentIdsList* f = new GetComponentIdsList();
@@ -564,7 +732,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a ComponentIdsList Frame.
+    \return A new ComponentIdsList Frame.
+    */
     ComponentIdsList* FrameFactory::createComponentIdsList(){
         if(pver >= 3){
             ComponentIdsList* f = new ComponentIdsList();
@@ -573,7 +744,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetProperty Frame.
+    \return A new GetProperty Frame.
+    */
     GetProperty* FrameFactory::createGetProperty(){
         if(pver >= 3){
             GetProperty* f = new GetProperty();
@@ -582,7 +756,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a Property Frame.
+    \return A new Property Frame.
+    */
     Property* FrameFactory::createProperty(){
         if(pver >= 3){
             Property* f = new Property();
@@ -591,7 +768,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a GetPropertyIdsList Frame.
+    \return A new GetPropertyIdsList Frame.
+    */
     GetPropertyIdsList* FrameFactory::createGetPropertyIdsList(){
         if(pver >= 3){
             GetPropertyIdsList* f = new GetPropertyIdsList();
@@ -600,7 +780,10 @@ namespace TPProto {
         }
         return NULL;
     }
-    
+
+     /*! \brief Creates a PropertyIdsList Frame.
+    \return A new PropertyIdsList Frame.
+    */
     PropertyIdsList* FrameFactory::createPropertyIdsList(){
         if(pver >= 3){
             PropertyIdsList* f = new PropertyIdsList();

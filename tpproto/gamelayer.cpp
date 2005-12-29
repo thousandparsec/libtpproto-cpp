@@ -140,17 +140,29 @@ namespace TPProto {
         clientid = name;
     }
 
+    /*! \brief Sets the Logger to use
+    \param nlog The new Logger to use.
+    */
     void GameLayer::setLogger(Logger* nlog){
         logger = nlog;
         protocol->getFrameCodec()->setLogger(nlog);
     }
 
+    /*! \brief Gets the state of the game.
+    \return The GameStatus enum value for the current state.
+    */
     GameStatus GameLayer::getStatus(){
         if(sock == NULL || !sock->isConnected())
             status = gsDisconnected;
         return status;
     }
 
+    /*! \brief Connects to the given address url
+    This method connects to the server given as the address. The types of url
+    supported are tp, tps, https and http. Tps and https depend on TLS being enabled.
+    \param address The URL to connect to.
+    \return True if connected, false otherwise.
+    */
     bool GameLayer::connect(const std::string& address){
         if(status != gsDisconnected){
             logger->warning("Already connected, ignoring connection attempt");
@@ -217,7 +229,12 @@ namespace TPProto {
             return false;
         }
     }
-        
+
+    /*! \brief Connects using a given TPSocket.
+    Connects to a server using a given TPSocket.
+    \param nsock The TPSocket to connect using.
+    \return True if connected, false otherwise.
+    */
     bool GameLayer::connect(TPSocket* nsock){
         if(status != gsDisconnected){
             logger->warning("Already connected, ignoring connection attempt");
@@ -593,8 +610,8 @@ namespace TPProto {
     /*! \brief Gets a Board from the server.
     
     Sends the GetBoard Frame and gets the Board back from the server.
-    \param frame The GetBoard frame to send to the server.
-    \return A map of BoardId and Board pairs.
+    \param boardid The Board id for the board to get from the server.
+    \return The Board, or NULL if error.
     */
     Board* GameLayer::getBoard(uint32_t boardid){
         GetBoard* frame = protocol->getFrameFactory()->createGetBoard();
@@ -717,12 +734,13 @@ namespace TPProto {
         return false;
     }
 
-  /*! \brief Removes messages from the server.
+    /*! \brief Removes messages from the server.
     
-  Sends the RemoveMessage frame and receives the replies.
-\param frame The RemoveMessage frame to send.
-\return The number of Messages removed.
-  */
+    Sends the RemoveMessage frame and receives the replies.
+    \param boardid The board id of the board to remove the message from.
+    \param slot The slot to remove the message from.
+    \return True if message is removed, false otherwise.
+    */
     bool GameLayer::removeMessage(uint32_t boardid, uint32_t slot){
         RemoveMessage* frame = protocol->getFrameFactory()->createRemoveMessage();
         frame->setBoard(boardid);

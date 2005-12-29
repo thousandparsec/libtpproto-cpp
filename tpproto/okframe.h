@@ -24,6 +24,8 @@ namespace TPProto{
     std::string getInfo();
 
     protected:
+    /*! \brief The information string sent by the server.
+    */
     std::string info;
 
   };

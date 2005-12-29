@@ -34,7 +34,7 @@ namespace TPProto{
     class GetIdSequence : public Frame{
     public:
         GetIdSequence();
-        GetIdSequence(GetIdSequence* ref);
+        //GetIdSequence(GetIdSequence* ref);
         virtual ~GetIdSequence();
 
         void packBuffer(Buffer * buf);
@@ -49,8 +49,15 @@ namespace TPProto{
         uint32_t getCount() const;
 
     protected:
+        /*! \brief The sequence key of the sequence to continue.
+        Set to 0 if not know and to get a new one.
+        */
         uint32_t seqkey;
+        /*! \brief The offset in the sequence to get from.
+        */
         uint32_t offset;
+        /*! \brief The number of ids to get.
+        */
         uint32_t count;
 
     };
