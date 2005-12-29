@@ -73,9 +73,6 @@ namespace TPProto {
     if(sock != NULL){
       delete sock;
     }
-    if(asynclistener != NULL){
-      delete asynclistener;
-    }
     delete logger;
 
         clearIncomingFrames();
@@ -106,9 +103,6 @@ namespace TPProto {
   \param afl The AsyncFrameListener to use.
   */
   void FrameCodec::setAsyncFrameListener(AsyncFrameListener* afl){
-    if(asynclistener != NULL){
-      delete asynclistener;
-    }
     asynclistener = afl;
   }
 
