@@ -47,6 +47,7 @@ namespace TPProto{
     class Property;
     class Features;
     class GameStatusListener;
+    class GameLayerAsyncFrameListener;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -65,6 +66,8 @@ namespace TPProto{
     */
     class GameLayer{
     public:
+        friend class GameLayerAsyncFrameListener;
+
         GameLayer();
         ~GameLayer();
 
@@ -143,6 +146,8 @@ namespace TPProto{
         std::string clientid;
 
         Features* serverfeatures;
+
+        GameLayerAsyncFrameListener* asyncframes;
     };
 
 }

@@ -33,6 +33,7 @@
 #include "protocollayer.h"
 #include "logger.h"
 #include "gamestatuslistener.h"
+#include "asyncframelistener.h"
 #include "silentlogger.h"
 #include "framecodec.h"
 #include "framebuilder.h"
@@ -59,7 +60,6 @@
 #include "removemessage.h"
 #include "gettime.h"
 #include "timeremaining.h"
-#include "asyncframelistener.h"
 #include "order.h"
 #include "getorder.h"
 #include "removeorder.h"
@@ -102,6 +102,42 @@
 
 namespace TPProto {
 
+    /*! \brief A AsyncFrameListener for GameLayer.
+    Internally used by GameLayer to get async frames.
+    */
+    class GameLayerAsyncFrameListener : public AsyncFrameListener{
+    public:
+        
+        virtual ~GameLayerAsyncFrameListener(){}
+        
+        void setGameLayer(GameLayer* gl){
+            layer = gl;
+        }
+        
+        void recvTimeRemaining(TimeRemaining* trf){
+            if(trf->getTimeRemaining() == 0){
+                layer->status = gsEOTInProgress;
+                if(layer->statuslistener != NULL){
+                    layer->statuslistener->eotStarted();
+                    layer->statuslistener->timeToEot(trf->getTimeRemaining());
+                }
+            }else{
+                if(layer->status == gsEOTInProgress){
+                    layer->status = gsLoggedIn;
+                    if(layer->statuslistener != NULL){
+                        layer->statuslistener->eotEnded();
+                    }
+                }
+                if(layer->statuslistener != NULL){
+                    layer->statuslistener->timeToEot(trf->getTimeRemaining());
+                }
+            }
+        }
+        
+    private:
+        GameLayer* layer;
+    };
+
     /*! \brief Constructs object and sets up defaults.
 
     Defaults are
@@ -110,10 +146,12 @@ namespace TPProto {
         - "Unknown client" for the client string
     */
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
-            clientid("Unknown client"), serverfeatures(NULL){
+            clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
+        asyncframes->setGameLayer(this);
+                protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
     }
 
     /*! \brief Destructor.
@@ -127,7 +165,7 @@ namespace TPProto {
         if(serverfeatures != NULL){
             delete serverfeatures;
         }
-
+        delete asyncframes;
     }
 
     /*! \brief Sets the client string.
