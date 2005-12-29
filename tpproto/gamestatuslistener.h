@@ -26,6 +26,8 @@
 
 namespace TPProto{
 
+    /*! \brief A Listener for listening for changes to the game status and connection.
+    */
     class GameStatusListener{
     public:
         /*! \brief Required virtual destructor

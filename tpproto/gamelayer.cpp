@@ -110,6 +110,9 @@ namespace TPProto {
         
         virtual ~GameLayerAsyncFrameListener(){}
         
+        /*! \brief Set the GameLayer
+        \param gl The GameLayer to use.
+        */
         void setGameLayer(GameLayer* gl){
             layer = gl;
         }
