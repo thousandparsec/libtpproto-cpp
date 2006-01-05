@@ -49,6 +49,7 @@ namespace TPProto{
     class GameStatusListener;
     class GameLayerAsyncFrameListener;
     class ObjectCache;
+    class PlayerCache;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -151,6 +152,7 @@ namespace TPProto{
         GameLayerAsyncFrameListener* asyncframes;
 
         ObjectCache* objectcache;
+        PlayerCache* playercache;
     };
 
 }

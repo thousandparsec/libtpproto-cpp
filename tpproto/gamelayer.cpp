@@ -45,6 +45,7 @@
 
 // caches
 #include "objectcache.h"
+#include "playercache.h"
 
 // Frame Types
 
@@ -53,7 +54,6 @@
 #include "sequence.h"
 #include "connect.h"
 #include "login.h"
-#include "getobjectbyid.h"
 #include "object.h"
 #include "getboard.h"
 #include "board.h"
@@ -69,8 +69,6 @@
 #include "getorderdesc.h"
 #include "featuresframe.h"
 #include "redirect.h"
-#include "getobjectidslist.h"
-#include "objectidslist.h"
 #include "getboardidslist.h"
 #include "boardidslist.h"
 #include "getcategoryidslist.h"
@@ -83,7 +81,6 @@
 #include "propertyidslist.h"
 #include "getresourcedesc.h"
 #include "resourcedesc.h"
-#include "getplayer.h"
 #include "player.h"
 #include "getcategory.h"
 #include "category.h"
@@ -152,13 +149,14 @@ namespace TPProto {
     */
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
-            objectcache(new ObjectCache()){
+            objectcache(new ObjectCache()), playercache(new PlayerCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
         asyncframes->setGameLayer(this);
         protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
         objectcache->setProtocolLayer(protocol);
+        playercache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -174,6 +172,7 @@ namespace TPProto {
         }
         delete asyncframes;
         delete objectcache;
+        delete playercache;
     }
 
     /*! \brief Sets the client string.
@@ -829,22 +828,7 @@ namespace TPProto {
     \return The Player.
     */
     Player* GameLayer::getPlayer(uint32_t playerid){
-        GetPlayer * fr = protocol->getFrameFactory()->createGetPlayer();
-        fr->addId(playerid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-    
-        if(reply == NULL || reply->getType() != ft03_Player){
-            logger->error("The returned frame isn't a player");
-        }
-    
-        return static_cast<Player*>(reply);
-        
+        return playercache->getPlayer(playerid);
     }
 
     /*! \brief Gets Category ids from the server.
