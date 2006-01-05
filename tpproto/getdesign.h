@@ -2,7 +2,7 @@
 #define TPPROTO_GETDESIGN_H
 /*  GetDesign class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,25 +24,16 @@
 */
 
 #include <set>
-#include <tpproto/frame.h>
+#include <tpproto/getbyid.h>
 
 namespace TPProto{
 
   /*! \brief A Frame to get Designs from the server.
    */
-  class GetDesign : public Frame{
+  class GetDesign : public GetById{
   public:
     GetDesign();
     virtual ~GetDesign();
-
-    void packBuffer(Buffer * buf);
-    bool unpackBuffer(Buffer * buf);
-    
-    void addDesignId(unsigned int id);
-    void addDesignIds(std::set<unsigned int> ids);
-
-  private:
-    std::set<unsigned int> idset;
 
   };
 

@@ -1,8 +1,8 @@
-#ifndef TPPROTO_GETBOARD_H
-#define TPPROTO_GETBOARD_H
-/*  GetBoard class
+#ifndef TPPROTO_GETBYID_H
+#define TPPROTO_GETBYID_H
+/*  GetById frame base class
  *
- *  Copyright (C) 2004-2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,20 +20,29 @@
  *
  */
 /*! \file
-  \brief Declares the GetBoard Frame.
+  \brief Declares the GetById base-frame.
 */
 
 #include <set>
-#include <tpproto/getbyid.h>
+#include <tpproto/frame.h>
 
 namespace TPProto{
 
-    /*! \brief A Frame to get Boards from the server.
-    */
-    class GetBoard : public GetById{
-    public:
-        GetBoard();
-        virtual ~GetBoard();
+  /*! \brief A Frame to get Properties from the server.
+   */
+  class GetById : public Frame{
+  public:
+    GetById();
+    virtual ~GetById();
+
+    void packBuffer(Buffer * buf);
+    bool unpackBuffer(Buffer * buf);
+    
+    void addId(unsigned int id);
+    void addIds(std::set<unsigned int> ids);
+
+  private:
+    std::set<unsigned int> idset;
 
   };
 

@@ -2,7 +2,7 @@
 #define TPPROTO_GETCOMPONENT_H
 /*  GetComponent class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,25 +24,16 @@
 */
 
 #include <set>
-#include <tpproto/frame.h>
+#include <tpproto/getbyid.h>
 
 namespace TPProto{
 
   /*! \brief A Frame to get Components from the server.
    */
-  class GetComponent : public Frame{
+  class GetComponent : public GetById{
   public:
     GetComponent();
     virtual ~GetComponent();
-
-    void packBuffer(Buffer * buf);
-    bool unpackBuffer(Buffer * buf);
-    
-    void addComponentId(unsigned int id);
-    void addComponentIds(std::set<unsigned int> ids);
-
-  private:
-    std::set<unsigned int> idset;
 
   };
 

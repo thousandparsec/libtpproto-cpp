@@ -247,7 +247,7 @@ namespace TPProto{
     */
     Order* FrameBuilder::buildOrder(uint32_t type){
         GetOrderDescription* god = layer->getFrameFactory()->createGetOrderDescription();
-        god->addOrderType(type);
+        god->addId(type);
         uint32_t seq = layer->getFrameCodec()->sendFrame(god);
         OrderDescription* od = dynamic_cast<OrderDescription*>(layer->getFrameCodec()->recvFrames(seq).front());
         if(od != NULL){

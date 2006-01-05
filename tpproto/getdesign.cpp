@@ -1,6 +1,6 @@
 /*  GetDesign class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,52 +25,13 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    GetDesign::GetDesign(){
+    GetDesign::GetDesign() : GetById(){
+        type = ft03_Design_Get;
     }
 
     /*! \brief Destructor.
     */
     GetDesign::~GetDesign(){
-        idset.clear();
-    }
-
-    /*! \brief Pack this GetDesign Frame into a Buffer.
-        \param buf The Buffer to pack into.
-    */
-    void GetDesign::packBuffer(Buffer* buf){
-        buf->packInt(idset.size());
-        for(std::set<unsigned int>::iterator itcurr = idset.begin(); itcurr != idset.end(); ++itcurr){
-            buf->packInt(*itcurr);
-        }
-
-        type = ft03_Design_Get;
-    }
-
-    /*! \brief Unpack from a Buffer, always false.
-
-    Since GetDesign frames are only sent to the server, we should not receive them
-    and therefore this method always returns false.
-    \param buf The Buffer, ignored.
-    \return False always.
-    */
-    bool GetDesign::unpackBuffer(Buffer* buf){
-        return false;
-    }
-
-    /*! \brief Adds a single Design id to get.
-        \param id The design id to get.
-    */
-    void GetDesign::addDesignId(unsigned int id){
-        idset.insert(id);
-    }
-
-    /*! \brief Adds a set of Design ids to the set to request.
-        \param ids The set of design ids to get.
-    */
-    void GetDesign::addDesignIds(std::set<unsigned int> ids){
-        for(std::set<unsigned int>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-            idset.insert(*itcurr);
-        }
     }
 
 }

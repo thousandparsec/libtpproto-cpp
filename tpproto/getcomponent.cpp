@@ -1,6 +1,6 @@
 /*  GetComponent class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,52 +25,13 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    GetComponent::GetComponent(){
+    GetComponent::GetComponent() : GetById(){
+        type = ft03_Component_Get;
     }
 
     /*! \brief Destructor.
     */
     GetComponent::~GetComponent(){
-        idset.clear();
-    }
-
-    /*! \brief Pack this GetComponent Frame into a Buffer.
-        \param buf The Buffer to pack into.
-    */
-    void GetComponent::packBuffer(Buffer* buf){
-        buf->packInt(idset.size());
-        for(std::set<unsigned int>::iterator itcurr = idset.begin(); itcurr != idset.end(); ++itcurr){
-            buf->packInt(*itcurr);
-        }
-
-        type = ft03_Component_Get;
-    }
-
-    /*! \brief Unpack from a Buffer, always false.
-
-    Since GetComponent frames are only sent to the server, we should not receive them
-    and therefore this method always returns false.
-    \param buf The Buffer, ignored.
-    \return False always.
-    */
-    bool GetComponent::unpackBuffer(Buffer* buf){
-        return false;
-    }
-
-    /*! \brief Adds a single Component id to get.
-        \param id The component id to get.
-    */
-    void GetComponent::addComponentId(unsigned int id){
-        idset.insert(id);
-    }
-
-    /*! \brief Adds a set of Component ids to the set to request.
-        \param ids The set of component ids to get.
-    */
-    void GetComponent::addComponentIds(std::set<unsigned int> ids){
-        for(std::set<unsigned int>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-            idset.insert(*itcurr);
-        }
     }
 
 }

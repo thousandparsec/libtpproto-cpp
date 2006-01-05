@@ -2,7 +2,7 @@
 #define TPPROTO_GETPROPERTY_H
 /*  GetProperty class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,25 +24,16 @@
 */
 
 #include <set>
-#include <tpproto/frame.h>
+#include <tpproto/getbyid.h>
 
 namespace TPProto{
 
   /*! \brief A Frame to get Properties from the server.
    */
-  class GetProperty : public Frame{
+  class GetProperty : public GetById{
   public:
     GetProperty();
     virtual ~GetProperty();
-
-    void packBuffer(Buffer * buf);
-    bool unpackBuffer(Buffer * buf);
-    
-    void addPropertyId(unsigned int id);
-    void addPropertyIds(std::set<unsigned int> ids);
-
-  private:
-    std::set<unsigned int> idset;
 
   };
 

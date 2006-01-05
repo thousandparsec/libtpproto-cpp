@@ -1,6 +1,6 @@
 /*  GameLayer class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -436,7 +436,7 @@ namespace TPProto {
     */
     Object* GameLayer::getObject(uint32_t obid){
         GetObjectById * fr = protocol->getFrameFactory()->createGetObjectById();
-        fr->addObjectID(obid);
+        fr->addId(obid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -677,7 +677,7 @@ namespace TPProto {
     */
     Board* GameLayer::getBoard(uint32_t boardid){
         GetBoard* frame = protocol->getFrameFactory()->createGetBoard();
-        frame->addBoardId(boardid);
+        frame->addId(boardid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
         delete frame;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -835,7 +835,7 @@ namespace TPProto {
     */
     ResourceDescription* GameLayer::getResourceDescription(uint32_t restype){
         GetResourceDescription * fr = protocol->getFrameFactory()->createGetResourceDescription();
-        fr->addResourceType(restype);
+        fr->addId(restype);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -860,7 +860,7 @@ namespace TPProto {
     */
     Player* GameLayer::getPlayer(uint32_t playerid){
         GetPlayer * fr = protocol->getFrameFactory()->createGetPlayer();
-        fr->addPlayerId(playerid);
+        fr->addId(playerid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -914,7 +914,7 @@ namespace TPProto {
     */
     Category* GameLayer::getCategory(uint32_t catid){
         GetCategory * fr = protocol->getFrameFactory()->createGetCategory();
-        fr->addCategoryId(catid);
+        fr->addId(catid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -1032,7 +1032,7 @@ namespace TPProto {
     */
     Design* GameLayer::getDesign(uint32_t designid){
         GetDesign * fr = protocol->getFrameFactory()->createGetDesign();
-        fr->addDesignId(designid);
+        fr->addId(designid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -1176,7 +1176,7 @@ namespace TPProto {
     */
     Component* GameLayer::getComponent(uint32_t compid){
         GetComponent * fr = protocol->getFrameFactory()->createGetComponent();
-        fr->addComponentId(compid);
+        fr->addId(compid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
@@ -1231,7 +1231,7 @@ namespace TPProto {
     */
     Property* GameLayer::getProperty(uint32_t propid){
         GetProperty * fr = protocol->getFrameFactory()->createGetProperty();
-        fr->addPropertyId(propid);
+        fr->addId(propid);
         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
         delete fr;
         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);

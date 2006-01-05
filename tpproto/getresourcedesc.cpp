@@ -1,6 +1,6 @@
 /*  GetResourceDescription class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,52 +26,13 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    GetResourceDescription::GetResourceDescription(){
+    GetResourceDescription::GetResourceDescription() : GetById(){
+        type = ft02_ResDesc_Get;
     }
 
     /*! \brief Destructor.
     */
     GetResourceDescription::~GetResourceDescription(){
-        idset.clear();
-    }
-
-    /*! \brief Pack this GetResourceDescription Frame into a Buffer.
-        \param buf The Buffer to pack into.
-    */
-    void GetResourceDescription::packBuffer(Buffer* buf){
-        buf->packInt(idset.size());
-        for(std::set<unsigned int>::iterator itcurr = idset.begin(); itcurr != idset.end(); ++itcurr){
-            buf->packInt(*itcurr);
-        }
-
-        type = ft02_ResDesc_Get;
-    }
-
-    /*! \brief Unpack from a Buffer, always false.
-
-    Since GetResourceDescription frames are only sent to the server, we should not receive them
-    and therefore this method always returns false.
-    \param buf The Buffer, ignored.
-    \return False always.
-    */
-    bool GetResourceDescription::unpackBuffer(Buffer* buf){
-        return false;
-    }
-
-    /*! \brief Adds a single Resource type to get.
-        \param id The Resource type to get.
-    */
-    void GetResourceDescription::addResourceType(unsigned int id){
-        idset.insert(id);
-    }
-
-    /*! \brief Adds a set of Resource types to the set to request.
-        \param ids The set of Resource types to get.
-    */
-    void GetResourceDescription::addResouceTypes(std::set<unsigned int> ids){
-        for(std::set<unsigned int>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-            idset.insert(*itcurr);
-        }
     }
 
 }

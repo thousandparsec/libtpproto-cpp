@@ -1,6 +1,6 @@
 /*  GetProperty class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,52 +25,13 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    GetProperty::GetProperty(){
+    GetProperty::GetProperty() : GetById(){
+        type = ft03_Property_Get;
     }
 
     /*! \brief Destructor.
     */
     GetProperty::~GetProperty(){
-        idset.clear();
-    }
-
-    /*! \brief Pack this GetProperty Frame into a Buffer.
-        \param buf The Buffer to pack into.
-    */
-    void GetProperty::packBuffer(Buffer* buf){
-        buf->packInt(idset.size());
-        for(std::set<unsigned int>::iterator itcurr = idset.begin(); itcurr != idset.end(); ++itcurr){
-            buf->packInt(*itcurr);
-        }
-
-        type = ft03_Property_Get;
-    }
-
-    /*! \brief Unpack from a Buffer, always false.
-
-    Since GetProperty frames are only sent to the server, we should not receive them
-    and therefore this method always returns false.
-    \param buf The Buffer, ignored.
-    \return False always.
-    */
-    bool GetProperty::unpackBuffer(Buffer* buf){
-        return false;
-    }
-
-    /*! \brief Adds a single Property id to get.
-        \param id The property id to get.
-    */
-    void GetProperty::addPropertyId(unsigned int id){
-        idset.insert(id);
-    }
-
-    /*! \brief Adds a set of Property ids to the set to request.
-        \param ids The set of property ids to get.
-    */
-    void GetProperty::addPropertyIds(std::set<unsigned int> ids){
-        for(std::set<unsigned int>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-            idset.insert(*itcurr);
-        }
     }
 
 }
