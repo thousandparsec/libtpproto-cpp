@@ -33,6 +33,7 @@ namespace TPProto {
     Default is for CacheNoneMethod CacheMethod.
     */
     Cache::Cache() : cache(new CacheNoneMethod()), protocol(NULL){
+        cache->setCache(this);
     }
 
     /*! \brief Destructor.
