@@ -52,7 +52,7 @@ namespace TPProto {
     }
 
     /*! \brief Set an Board Id as invalid and mark to be refetched.
-    \param obid The id of the Board to invalidate.
+    \param bid The id of the Board to invalidate.
     */
     void BoardCache::invalidateBoard(uint32_t bid){
         cache->markInvalid(bid);
