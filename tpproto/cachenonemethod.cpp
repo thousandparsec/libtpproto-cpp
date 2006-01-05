@@ -80,24 +80,25 @@ namespace TPProto {
     std::set<uint32_t> CacheNoneMethod::getAllIds(){
         std::set<uint32_t> out;
         GetIdSequence *frame = cache->createGetIdSequenceFrame();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-    
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() != ft02_Fail){
-            std::map<uint32_t, uint64_t> ids = static_cast<IdSequence*>(reply)->getIds();
-            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                out.insert(itcurr->first);
+        if(frame != NULL){
+            frame->setCount(8737); // When this code is shifted out, this should be in a loop to get all the items
+            uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+            
+            std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+            Frame * reply = NULL;
+            if(replies.size() >= 1){
+                reply = replies.front();
             }
-        }else{
-            //logger->debug("Expecting idsequence frame, but got %d instead", reply->getType());
+            
+            if(reply != NULL && reply->getType() != ft02_Fail){
+                std::map<uint32_t, uint64_t> ids = static_cast<IdSequence*>(reply)->getIds();
+                for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                    out.insert(itcurr->first);
+                }
+            }else{
+                //logger->debug("Expecting idsequence frame, but got %d instead", reply->getType());
+            }
         }
-        
         return out;
     }
 
