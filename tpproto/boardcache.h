@@ -1,6 +1,6 @@
 #ifndef TPPROTO_BOARDCACHE_H
 #define TPPROTO_BOARDCACHE_H
-/*  BoardCache - Cache of Objects class
+/*  BoardCache - Cache of Boards class
  *
  *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
  *
