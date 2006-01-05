@@ -47,6 +47,7 @@
 #include "objectcache.h"
 #include "playercache.h"
 #include "boardcache.h"
+#include "resourcecache.h"
 
 // Frame Types
 
@@ -77,7 +78,6 @@
 #include "componentidslist.h"
 #include "getpropertyidslist.h"
 #include "propertyidslist.h"
-#include "getresourcedesc.h"
 #include "resourcedesc.h"
 #include "player.h"
 #include "getcategory.h"
@@ -147,7 +147,8 @@ namespace TPProto {
     */
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
-            objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()){
+            objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
+            resourcecache(new ResourceCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -156,6 +157,7 @@ namespace TPProto {
         objectcache->setProtocolLayer(protocol);
         playercache->setProtocolLayer(protocol);
         boardcache->setProtocolLayer(protocol);
+        resourcecache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -173,6 +175,7 @@ namespace TPProto {
         delete objectcache;
         delete playercache;
         delete boardcache;
+        delete resourcecache;
     }
 
     /*! \brief Sets the client string.
@@ -767,22 +770,7 @@ namespace TPProto {
     \return The ResourceDescription..
     */
     ResourceDescription* GameLayer::getResourceDescription(uint32_t restype){
-        GetResourceDescription * fr = protocol->getFrameFactory()->createGetResourceDescription();
-        fr->addId(restype);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft02_ResDesc){
-            logger->error("The returned frame isn't a resource description");
-        }
-        
-        return static_cast<ResourceDescription*>(reply);
-        
+        return resourcecache->getResourceDescription(restype);
     }
 
     /*! \brief Gets a player from the server.
