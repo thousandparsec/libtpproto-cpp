@@ -46,6 +46,7 @@
 // caches
 #include "objectcache.h"
 #include "playercache.h"
+#include "boardcache.h"
 
 // Frame Types
 
@@ -55,7 +56,6 @@
 #include "connect.h"
 #include "login.h"
 #include "object.h"
-#include "getboard.h"
 #include "board.h"
 #include "getmessage.h"
 #include "message.h"
@@ -69,8 +69,6 @@
 #include "getorderdesc.h"
 #include "featuresframe.h"
 #include "redirect.h"
-#include "getboardidslist.h"
-#include "boardidslist.h"
 #include "getcategoryidslist.h"
 #include "categoryidslist.h"
 #include "getdesignidslist.h"
@@ -149,7 +147,7 @@ namespace TPProto {
     */
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
-            objectcache(new ObjectCache()), playercache(new PlayerCache()){
+            objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -157,6 +155,7 @@ namespace TPProto {
         protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
         objectcache->setProtocolLayer(protocol);
         playercache->setProtocolLayer(protocol);
+        boardcache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -173,6 +172,7 @@ namespace TPProto {
         delete asyncframes;
         delete objectcache;
         delete playercache;
+        delete boardcache;
     }
 
     /*! \brief Sets the client string.
@@ -615,27 +615,7 @@ namespace TPProto {
     \return The set of board id.
     */
     std::set<uint32_t> GameLayer::getBoardIds(){
-        std::set<uint32_t> out;
-        GetBoardIdsList *frame = protocol->getFrameFactory()->createGetBoardIdsList();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft03_BoardIds){
-            std::map<uint32_t, uint64_t> ids = static_cast<BoardIdsList*>(reply)->getIds();
-            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                out.insert(itcurr->first);
-            }
-        }else{
-            logger->debug("Expecting boardidlist frame, but got %d instead", reply->getType());
-        }
-        
-            return out;
+        return boardcache->getBoardIds();
     }
 
     /*! \brief Gets a Board from the server.
@@ -645,23 +625,7 @@ namespace TPProto {
     \return The Board, or NULL if error.
     */
     Board* GameLayer::getBoard(uint32_t boardid){
-        GetBoard* frame = protocol->getFrameFactory()->createGetBoard();
-        frame->addId(boardid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL && reply->getType() == ft02_Board){
-            return static_cast<Board*>(reply);
-        }else{
-            logger->debug("Expecting Board frame, but got %d instead", reply->getType());
-            delete reply;
-        }
-
-        return NULL;
+        return boardcache->getBoard(boardid);
     }
 
     /*! \brief Gets the logged in player's personal Board.
