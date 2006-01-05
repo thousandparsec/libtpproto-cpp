@@ -2,7 +2,7 @@
 #define TPPROTO_GAMELAYER_H
 /*  GameLayer - High level interface to the Thousand Parsec game.
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -48,6 +48,7 @@ namespace TPProto{
     class Features;
     class GameStatusListener;
     class GameLayerAsyncFrameListener;
+    class ObjectCache;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -148,6 +149,8 @@ namespace TPProto{
         Features* serverfeatures;
 
         GameLayerAsyncFrameListener* asyncframes;
+
+        ObjectCache* objectcache;
     };
 
 }

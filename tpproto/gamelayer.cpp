@@ -43,6 +43,9 @@
 #include "httpssocket.h"
 #endif
 
+// caches
+#include "objectcache.h"
+
 // Frame Types
 
 #include "okframe.h"
@@ -148,12 +151,14 @@ namespace TPProto {
         - "Unknown client" for the client string
     */
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
-            clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()){
+            clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
+            objectcache(new ObjectCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
         asyncframes->setGameLayer(this);
-                protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
+        protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
+        objectcache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -168,6 +173,7 @@ namespace TPProto {
             delete serverfeatures;
         }
         delete asyncframes;
+        delete objectcache;
     }
 
     /*! \brief Sets the client string.
@@ -404,27 +410,7 @@ namespace TPProto {
     \return The set of object id.
     */
     std::set<uint32_t> GameLayer::getObjectIds(){
-        std::set<uint32_t> out;
-        GetObjectIdsList *frame = protocol->getFrameFactory()->createGetObjectIdsList();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-    
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-         if(reply != NULL && reply->getType() == ft03_ObjectIds){
-             std::map<uint32_t, uint64_t> ids = static_cast<ObjectIdsList*>(reply)->getIds();
-             for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                 out.insert(itcurr->first);
-             }
-        }else{
-            logger->debug("Expecting objectidlist frame, but got %d instead", reply->getType());
-        }
-
-        return out;
+        return objectcache->getObjectIds();
     }
 
     /*! \brief Gets an object from the server.
@@ -434,22 +420,7 @@ namespace TPProto {
     \return The Object.
     */
     Object* GameLayer::getObject(uint32_t obid){
-        GetObjectById * fr = protocol->getFrameFactory()->createGetObjectById();
-        fr->addId(obid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft02_Object){
-            logger->error("The returned frame isn't an object");
-        }
-        
-        return static_cast<Object*>(reply);
-        
+        return objectcache->getObject(obid);
     }
 
     /*! \brief Gets the Universe Object.
