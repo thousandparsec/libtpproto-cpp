@@ -38,17 +38,6 @@ namespace TPProto{
   class AsyncFrameListener;
   class Logger;
     class ProtocolLayer;
-    class GetObjects;
-    class Object;
-    class OrderDescription;
-    class GetOrder;
-    class Order;
-    class RemoveOrder;
-    class GetBoard;
-    class Board;
-    class GetMessage;
-    class Message;
-    class RemoveMessage;
 
     /*! \brief FrameCodec is the main working class the lower layer of libtpproto-cpp.
 

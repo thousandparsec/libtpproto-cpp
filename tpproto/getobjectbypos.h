@@ -5,7 +5,7 @@
   \brief Declares GetObjectByPos Frame class.
 */
 
-#include <tpproto/getobjects.h>
+#include <tpproto/frame.h>
 #include <tpproto/vector3d.h>
 
 namespace TPProto{
@@ -14,7 +14,7 @@ namespace TPProto{
     
   The area is a sphere of radius units centre at the position.
   */
-  class GetObjectByPos : public GetObjects{
+  class GetObjectByPos : public Frame{
   public:
     GetObjectByPos();
     virtual ~GetObjectByPos();

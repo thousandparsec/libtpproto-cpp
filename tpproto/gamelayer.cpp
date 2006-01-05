@@ -51,7 +51,6 @@
 #include "connect.h"
 #include "login.h"
 #include "getobjectbyid.h"
-#include "getobjects.h"
 #include "object.h"
 #include "getboard.h"
 #include "board.h"
