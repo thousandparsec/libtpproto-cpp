@@ -20,6 +20,9 @@
 #include <tpproto/stringparameter.h>
 
 #include <tpproto/gamelayer.h>
+#include <tpproto/player.h>
+#include <tpproto/resourcedesc.h>
+#include <tpproto/design.h>
 
 #include "downloadprintvisitor.h"
 
@@ -100,17 +103,47 @@ void DownloadPrintVisitor::visit(Planet* ob){
     std::cout << (*itcurr) << " ";
   }
   std::cout << std::endl;
-  std::cout << "num orders: " << ob->getNumberOrders() << std::endl;
 
-  std::cout << "Owned by: " << ob->getOwner() << std::endl;
+    std::cout << "Owned by: (" << ob->getOwner() << ") ";
+    Player* player = fc->getPlayer(ob->getOwner());
+    if(player != NULL){
+        std::cout << player->getPlayerName() << " [" << player->getRaceName() << "]";
+        delete player;
+    }
+    std::cout << std::endl;
+
+    std::map<uint32_t, std::pair<uint32_t, uint32_t> > res = ob->getResources();
+    std::cout << "Resources (" << res.size() << "): ";
+    for(std::map<uint32_t, std::pair<uint32_t, uint32_t> >::iterator itcurr = res.begin();
+            itcurr != res.end(); ++itcurr){
+        uint32_t resid = itcurr->first;
+        ResourceDescription* resdesc = fc->getResourceDescription(resid);
+        if(itcurr->second.first != 1 && itcurr->second.second != 1){
+            std::cout << resdesc->getPluralName();
+        }else{
+            std::cout << resdesc->getSingularName();
+        }
+        std::cout << " (" << resid << ") on surface " << itcurr->second.first << " ";
+        if(itcurr->second.first != 1)
+            std::cout << resdesc->getPluralUnit();
+        else
+            std::cout << resdesc->getSingularUnit();
+        std::cout << ", mineable " << itcurr->second.second << " ";
+        if(itcurr->second.second != 1)
+            std::cout << resdesc->getPluralUnit();
+        else
+            std::cout << resdesc->getSingularUnit();
+        std::cout << "; ";
+        delete resdesc;
+    }
+    std::cout << std::endl;
+
+    std::cout << "num orders: " << ob->getNumberOrders() << std::endl;
 
   if(!ob->getAvailableOrders().empty()){
     funobject = ob->getId();
     if(ob->getNumberOrders() > 0){
       std::cout << "Getting orders" << std::endl;
-//       GetOrder* go = ff->createGetOrder();
-//       go->setObjectId(ob->getId());
-//       go->addOrderRange(0, ob->getNumberOrders());
       std::list<Order*> orders = fc->getOrders(ob->getId(), ob->getNumberOrders());
       for(std::list<Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
 	
@@ -123,7 +156,7 @@ void DownloadPrintVisitor::visit(Planet* ob){
 	for(unsigned int i = 0; i < (*itcurr)->getNumParameters(); i++){
 	  (*itcurr)->getParameter(i)->visit(this);
 	}
-	
+            delete (*itcurr);
       }
     }
   }
@@ -140,18 +173,33 @@ void DownloadPrintVisitor::visit(Fleet* ob){
   std::cout << "size: " << ob->getSize() << std::endl;
   std::cout << "num orders: " << ob->getNumberOrders() << std::endl;
 
-  std::cout << "Owned By: " << ob->getOwner() << std::endl;
+    std::cout << "Owned by: (" << ob->getOwner() << ") ";
+    Player* player = fc->getPlayer(ob->getOwner());
+    if(player != NULL){
+        std::cout << player->getPlayerName() << " [" << player->getRaceName() << "]";
+        delete player;
+    }
+    std::cout << std::endl;
   std::cout << "Damage: " << ob->getDamage() << std::endl;
-  std::cout << "ships: Scouts(" << ob->numShips(0) << "), Frigates(" << ob->numShips(1) << "), Battleships(" <<
-    ob->numShips(2) << ")" << std::endl;
+    std::map<int32_t, int32_t> ships = ob->getShips();
+    std::cout << "Ships ( " << ships.size() << "): ";
+    for(std::map<int32_t, int32_t>::iterator itcurr = ships.begin(); itcurr != ships.end(); ++itcurr){
+        Design* design = fc->getDesign(itcurr->first);
+        std::cout << itcurr->second << " ships of ";
+        if(design != NULL){
+            std::cout << design->getName();
+            delete design;
+        }else{
+            std::cout << "unknown (" << itcurr->first << ")";
+        }
+        std::cout << " design, ";
+    }
+    std::cout << std::endl;
 
   if(!ob->getAvailableOrders().empty()){
     funobject = ob->getId();
     if(ob->getNumberOrders() > 0){
       std::cout << "Getting orders" << std::endl;
-//       GetOrder* go = ff->createGetOrder();
-//       go->setObjectId(ob->getId());
-//       go->addOrderRange(0, ob->getNumberOrders());
       std::list<Order*> orders = fc->getOrders(ob->getId(), ob->getNumberOrders());
       for(std::list<Order*>::iterator itcurr = orders.begin(); itcurr != orders.end(); ++itcurr){
 	
@@ -164,6 +212,7 @@ void DownloadPrintVisitor::visit(Fleet* ob){
 	for(unsigned int i = 0; i < (*itcurr)->getNumParameters(); i++){
 	  (*itcurr)->getParameter(i)->visit(this);
 	}
+            delete (*itcurr);
       }
     }
   }
@@ -177,23 +226,13 @@ void DownloadPrintVisitor::visit(Object* ob){
  
   if(ob->getContainedObjectIds().size() > 0){
     
-//     GetObjectById* gobi = ff->createGetObjectById();
-//     gobi->addObjectIDs(ob->getContainedObjectIds());
     std::set<uint32_t> oblist = ob->getContainedObjectIds();
     std::cout << "Visiting contained objects, " << oblist.size() << " to visit" << std::endl;
     for(std::set<uint32_t>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
         Object* newob = fc->getObject(*itcurr);
-//     delete gobi;
-//     std::cout << "Visiting contained objects, " << oblist.size() << " to visit" << std::endl;
-//     for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
         newob->visit(this);
         delete newob;
     }
-    
-//     std::cout << "Cleaning up" << std::endl;
-//     for(std::map<unsigned int, Object*>::iterator itcurr = oblist.begin(); itcurr != oblist.end(); ++itcurr){
-//       delete (itcurr->second);
-//     }
   }
 }
 
