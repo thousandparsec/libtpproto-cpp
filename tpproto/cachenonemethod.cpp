@@ -68,6 +68,8 @@ namespace TPProto {
 
         if(reply == NULL || reply->getType() == ft02_Fail){
             //logger->error("The returned frame is failure or null");
+            delete reply;
+            return NULL;
         }
 
         return reply;
