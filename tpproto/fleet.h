@@ -25,6 +25,7 @@ namespace TPProto{
     int getOwner();
     int getDamage();
     int numShips(int stype);
+    std::map<int32_t, int32_t> getShips() const;
 
   private:
     int owner;

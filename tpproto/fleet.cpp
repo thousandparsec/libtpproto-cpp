@@ -8,7 +8,7 @@ namespace TPProto{
 
   /*! \brief Default constructor.
    */
-  Fleet::Fleet(){
+  Fleet::Fleet() : owner(-1), damage(0), ships(){
   }
 
   /*! \brief Destructor.
@@ -63,8 +63,17 @@ namespace TPProto{
     \return The number of ships of the stype type.
   */
   int Fleet::numShips(int stype){
-    return ships[stype];
+        if(ships.find(stype) != ships.end())
+            return ships[stype];
+        else
+            return 0;
   }
 
+    /*! \brief Gets a map of shiptype to number of ships.
+    \return A map of shiptype to number of ships.
+    */
+    std::map<int32_t, int32_t> Fleet::getShips() const{
+        return ships;
+    }
 
 }
