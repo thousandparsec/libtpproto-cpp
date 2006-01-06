@@ -47,7 +47,10 @@ namespace TPProto {
     \return The Player, or NULL.
     */
     Player*  PlayerCache::getPlayer(uint32_t playerid){
-        return static_cast<Player*>(cache->getById(playerid));
+        if(playerid != 0xffffffff)
+            return static_cast<Player*>(cache->getById(playerid));
+        else
+            return NULL;
     }
 
     GetIdSequence* PlayerCache::createGetIdSequenceFrame(){
