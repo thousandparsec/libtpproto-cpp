@@ -52,6 +52,7 @@ namespace TPProto{
     class PlayerCache;
     class BoardCache;
     class ResourceCache;
+    class CategoryCache;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -157,6 +158,7 @@ namespace TPProto{
         PlayerCache* playercache;
         BoardCache* boardcache;
         ResourceCache* resourcecache;
+        CategoryCache* categorycache;
     };
 
 }

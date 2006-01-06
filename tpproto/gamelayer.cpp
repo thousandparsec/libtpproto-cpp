@@ -48,6 +48,7 @@
 #include "playercache.h"
 #include "boardcache.h"
 #include "resourcecache.h"
+#include "categorycache.h"
 
 // Frame Types
 
@@ -80,7 +81,6 @@
 #include "propertyidslist.h"
 #include "resourcedesc.h"
 #include "player.h"
-#include "getcategory.h"
 #include "category.h"
 #include "getdesign.h"
 #include "design.h"
@@ -89,8 +89,6 @@
 #include "getproperty.h"
 #include "property.h"
 #include "probeorder.h"
-#include "addcategory.h"
-#include "removecategory.h"
 #include "adddesign.h"
 #include "modifydesign.h"
 #include "removedesign.h"
@@ -148,7 +146,7 @@ namespace TPProto {
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
             objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
-            resourcecache(new ResourceCache()){
+            resourcecache(new ResourceCache()), categorycache(new CategoryCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -158,6 +156,7 @@ namespace TPProto {
         playercache->setProtocolLayer(protocol);
         boardcache->setProtocolLayer(protocol);
         resourcecache->setProtocolLayer(protocol);
+        categorycache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -176,6 +175,7 @@ namespace TPProto {
         delete playercache;
         delete boardcache;
         delete resourcecache;
+        delete categorycache;
     }
 
     /*! \brief Sets the client string.
@@ -789,27 +789,7 @@ namespace TPProto {
     \return The set of category id.
     */
     std::set<uint32_t> GameLayer::getCategoryIds(){
-        std::set<uint32_t> out;
-        GetCategoryIdsList *frame = protocol->getFrameFactory()->createGetCategoryIdsList();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-    
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft03_CategoryIds){
-            std::map<uint32_t, uint64_t> ids = static_cast<CategoryIdsList*>(reply)->getIds();
-            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                out.insert(itcurr->first);
-            }
-        }else{
-            logger->debug("Expecting categoryidlist frame, but got %d instead", reply->getType());
-        }
-        
-        return out;
+        return categorycache->getCategoryIds();
     }
 
     /*! \brief Gets a category from the server.
@@ -819,22 +799,7 @@ namespace TPProto {
     \return The Category.
     */
     Category* GameLayer::getCategory(uint32_t catid){
-        GetCategory * fr = protocol->getFrameFactory()->createGetCategory();
-        fr->addId(catid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft03_Category){
-            logger->error("The returned frame isn't a category");
-        }
-        
-        return static_cast<Category*>(reply);
-        
+        return categorycache->getCategory(catid);
     }
 
     /*! \brief Creates a Category object.
@@ -851,25 +816,7 @@ namespace TPProto {
     \return True if successful, false otherwise.
     */
     bool GameLayer::addCategory(Category* cat){
-        AddCategory* frame = protocol->getFrameFactory()->createAddCategory();
-        frame->setName(cat->getName());
-        frame->setDescription(cat->getDescription());
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                
-                return true;
-            }
-            delete reply;
-        }
-        return false;
+        return categorycache->addCategory(cat);
     }
 
     /*! \brief Removes a category from the server.
@@ -879,25 +826,7 @@ namespace TPProto {
     \return True if sucessful, false otherwise.
   */
     bool GameLayer::removeCategory(uint32_t catid){
-        RemoveCategory* frame = protocol->getFrameFactory()->createRemoveCategory();
-        frame->removeCategoryId(catid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft02_OK){
-            delete reply;
-            return true;
-            
-        }
-        delete reply;
-        
-        return false;
+        return categorycache->removeCategory(catid);
     }
     
 
