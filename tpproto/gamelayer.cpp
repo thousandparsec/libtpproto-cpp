@@ -49,6 +49,7 @@
 #include "boardcache.h"
 #include "resourcecache.h"
 #include "categorycache.h"
+#include "designcache.h"
 
 // Frame Types
 
@@ -71,10 +72,6 @@
 #include "getorderdesc.h"
 #include "featuresframe.h"
 #include "redirect.h"
-#include "getcategoryidslist.h"
-#include "categoryidslist.h"
-#include "getdesignidslist.h"
-#include "designidslist.h"
 #include "getcomponentidslist.h"
 #include "componentidslist.h"
 #include "getpropertyidslist.h"
@@ -82,7 +79,6 @@
 #include "resourcedesc.h"
 #include "player.h"
 #include "category.h"
-#include "getdesign.h"
 #include "design.h"
 #include "getcomponent.h"
 #include "component.h"
@@ -146,7 +142,8 @@ namespace TPProto {
     GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
             objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
-            resourcecache(new ResourceCache()), categorycache(new CategoryCache()){
+            resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
+            designcache(new DesignCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -157,6 +154,7 @@ namespace TPProto {
         boardcache->setProtocolLayer(protocol);
         resourcecache->setProtocolLayer(protocol);
         categorycache->setProtocolLayer(protocol);
+        designcache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -176,6 +174,7 @@ namespace TPProto {
         delete boardcache;
         delete resourcecache;
         delete categorycache;
+        delete designcache;
     }
 
     /*! \brief Sets the client string.
@@ -836,27 +835,7 @@ namespace TPProto {
     \return The set of design id.
     */
     std::set<uint32_t> GameLayer::getDesignIds(){
-        std::set<uint32_t> out;
-        GetDesignIdsList *frame = protocol->getFrameFactory()->createGetDesignIdsList();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft03_DesignIds){
-            std::map<uint32_t, uint64_t> ids = static_cast<DesignIdsList*>(reply)->getIds();
-            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                out.insert(itcurr->first);
-            }
-        }else{
-            logger->debug("Expecting designidlist frame, but got %d instead", reply->getType());
-        }
-        
-        return out;
+        return designcache->getDesignIds();
     }
 
     /*! \brief Gets a design from the server.
@@ -866,22 +845,7 @@ namespace TPProto {
     \return The Design.
     */
     Design* GameLayer::getDesign(uint32_t designid){
-        GetDesign * fr = protocol->getFrameFactory()->createGetDesign();
-        fr->addId(designid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft03_Design){
-            logger->error("The returned frame isn't a design");
-        }
-        
-        return static_cast<Design*>(reply);
-        
+        return designcache->getDesign(designid);
     }
 
     /*! \brief Creates a Design object.
@@ -898,24 +862,7 @@ namespace TPProto {
     \return True if successful, false otherwise.
     */
     bool GameLayer::addDesign(Design* d){
-        AddDesign* frame = protocol->getFrameFactory()->createAddDesign();
-        frame->copyFromDesign(d);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                
-                return true;
-            }
-            delete reply;
-        }
-        return false;
+        return designcache->addDesign(d);
     }
 
     /*! \brief Modifies a Design on the server.
@@ -925,24 +872,7 @@ namespace TPProto {
     \return True if successful, false otherwise.
     */
     bool GameLayer::modifyDesign(Design* d){
-        ModifyDesign* frame = protocol->getFrameFactory()->createModifyDesign();
-        frame->copyFromDesign(d);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                
-                return true;
-            }
-            delete reply;
-        }
-        return false;
+        return designcache->modifyDesign(d);
     }
     
     /*! \brief Removes a design from the server.
@@ -952,25 +882,7 @@ namespace TPProto {
     \return True if sucessful, false otherwise.
     */
     bool GameLayer::removeDesign(uint32_t designid){
-        RemoveDesign* frame = protocol->getFrameFactory()->createRemoveDesign();
-        frame->removeDesignId(designid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft02_OK){
-            delete reply;
-            return true;
-            
-        }
-        delete reply;
-        
-        return false;
+        return designcache->removeDesign(designid);
     }
 
 
