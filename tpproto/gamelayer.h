@@ -54,6 +54,7 @@ namespace TPProto{
     class ResourceCache;
     class CategoryCache;
     class DesignCache;
+    class ComponentCache;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -161,6 +162,7 @@ namespace TPProto{
         ResourceCache* resourcecache;
         CategoryCache* categorycache;
         DesignCache* designcache;
+        ComponentCache* componentcache;
     };
 
 }

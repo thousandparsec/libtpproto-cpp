@@ -50,6 +50,7 @@
 #include "resourcecache.h"
 #include "categorycache.h"
 #include "designcache.h"
+#include "componentcache.h"
 
 // Frame Types
 
@@ -72,15 +73,12 @@
 #include "getorderdesc.h"
 #include "featuresframe.h"
 #include "redirect.h"
-#include "getcomponentidslist.h"
-#include "componentidslist.h"
 #include "getpropertyidslist.h"
 #include "propertyidslist.h"
 #include "resourcedesc.h"
 #include "player.h"
 #include "category.h"
 #include "design.h"
-#include "getcomponent.h"
 #include "component.h"
 #include "getproperty.h"
 #include "property.h"
@@ -143,7 +141,7 @@ namespace TPProto {
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
             objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
             resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
-            designcache(new DesignCache()){
+            designcache(new DesignCache()), componentcache(new ComponentCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -155,6 +153,7 @@ namespace TPProto {
         resourcecache->setProtocolLayer(protocol);
         categorycache->setProtocolLayer(protocol);
         designcache->setProtocolLayer(protocol);
+        componentcache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -175,6 +174,7 @@ namespace TPProto {
         delete resourcecache;
         delete categorycache;
         delete designcache;
+        delete componentcache;
     }
 
     /*! \brief Sets the client string.
@@ -892,27 +892,7 @@ namespace TPProto {
     \return The set of component id.
     */
     std::set<uint32_t> GameLayer::getComponentIds(){
-        std::set<uint32_t> out;
-        GetComponentIdsList *frame = protocol->getFrameFactory()->createGetComponentIdsList();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft03_ComponentIds){
-            std::map<uint32_t, uint64_t> ids = static_cast<ComponentIdsList*>(reply)->getIds();
-            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                out.insert(itcurr->first);
-            }
-        }else{
-            logger->debug("Expecting componentidlist frame, but got %d instead", reply->getType());
-        }
-        
-        return out;
+        return componentcache->getComponentIds();
     }
 
     /*! \brief Gets a Component from the server.
@@ -922,22 +902,7 @@ namespace TPProto {
     \return The Component.
     */
     Component* GameLayer::getComponent(uint32_t compid){
-        GetComponent * fr = protocol->getFrameFactory()->createGetComponent();
-        fr->addId(compid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft03_Component){
-            logger->error("The returned frame isn't a component");
-        }
-        
-        return static_cast<Component*>(reply);
-        
+        return componentcache->getComponent(compid);
     }
 
 
