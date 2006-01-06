@@ -51,6 +51,7 @@
 #include "categorycache.h"
 #include "designcache.h"
 #include "componentcache.h"
+#include "propertycache.h"
 
 // Frame Types
 
@@ -73,14 +74,11 @@
 #include "getorderdesc.h"
 #include "featuresframe.h"
 #include "redirect.h"
-#include "getpropertyidslist.h"
-#include "propertyidslist.h"
 #include "resourcedesc.h"
 #include "player.h"
 #include "category.h"
 #include "design.h"
 #include "component.h"
-#include "getproperty.h"
 #include "property.h"
 #include "probeorder.h"
 #include "adddesign.h"
@@ -141,7 +139,8 @@ namespace TPProto {
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
             objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
             resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
-            designcache(new DesignCache()), componentcache(new ComponentCache()){
+            designcache(new DesignCache()), componentcache(new ComponentCache()),
+            propertycache(new PropertyCache()){
         protocol = new ProtocolLayer();
         logger = new SilentLogger();
         sock = NULL;
@@ -154,6 +153,7 @@ namespace TPProto {
         categorycache->setProtocolLayer(protocol);
         designcache->setProtocolLayer(protocol);
         componentcache->setProtocolLayer(protocol);
+        propertycache->setProtocolLayer(protocol);
     }
 
     /*! \brief Destructor.
@@ -175,6 +175,7 @@ namespace TPProto {
         delete categorycache;
         delete designcache;
         delete componentcache;
+        delete propertycache;
     }
 
     /*! \brief Sets the client string.
@@ -912,27 +913,7 @@ namespace TPProto {
     \return The set of property id.
     */
     std::set<uint32_t> GameLayer::getPropertyIds(){
-        std::set<uint32_t> out;
-        GetPropertyIdsList *frame = protocol->getFrameFactory()->createGetPropertyIdsList();
-        frame->setCount(10000); // When this code is shifted out, this should be in a loop to get all the items
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft03_PropertyIds){
-            std::map<uint32_t, uint64_t> ids = static_cast<PropertyIdsList*>(reply)->getIds();
-            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                out.insert(itcurr->first);
-            }
-        }else{
-            logger->debug("Expecting objectidlist frame, but got %d instead", reply->getType());
-        }
-        
-        return out;
+        return propertycache->getPropertyIds();
     }
 
     /*! \brief Gets a Property from the server.
@@ -942,22 +923,7 @@ namespace TPProto {
     \return The Property.
     */
     Property* GameLayer::getProperty(uint32_t propid){
-        GetProperty * fr = protocol->getFrameFactory()->createGetProperty();
-        fr->addId(propid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft03_Property){
-            logger->error("The returned frame isn't a property");
-        }
-        
-        return static_cast<Property*>(reply);
-        
+        return propertycache->getProperty(propid);
     }
 
 
