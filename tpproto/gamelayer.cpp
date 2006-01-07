@@ -44,6 +44,7 @@
 #endif
 
 // caches
+#include "cachemethod.h"
 #include "objectcache.h"
 #include "playercache.h"
 #include "boardcache.h"
@@ -116,6 +117,7 @@ namespace TPProto {
                     layer->status = gsLoggedIn;
                     if(layer->statuslistener != NULL){
                         layer->statuslistener->eotEnded();
+                        layer->updateCaches();
                     }
                 }
                 if(layer->statuslistener != NULL){
@@ -214,6 +216,21 @@ namespace TPProto {
                 statuslistener->disconnected();
         }
         return status;
+    }
+
+    /*! \brief Sets the CacheMethod for the caches to use.
+    Changes the default CacheMethod used, defaults to CacheNoneMethod.
+    \param prototype A CacheMethod that will be cloned for each Cache to use.
+    */
+    void GameLayer::setCacheMethod(CacheMethod* prototype){
+        objectcache->setCacheMethod(prototype->clone());
+        boardcache->setCacheMethod(prototype->clone());
+        playercache->setCacheMethod(prototype->clone());
+        resourcecache->setCacheMethod(prototype->clone());
+        categorycache->setCacheMethod(prototype->clone());
+        designcache->setCacheMethod(prototype->clone());
+        componentcache->setCacheMethod(prototype->clone());
+        propertycache->setCacheMethod(prototype->clone());
     }
 
     /*! \brief Connects to the given address url
@@ -323,6 +340,7 @@ namespace TPProto {
                     statuslistener->connected();
                 logger->info("Connected");
                 delete reply;
+                updateCaches();
                 return true;
             }else if(reply != NULL && reply->getType() == ft03_Redirect){
                 //signal we are redirecting 
@@ -403,7 +421,20 @@ namespace TPProto {
         status = gsDisconnected;
     }
 
-
+    /*! \brief Tells all the caches to update.
+    Called automatically after logged in, and after EOT has finished.
+    Call if you want the caches to be updated.
+    */
+    void GameLayer::updateCaches(){
+        objectcache->update();
+        boardcache->update();
+        playercache->update();
+        resourcecache->update();
+        categorycache->update();
+        designcache->update();
+        componentcache->update();
+        propertycache->update();
+    }
 
 
     /*! \brief Gets objectids from the server.

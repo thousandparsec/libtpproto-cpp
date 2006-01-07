@@ -48,6 +48,7 @@ namespace TPProto{
     class Features;
     class GameStatusListener;
     class GameLayerAsyncFrameListener;
+    class CacheMethod;
     class ObjectCache;
     class PlayerCache;
     class BoardCache;
@@ -84,6 +85,7 @@ namespace TPProto{
         void setClientString(const std::string & name);
         void setLogger(Logger* nlog);
         void setGameStatusListener(GameStatusListener* gsl);
+        void setCacheMethod(CacheMethod* prototype);
 
         //status
         GameStatus getStatus();
@@ -93,6 +95,8 @@ namespace TPProto{
         bool connect(TPSocket* nsock);
         bool login(const std::string &user, const std::string &password);
         void disconnect();
+
+        void updateCaches();
     
 
         //Objects
