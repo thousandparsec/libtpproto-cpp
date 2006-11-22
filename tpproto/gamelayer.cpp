@@ -60,6 +60,7 @@
 #include "failframe.h"
 #include "sequence.h"
 #include "connect.h"
+#include "createaccount.h"
 #include "login.h"
 #include "object.h"
 #include "board.h"
@@ -360,6 +361,61 @@ namespace TPProto {
             logger->error("Could not open socket to server");
         }
         return false;
+    }
+    
+    /*! \brief Creates an account on the server.
+    
+    Sends a AccountCreate Frame to the server and waits for a reply.
+    \param user The username to use.
+    \param password The password for the account.
+    \param email The user's email address.
+    \param comment A comment to send.
+    \return True if successful, false otherwise.
+    */
+    bool GameLayer::createAccount(const std::string &user, const std::string &password, const std::string &email, const std::string &comment){
+      if(status == gsConnected && sock->isConnected()){
+          AccountCreate * account = protocol->getFrameFactory()->createAccountCreate();
+          account->setUser(user);
+          account->setPass(password);
+          account->setEmail(email);
+          account->setComment(comment);
+          uint32_t seqnum = protocol->getFrameCodec()->sendFrame(account);
+          delete account;
+          
+          std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+          Frame * reply = NULL;
+          if(replies.size() >= 1){
+              reply = replies.front();
+          }
+          
+          if(reply != NULL && reply->getType() == ft02_OK){
+              // expect OK back
+              //  or maybe error
+              logger->info("Account created");
+              delete reply;
+              if(!sock->isConnected()){
+                status = gsDisconnected;
+                if(statuslistener != NULL)
+                  statuslistener->disconnected();
+              }else{
+                status = gsLoggedIn;
+                if(statuslistener != NULL)
+                    statuslistener->loggedIn();
+              }
+              return true;
+          }else{
+              logger->warning("Did not create account");
+              if(reply != NULL)
+                  delete reply;
+          }
+        
+      }
+      if(!sock->isConnected()){
+          status = gsDisconnected;
+          if(statuslistener != NULL)
+              statuslistener->disconnected();
+      }
+      return false;
     }
 
     /*! \brief Logs in to the server.

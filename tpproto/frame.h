@@ -79,6 +79,7 @@ namespace TPProto{
         ft03_Property = 59,
         ft03_PropertyIds_Get = 60,
         ft03_PropertyIds = 61,
+        ft03_Account_Create = 62,
     ft02_Max,
     
     

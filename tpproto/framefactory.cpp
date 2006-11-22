@@ -1,6 +1,6 @@
 /*  FrameFactory class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005,2006  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -36,6 +36,7 @@
 #include "failframe.h"
 #include "sequence.h"
 #include "connect.h"
+#include "createaccount.h"
 #include "login.h"
 #include "redirect.h"
 #include "getfeatures.h"
@@ -166,6 +167,15 @@ namespace TPProto {
     */
     Connect* FrameFactory::createConnect(){
         Connect* f = new Connect();
+        f->setProtocolVersion(pver);
+        return f;
+    }
+
+    /*! \brief Creates an AccountCreate Frame.
+    \return A new AccountCreate Frame.
+    */
+    AccountCreate* FrameFactory::createAccountCreate(){
+        AccountCreate* f = new AccountCreate();
         f->setProtocolVersion(pver);
         return f;
     }

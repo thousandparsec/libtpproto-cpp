@@ -93,6 +93,7 @@ namespace TPProto{
         //connect, login and disconnect
         bool connect(const std::string& address);
         bool connect(TPSocket* nsock);
+        bool createAccount(const std::string &user, const std::string &password, const std::string &email, const std::string &comment);
         bool login(const std::string &user, const std::string &password);
         void disconnect();
 
