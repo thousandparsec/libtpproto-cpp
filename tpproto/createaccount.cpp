@@ -43,7 +43,7 @@ namespace TPProto{
     buf->packString(pass.c_str());
     buf->packString(email.c_str());
     buf->packString(comment.c_str());
-    type = ft02_Account_Create;
+    type = ft03_Account_Create;
   }
   
   /*! \brief Unpack from a Buffer, always false.
