@@ -234,6 +234,16 @@ namespace TPProto {
         propertycache->setCacheMethod(prototype->clone());
     }
 
+    /*! \brief Gets the ProtocolLayer being used.
+    This could be used to do low level calls to the protocol itself, or 
+    more importantly, set the FrameFactory, FrameBuilder and/or FrameCodec
+    classes in the ProtocolLayer.
+    \return The pointer to the ProtocolLayer.
+    */
+    ProtocolLayer* GameLayer::getProtocolLayer() const{
+      return protocol;
+    }
+
     /*! \brief Connects to the given address url
     This method connects to the server given as the address. The types of url
     supported are tp, tps, https and http. Tps and https depend on TLS being enabled.

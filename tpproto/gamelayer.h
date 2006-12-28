@@ -89,6 +89,9 @@ namespace TPProto{
 
         //status
         GameStatus getStatus();
+        
+        //Protocol Layer
+        ProtocolLayer* getProtocolLayer() const;
 
         //connect, login and disconnect
         bool connect(const std::string& address);
