@@ -107,7 +107,7 @@ namespace TPProto{
       if ( pse = getservbyname(portname, "tcp") ) {
 	sin.sin_port = pse->s_port;
 	
-      } else if ((sin.sin_port = htons((u_short)atoi(service)))==0) {
+      } else if ((sin.sin_port = htons((u_short)atoi(portname)))==0) {
 	fprintf(stderr, "ipv4_only_connect:: could not get service=[%s]\n",
 		service);
 	return false;
