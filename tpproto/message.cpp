@@ -93,6 +93,7 @@ namespace TPProto{
   }
 
   /*! \brief Gets the message type.
+  \deprecated Not used in TP03 or later. Use references instead.
     \return The message type.
   */
   unsigned int Message::getMessageType(){
@@ -144,6 +145,7 @@ namespace TPProto{
   }
 
   /*! \brief Sets the message type.
+  \deprecated Not used in TP03 or later. Use references instead.
     \param mt The message type.
   */
   void Message::setMessageType(unsigned int mt){
