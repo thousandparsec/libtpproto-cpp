@@ -1,0 +1,83 @@
+namespace TPProto{
+
+/** \mainpage libtpproto-cpp
+
+Welcome to the libtpproto-cpp library documentation.
+
+libtpproto-cpp is a C++ library for making writing clients for the Thousand Parsec
+Protocol easy and abstract much of the underlying details.
+
+\section intro Short Intro
+
+This is a quick intro to what should be version 0.2.0 of libtpproto-cpp, the 
+Thousand Parsec C++ Protocol and Game library. I say should because there is 
+a little more work to be done on it before it gets released.
+
+First up, libtpproto-cpp is split into two part, the GameLayer and the 
+ProtocolLayer. The ProtocolLayer deals with the low-level network input and 
+output, the TP protocol itself. The GameLayer uses the ProtocolLayer to 
+provide the objects, boards, messages, Resources, designs, etc to the client, 
+without having to know how they were fetched, cached or which protocol.  Most 
+clients should be able to use just the GameLayer and not have to deal with 
+the ProtocolLayer much.
+
+The basic pattern of use is to create a GameLayer, set the client string and 
+other things (mentioned below), connect to a game by a url or  pre-created 
+socket, login or create a player (as needed), then use the various gets, 
+creates, adds, removes, and posts to display the data about the game.
+
+A number of things can (and sometimes, need to) change the behaviour of the 
+library. These are set after the GameLayer is created.
+
+The client string is used to identify the client, normally in the form 
+clientname/clientversion. The library adds it's identification to the string 
+to help servers (potentially) work around badly incorrect and/or collect 
+statistics on clients.
+
+The Logger class is used by the library to log debug, info, warning and error 
+messages. The client can provide a subclass of Logger to the library to catch 
+these, or the library defaults to use the provided SilentLogger, which drops 
+all the messages.
+
+The GameStatusListener is another class which can be subclassed to get 
+information out of the library. It provides notification when the status 
+changes, when connected, redirected (with url), disconnected, logged in, when 
+the library detects the End-of-turn has started on the server, and when the 
+time to the end of turn is received.
+
+The CacheMethod is the way the various caches of game data operate. Currently, 
+only one method is provided (CacheNoneMethod) but in future more will be 
+added, and clients are welcome to write their own. The cache update method is 
+called with logged in or on GameLayer::updateCaches() method call.
+
+The other methods of GameLayer deal with the game data and connected and 
+disconnecting to the game server.
+
+A few other classes that might be helpful for client developers would be the 
+FrameBuilder and the FrameFactory. If you need to add some type of GUI (or 
+other) support to the various frame types, then FrameFactory is the class to 
+subclass. A method of setting it to be used by the library will be created 
+shortly. The FrameCodec could be made to run in a separate thread and could 
+be of interest to some clients. But might not be necessary with a good cache 
+method.
+
+\subsection future_doc Future documentation areas
+ - Polling
+ - Blocking
+ - Theading
+ - Writing a CacheMethod
+ - Example code for connection and other basic tasks
+
+\section links Links
+
+<UL>
+<LI><a href="http://www.thousandparsec.net/">Thousand Parsec</a></LI>
+</UL>
+
+\section contact Contact
+
+Lee Begg <llnz@paradise.net.nz> is the main maintainer and developer of
+libtpproto-cpp. See the AUTHORS file for all the developers.
+
+*/
+}
