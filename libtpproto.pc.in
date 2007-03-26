@@ -9,4 +9,3 @@ Requires:
 Version: @VERSION@
 Libs: -L${libdir} -ltpproto
 Cflags: -I${includedir}/tpproto
-Requires.private: @LIBGNUTLS_LIBS@
