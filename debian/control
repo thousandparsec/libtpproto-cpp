@@ -19,4 +19,4 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Thousand Parsec network protocol library
  This package provides a library implementing the Thousand Parsec network
- protocol for clients and servers.
+ protocol for clients.
