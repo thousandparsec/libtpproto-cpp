@@ -1,3 +1,10 @@
+libtpproto-cpp (0.1.0-2) unstable; urgency=low
+
+  * Minor fixups to allow Debian packages to be built directly from git
+    source.
+
+ -- Paul Schulz <paul@mawsonlakes.org>  Thu, 24 May 2007 22:21:52 +0930
+
 libtpproto-cpp (0.1.0-1) unstable; urgency=low
 
   * Initial release (Closes: #nnnn)  <nnnn is the bug number of your ITP>

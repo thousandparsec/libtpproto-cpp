@@ -11,7 +11,7 @@ Architecture: any
 Depends: libtpproto1 (= ${Source-Version})
 Description: Thousand Parsec network protocol development libraries and headers
  This package provides the development headers and libraries needed to compile
- software against the Thousand Parsec network protocl
+ software against the Thousand Parsec network protocol.
 
 Package: libtpproto1
 Section: libs
@@ -19,4 +19,4 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Thousand Parsec network protocol library
  This package provides a library implementing the Thousand Parsec network
- protocol for clients and servers
+ protocol for clients and servers.
