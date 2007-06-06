@@ -44,17 +44,17 @@ namespace TPProto{
   }
   
   /*! \brief Gets the playerid of the owner of this Planet.
-    \return The playerid of the owner.
+    \return The playerid of the owner (-1 if no or unknown owner).
   */
   int Planet::getOwner(){
     return owner;
   }
 
-    /*! \brief Get the resources on the planet.
-    \return The map of resource ids to amount of surface and total amount pairs.
-    */
-    std::map<uint32_t, std::pair<uint32_t, uint32_t> > Planet::getResources() const{
-        return resources;
-    }
+  /*! \brief Get the resources on the planet.
+  \return The map of resource ids to amount of surface and total amount pairs.
+  */
+  std::map<uint32_t, std::pair<uint32_t, uint32_t> > Planet::getResources() const{
+    return resources;
+  }
 
 }

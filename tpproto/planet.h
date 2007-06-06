@@ -26,7 +26,11 @@ namespace TPProto{
     std::map<uint32_t, std::pair<uint32_t, uint32_t> > getResources() const;
 
   private:
+    /*! \brief The id of the player who "owns" the planet or -1 if not owned or unknown
+     */
     int owner;
+    /*! \brief A map from resource ids to pairs of surface and minable resources
+     */
     std::map<uint32_t, std::pair<uint32_t, uint32_t> > resources;
 
   };
