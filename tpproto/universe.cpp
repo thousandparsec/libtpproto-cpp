@@ -42,7 +42,7 @@ namespace TPProto{
   /*! \brief Gets the age of the universe.
     /return The age of the universe in turns (years).
   */
-  int Universe::getAge(){
+  unsigned int Universe::getAge(){
     return age;
   }
 

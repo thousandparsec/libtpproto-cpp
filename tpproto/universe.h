@@ -20,10 +20,12 @@ namespace TPProto{
 
     void visit(ObjectVisitor* vis);
 
-    int getAge();
+    unsigned int getAge();
 
   private:
-    int age;
+    /*! \brief The current year/turn number.
+     */
+    unsigned int age;
   };
 
 }
