@@ -45,7 +45,7 @@ namespace TPProto{
   }
 
   /*! \brief Get the playerid of the owner of the fleet.
-    \return The PlayerId of the owner.
+    \return The PlayerId of the owner (-1 if no or unknown owner).
    */
   int Fleet::getOwner(){
     return owner;
@@ -54,7 +54,7 @@ namespace TPProto{
   /*! \brief Get the amount of damage done to the fleet.
     \return The amount of damage.
   */
-  int Fleet::getDamage(){
+  unsigned int Fleet::getDamage(){
     return damage;
   }
 
