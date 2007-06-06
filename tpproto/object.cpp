@@ -95,14 +95,14 @@ namespace TPProto{
   /*! \brief Gets the object type number of the object.
     \return The object type number.
   */
-  int Object::getObjectType(){
+  unsigned int Object::getObjectType(){
     return obtype;
   }
 
   /*! \brief Gets the diameter of the object in units.
     \return The diameter of the object.
   */
-  unsigned long long Object::getSize(){
+  uint64_t Object::getSize(){
     return size;
   }
 
@@ -125,16 +125,16 @@ namespace TPProto{
   The ids of the Orders are from 0 to numorders-1.
   \return The number of orders.
   */
-  int Object::getNumberOrders(){
+  unsigned int Object::getNumberOrders(){
     return numorders;
   }
 
-    /*! \brief Gets the last time this object was modified.
-    \return The timestamp the object was last modified.
-    */
-    uint64_t Object::getLastModifiedTime(){
-        return modtime;
-    }
+  /*! \brief Gets the last time this object was modified.
+  \return The timestamp the object was last modified.
+  */
+  uint64_t Object::getLastModifiedTime(){
+    return modtime;
+  }
 
 }
 

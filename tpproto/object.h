@@ -37,11 +37,11 @@ namespace TPProto{
     std::string getName();
     Vector3d getPos();
     Vector3d getVel();
-    int getObjectType();
-    unsigned long long getSize();
+    unsigned int getObjectType();
+    uint64_t getSize();
     std::set<unsigned int> getContainedObjectIds();
     std::set<unsigned int> getAvailableOrders();
-    int getNumberOrders();
+    unsigned int getNumberOrders();
     uint64_t getLastModifiedTime();
     
     
@@ -65,7 +65,7 @@ namespace TPProto{
     
     /*! \brief The diameter of the object in units.
      */
-    unsigned long long size;
+    uint64_t size;
     
     /*! \brief The object's name.
      */
@@ -83,7 +83,7 @@ namespace TPProto{
 
     The id of the orders are 0 to numorders-1.
     */
-    int numorders;
+    unsigned int numorders;
 
     /*! \brief The last modification time of this object.
     */
