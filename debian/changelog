@@ -1,3 +1,9 @@
+libtpproto-cpp (0.1.1-1) unstable; urgency=low
+
+  * New upstream version.
+
+ -- Lee Begg <llnz@paradise.net.nz>  Wed, 04 Jul 2007 20:19:23 +1200
+
 libtpproto-cpp (0.1.0-2) unstable; urgency=low
 
   * Minor fixups to allow Debian packages to be built directly from git

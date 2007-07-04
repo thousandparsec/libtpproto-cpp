@@ -1,3 +1,18 @@
+2007-07-04 Lee
+        * Added TPS socket
+        * Added HTTPS tunneling socket
+        * Some threadsafing
+        * Added GameStatusListner
+        * Added GetById baseframe class
+        * Test improvements
+        * Added Cache, CacheMethod and CacheNoneMethod
+        * Added caches for Objects, players, boards, etc.
+        * Added Create Account support
+        * Added intro document to doxygen output
+        * Added Debian packaging support
+        * Sign/Unsigned fixes
+        * version 0.1.1
+
 2005-11-22 Lee
 	* Split into High level (GameLayer) and low level (ProtocolLayer) layers.
 	* All non-optional parts of TP03 supported.

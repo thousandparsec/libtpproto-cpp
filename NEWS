@@ -1,3 +1,10 @@
+2007-07-04 Lee
+Quite a few changes for 0.1.1. Slightly better thread safing, but not complete.
+Adds some new features, such as caches, TPS and HTTPS sockets, and GameStatusListener.
+The main reason for release is so that another massive change can take place, moving to
+a more asynchronous method of interaction, and exporting file descriptors and timers for
+better integration with clients. TP04 support will also be added next.
+
 2005-11-22 Lee
 Massive changes in 0.1.0. Split into high level and low level interfaces.
 Support for TP03. Still not thread safe, but should be easier to get there now.

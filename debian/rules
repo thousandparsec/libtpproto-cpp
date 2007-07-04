@@ -17,8 +17,9 @@ DEB_BUILD_GNU_TYPE  ?= $(shell dpkg-architecture -qDEB_BUILD_GNU_TYPE)
 
 config.status: configure
 	dh_testdir
-	# Add here commands to configure the package.
-	./autogen.sh
+	# If you are building this package from git, you will need to run
+	#./autogen.sh
+	# before you can continue.
 	./configure --prefix=/usr
 
 build: build-stamp

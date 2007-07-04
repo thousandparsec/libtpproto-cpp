@@ -7,7 +7,7 @@ Requires:
 
 
 WARNING!!!!
-libtpproto-cpp is *not* even remotely thread safe.  This is bad and I know it.
+libtpproto-cpp is *not* completely thread safe.  This is bad and I know it.
 So be *very* careful about using it in multi-thread environments.
 
 Again:
