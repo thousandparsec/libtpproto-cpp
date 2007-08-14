@@ -92,7 +92,8 @@ namespace TPProto{
     the item is not found.
   */
   bool ListParameter::setSelection(unsigned int id, unsigned int num){
-    std::map<unsigned int, SelectableElement>::iterator itcurr = selectable.find(id);
+    std::map<unsigned int, SelectableElement>::iterator itcurr = 
+    				selectable.find(id);
     if(itcurr != selectable.end() && num <= (itcurr->second.second)){
       chosen[id] = num;
       return true;
