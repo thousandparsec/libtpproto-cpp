@@ -23,28 +23,28 @@ namespace TPProto{
     Takes a format string and args.
     \param mesg Message format string.
     */
-    virtual void error(char* mesg, ...) = 0;
+    virtual void error(const char* mesg, ...) = 0;
 
     /*! \brief Log a warning message.
       
     Takes a format string and args.
     \param mesg Message format string.
     */
-    virtual void warning(char* mesg, ...) = 0;
+    virtual void warning(const char* mesg, ...) = 0;
 
     /*! \brief Log an info message.
       
     Takes a format string and args.
     \param mesg Message format string.
     */
-    virtual void info(char* mesg, ...) = 0;
+    virtual void info(const char* mesg, ...) = 0;
 
     /*! \brief Log a debug message.
       
     Takes a format string and args.
     \param mesg Message format string.
     */
-    virtual void debug(char* mesg, ...) = 0;
+    virtual void debug(const char* mesg, ...) = 0;
 
   };
 

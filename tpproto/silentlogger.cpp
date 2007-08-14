@@ -19,7 +19,7 @@ namespace TPProto{
     Takes a format string and args.
     \param mesg Message format string to be ignored.
   */
-  void SilentLogger::error(char* mesg, ...){
+  void SilentLogger::error(const char* mesg, ...){
   }
 
   /*! \brief Drops a warning message.
@@ -27,7 +27,7 @@ namespace TPProto{
     Takes a format string and args.
     \param mesg Message format string to be ignored.
   */
-  void SilentLogger::warning(char* mesg, ...){
+  void SilentLogger::warning(const char* mesg, ...){
   }
 
   /*! \brief Drops an info message.
@@ -35,7 +35,7 @@ namespace TPProto{
     Takes a format string and args.
     \param mesg Message format string to be ignored.
   */
-  void SilentLogger::info(char* mesg, ...){
+  void SilentLogger::info(const char* mesg, ...){
   }
   
   /*! \brief Drops a debug message.
@@ -43,7 +43,7 @@ namespace TPProto{
     Takes a format string and args.
     \param mesg Message format string to be ignored.
   */
-  void SilentLogger::debug(char* mesg, ...){
+  void SilentLogger::debug(const char* mesg, ...){
   }
 
 }
