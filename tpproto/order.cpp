@@ -49,12 +49,13 @@ namespace TPProto{
   bool Order::unpackBuffer(Buffer* buf){
     object = buf->unpackInt();
     slot = buf->unpackInt();
-    if(buf->unpackInt() != desc->getOrderType())
+    if((unsigned int)buf->unpackInt() != desc->getOrderType())
       return false;
     numturns = buf->unpackInt();
-    //resource lists are currently not used...
-    /* FIXME: Check this is 0 */
-    buf->unpackInt(); // that had better be 0...
+    //resource lists are currently not used.
+    int resc = buf->unpackInt(); 
+    if(resc != 0)
+      return false;
     
     //unpack parameters
     for(std::list<OrderParameter*>::iterator itcurr = params.begin(); itcurr != params.end(); ++itcurr){
