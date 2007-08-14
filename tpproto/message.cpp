@@ -23,22 +23,22 @@ namespace TPProto{
   void Message::packBuffer(Buffer* buf){
     buf->packInt(bid); 
     buf->packInt(slot);
-        if(protoVer == 2){
-    buf->packInt(1);
-    buf->packInt(mtypes);
-        }else{
-            buf->packInt(0);
-        }
+    if(protoVer == 2){
+      buf->packInt(1);
+      buf->packInt(mtypes);
+    }else{
+      buf->packInt(0);
+    }
     buf->packString(subject.c_str());
     buf->packString(body.c_str());
-        if(protoVer > 2){
-            buf->packInt(0); // Turn number, set by server
-            buf->packInt(refs.size());
-            for(std::map<int32_t, uint32_t>::iterator itcurr = refs.begin(); itcurr != refs.end(); ++itcurr){
-                buf->packInt(itcurr->first);
-                buf->packInt(itcurr->second);
-            }
-        }
+    if(protoVer > 2){
+      buf->packInt(0); // Turn number, set by server
+      buf->packInt(refs.size());
+      for(std::map<int32_t, uint32_t>::iterator itcurr = refs.begin(); itcurr != refs.end(); ++itcurr){
+        buf->packInt(itcurr->first);
+        buf->packInt(itcurr->second);
+      }
+    }
     
     type = ft02_Message_Post;
   }
@@ -51,6 +51,7 @@ namespace TPProto{
     bid = buf->unpackInt();
     slot = buf->unpackInt();
     if(protoVer == 2){
+      /* FIXME: Validate */
       buf->unpackInt(); // this had better be 1
       mtypes = buf->unpackInt();
     }else{
@@ -65,8 +66,14 @@ namespace TPProto{
     if(protoVer > 2){
       turn = buf->unpackInt();
       uint32_t numrefs = buf->unpackInt();
+      /* Check for DOS */
+      if (numrefs > 1000){
+        /* FIXME: Cleanup ? */
+	return false;
+      }
       for(uint32_t i = 0; i < numrefs; i++){
 	int32_t refid = buf->unpackInt();
+$	/* FIXME: Need to validate before just writing to array ! */
 	refs[refid] = buf->unpackInt();
       }
     }
