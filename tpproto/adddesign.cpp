@@ -29,8 +29,8 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    AddDesign::AddDesign() : Frame(), categories(), name(), description(), owner(0xffffffff),
-                        components(){
+    AddDesign::AddDesign() : Frame(), categories(), name(), description(), 
+    			owner(0xffffffff), components(){
     }
 
     /*! \brief Required virtual destructor.
@@ -48,7 +48,8 @@ namespace TPProto{
         buf->packInt(0);
         buf->packInt64(0);
         buf->packInt(categories.size());
-        for(std::set<uint32_t>::iterator i = categories.begin(); i != categories.end() ; ++i){
+        for(std::set<uint32_t>::iterator i = categories.begin(); 
+		i != categories.end() ; ++i){
             buf->packInt(*i);
         }
         buf->packString(name.c_str());
@@ -56,7 +57,8 @@ namespace TPProto{
         buf->packInt(0);
         buf->packInt(owner);
         buf->packInt(components.size());
-        for(std::map<uint32_t, uint32_t>::iterator i = components.begin(); i != components.end(); ++i){
+        for(std::map<uint32_t, uint32_t>::iterator i = components.begin(); 
+		i != components.end(); ++i){
             buf->packInt(i->first);
             buf->packInt(i->second);
         }
