@@ -1,14 +1,14 @@
 Source: libtpproto-cpp
 Priority: extra
 Maintainer: Paul Hampson <Paul.Hampson@Pobox.com>
-Build-Depends: debhelper (>= 5), autotools-dev
+Build-Depends: debhelper (>= 5), autotools-dev, automake, libtool, libgnutls-dev
 Standards-Version: 3.7.2
 Section: libs
 
 Package: libtpproto-dev
 Section: libdevel
 Architecture: any
-Depends: libtpproto2 (= ${Source-Version})
+Depends: libtpproto2 (= ${binary:Version})
 Description: Thousand Parsec network protocol development libraries and headers
  This package provides the development headers and libraries needed to compile
  software against the Thousand Parsec network protocol.
