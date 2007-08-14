@@ -30,6 +30,7 @@ namespace TPProto{
   */
   bool Object::unpackBuffer(Buffer* buf){
     id = buf->unpackInt();
+    /* FIXME: Can we check this exists?? */
     obtype = buf->unpackInt();
     char* strbuf = buf->unpackString();
     name = strbuf;
@@ -37,12 +38,14 @@ namespace TPProto{
     size = buf->unpackInt64();
     pos.unpack(buf);
     vel.unpack(buf);
+    /* FIXME: Sanity check? */
     int count = buf->unpackInt();
     contained.clear();
     for(int i = 0; i < count; i++){
       contained.insert(buf->unpackInt());
     }
     availableorders.clear();
+    /* FIXME: Sanity check? */
     count = buf->unpackInt();
     for(int i = 0; i < count; i++){
       availableorders.insert(buf->unpackInt());

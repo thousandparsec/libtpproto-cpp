@@ -24,6 +24,7 @@ namespace TPProto{
     Object::unpackBuffer(buf);
     owner = buf->unpackInt();
     
+    /* FIXME: sanity check */
     int num = buf->unpackInt();
     for(int i = 0; i < num; i++){
       int stype = buf->unpackInt();
