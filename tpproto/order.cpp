@@ -53,6 +53,7 @@ namespace TPProto{
       return false;
     numturns = buf->unpackInt();
     //resource lists are currently not used...
+    /* FIXME: Check this is 0 */
     buf->unpackInt(); // that had better be 0...
     
     //unpack parameters
