@@ -50,26 +50,26 @@ namespace TPProto{
   bool Message::unpackBuffer(Buffer* buf){
     bid = buf->unpackInt();
     slot = buf->unpackInt();
-        if(protoVer == 2){
-    buf->unpackInt(); // this had better be 1
-    mtypes = buf->unpackInt();
-        }else{
-            buf->unpackInt(); // Should be 0
-        }
+    if(protoVer == 2){
+      buf->unpackInt(); // this had better be 1
+      mtypes = buf->unpackInt();
+    }else{
+      buf->unpackInt(); // Should be 0
+    }
     char* temp = buf->unpackString();
     subject = temp;
     delete[] temp;
     temp = buf->unpackString();
     body = temp;
     delete[] temp;
-        if(protoVer > 2){
-            turn = buf->unpackInt();
-            uint32_t numrefs = buf->unpackInt();
-            for(uint32_t i = 0; i < numrefs; i++){
-                int32_t refid = buf->unpackInt();
-                refs[refid] = buf->unpackInt();
-            }
-        }
+    if(protoVer > 2){
+      turn = buf->unpackInt();
+      uint32_t numrefs = buf->unpackInt();
+      for(uint32_t i = 0; i < numrefs; i++){
+	int32_t refid = buf->unpackInt();
+	refs[refid] = buf->unpackInt();
+      }
+    }
 
     type = ft02_Message;
 
