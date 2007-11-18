@@ -73,7 +73,7 @@ namespace TPProto{
       }
       for(uint32_t i = 0; i < numrefs; i++){
 	int32_t refid = buf->unpackInt();
-$	/* FIXME: Need to validate before just writing to array ! */
+	/* FIXME: Need to validate before just writing to array ! */
 	refs[refid] = buf->unpackInt();
       }
     }
