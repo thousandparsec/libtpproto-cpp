@@ -14,7 +14,7 @@ class StdoutLogger : public Logger{
         StdoutLogger(){}
         virtual ~StdoutLogger(){}
 
-        void error(char* mesg, ...){
+        void error(const char* mesg, ...){
             printf("[error] ");
             va_list ap;
             va_start(ap, mesg);
@@ -22,7 +22,7 @@ class StdoutLogger : public Logger{
             va_end(ap);
             printf("\n");
         }
-        void warning(char* mesg, ...){
+        void warning(const char* mesg, ...){
             printf("[warning] ");
             va_list ap;
             va_start(ap, mesg);
@@ -30,7 +30,7 @@ class StdoutLogger : public Logger{
             va_end(ap);
             printf("\n");
         }
-        void info(char* mesg, ...){
+        void info(const char* mesg, ...){
             printf("[info] ");
             va_list ap;
             va_start(ap, mesg);
@@ -38,7 +38,7 @@ class StdoutLogger : public Logger{
             va_end(ap);
             printf("\n");
         }
-        void debug(char* mesg, ...){
+        void debug(const char* mesg, ...){
             printf("[debug] ");
             va_list ap;
             va_start(ap, mesg);
