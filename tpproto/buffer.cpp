@@ -118,7 +118,7 @@ namespace TPProto{
     int len = unpackInt();
     char *rtnstr = NULL;
     
-    if (len > 0 && datalen >= dataptr + len) {
+    if (len >= 0 && datalen >= dataptr + len) {
       rtnstr = new char[len + 1];
       memcpy(rtnstr, data + dataptr, len);
       data[len] = '\0';
@@ -127,6 +127,8 @@ namespace TPProto{
       //Logger::getLogger()->debug("len < 0 or length < upackptr + len");
       std::cerr << "Buffer::unpackString(): len < 0 or length < upackptr + len" << std::endl;
       std::cout << "len: " << len << " length: " << datalen << " upackptr: " << dataptr << std::endl;
+      rtnstr = new char[1];
+      rtnstr[0] = '\0';
     }
     //printf("unpackptr %d\n", unpackptr);
     return rtnstr;
