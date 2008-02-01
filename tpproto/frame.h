@@ -1,5 +1,26 @@
 #ifndef TPPROTO_FRAME_H
 #define TPPROTO_FRAME_H
+/*  Frame - base class for frame objects
+ *
+ *  Copyright (C) 2005, 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
+
+
 
 /*! \file
   \brief Declares Frame class, and serveral protocol enums.
@@ -12,7 +33,6 @@ namespace TPProto{
   
 /*! \brief Enum of Frame types.
 
-  Just version 02.
 */ 
   typedef enum {
     // New Frame Codes
@@ -80,6 +100,15 @@ namespace TPProto{
         ft03_PropertyIds_Get = 60,
         ft03_PropertyIds = 61,
         ft03_Account_Create = 62,
+        ft04_TurnFinished = 63,
+        ft04_Filters_Set = 64,
+        ft04_GameInfo_Get = 65,
+        ft04_GameInfo = 66,
+        ft04_ObjectDesc_Get = 67,
+        ft04_ObjectDesc = 68,
+        ft04_ObjectTypes_Get = 69,
+        ft04_ObjectTypes_List = 70,
+        ft04_Object_Modify = 71,
     ft02_Max,
     
     
