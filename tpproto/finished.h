@@ -31,7 +31,7 @@ namespace TPProto{
 
   /*! \brief A Frame for tell the server that the player has finished his/her turn.
    */
-  class FinsihedFrame : public Frame{
+  class FinishedFrame : public Frame{
   public:
     FinishedFrame();
     virtual ~FinishedFrame();
