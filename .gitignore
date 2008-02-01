@@ -16,4 +16,6 @@ libtool
 *.lo
 *.la
 libtpproto.pc
-
+*.o
+.libs
+.deps
