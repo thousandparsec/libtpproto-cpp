@@ -25,7 +25,8 @@ COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     getobjectidsbycontainer.cpp framebuilder.cpp protocollayer.cpp gamelayer.cpp getbyid.cpp \
     cache.cpp cachemethod.cpp cachenonemethod.cpp objectcache.cpp playercache.cpp \
     boardcache.cpp resourcecache.cpp categorycache.cpp designcache.cpp \
-    componentcache.cpp propertycache.cpp createaccount.cpp finished.cpp getgameinfo.cpp
+    componentcache.cpp propertycache.cpp createaccount.cpp finished.cpp getgameinfo.cpp \
+    setfilters.cpp
 libtpprotodir = $(includedir)/tpproto
 COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
@@ -49,7 +50,7 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     gamestatuslistener.h getbyid.h cache.h cachemethod.h cachenonemethod.h \
     objectcache.h playercache.h boardcache.h resourcecache.h categorycache.h \
     designcache.h componentcache.h propertycache.h createaccount.h \
-    finished.h getgameinfo.h
+    finished.h getgameinfo.h setfilters.h
 
 if GNUTLS
 GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp
