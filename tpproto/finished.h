@@ -1,5 +1,5 @@
-#ifndef TPPROTO_GETTIME_H
-#define TPPROTO_GETTIME_H
+#ifndef TPPROTO_FINISHED_H
+#define TPPROTO_FINISHED_H
 /*  FinishedFrame - Frame to tell the server that the player is finished his/her turn
  *
  *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
