@@ -159,6 +159,7 @@ namespace TPProto{
     if (len > 0 && datalen >= dataptr + len + pad) {
       std::string rtnstr(data+dataptr, len);
       dataptr += len + pad;
+      return rtnstr;
     } else {
       //Logger::getLogger()->debug("len < 0 or length < upackptr + len");
       std::cerr << "Buffer::unpackString(): len < 0 or length < upackptr + len + pad" << std::endl;
@@ -166,7 +167,7 @@ namespace TPProto{
       throw new std::exception();
     }
     //printf("unpackptr %d\n", unpackptr);
- //   return rtnstr;
+    return std::string();
   }
 
   /*! \brief Peeks at the value of the 32 bit int at an offset into the
@@ -222,11 +223,12 @@ namespace TPProto{
     be stored.
     \param seqnum A reference to where the sequence number will be stored.
     \param type A reference to where the type number will be stored.
-    \param len A reference to where the lenght of the data of the frame 
+    \param len A reference to where the length of the data of the frame 
     in bytes should be stored.
+    \param fver A reference to where the frame type version will be stored.
     \return True if the header is valid.
   */
-  bool Buffer::readHeader(uint32_t &ver, uint32_t &seqnum, uint32_t &type, uint32_t &len){
+  bool Buffer::readHeader(uint32_t &ver, uint32_t &seqnum, uint32_t &type, uint32_t &len, uint32_t &fver){
     if(data == NULL || data[0] != 'T' || data[1] != 'P'){
       return false;
     }
@@ -234,7 +236,7 @@ namespace TPProto{
       ver = (data[2] - '0') * 10 + data[3] - '0';
     }else{
       ver = data[2];
-      //fver = data[3];
+      fver = data[3];
     }
     uint32_t temp;
     memcpy(&temp, data + 4, 4);
