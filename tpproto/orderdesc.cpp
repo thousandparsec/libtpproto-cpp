@@ -1,3 +1,23 @@
+/*  OrderDescription - Frame send by the server tell the client about the connects of an
+ *     order type.
+ *
+ *  Copyright (C) 2005, 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 #include <cassert>
 
@@ -48,18 +68,14 @@ namespace TPProto{
   */
   bool OrderDescription::unpackBuffer(Buffer* buf){
     otype = buf->unpackInt();
-    char* temp = buf->unpackString();
-    name = temp;
-    delete[] temp;
-    temp = buf->unpackString();
-    desc = temp;
-    delete[] temp;
+    name = buf->unpackString();
+    desc = buf->unpackString();
 
     //unpack args
     int numparams = buf->unpackInt();
 
     for(int i = 0; i < numparams; i++){
-      temp = buf->unpackString();
+      std::string temp = buf->unpackString();
       int ptype = buf->unpackInt();
       OrderParameter* opm = NULL;
       switch(ptype){
@@ -82,14 +98,12 @@ namespace TPProto{
       if(opm != NULL){
 	opm->setName(temp);
       }
-      delete[] temp;
 
       temp = buf->unpackString();
       if(opm != NULL){
 	opm->setDescription(temp);
 	params.push_back(opm);
       }
-      delete[] temp;
     }
     if(protoVer >= 3){
         modtime = buf->unpackInt64();

@@ -312,12 +312,12 @@ namespace TPProto {
 	return NULL;
       }
       
-      int len, type, sequ, fver;
+      uint32_t len, type, sequ, fpver, fver;
       
       Buffer * header = new Buffer();
       header->setData(head, rlen);
  
-      if(!header->readHeader(fver, sequ, type, len)){
+      if(!header->readHeader(fpver, sequ, type, len, fver)){
 	// invalid header
 	logger->warning("Header invalid");
 	delete header;
@@ -325,20 +325,20 @@ namespace TPProto {
       }
       delete header;
       
-        if(fver != 2 && fver != 3){
-	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fver, sequ, type, len);
+        if(fpver != 2 && fpver != 3 && fpver != 4){
+	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fpver, sequ, type, len);
 	sock->disconnect();
 	status = 0;
 	return NULL;
       }
       
-        if(fver != version){
+        if(fpver != version){
             //version mismatch
-            if(version == 0 && fver > 1 && fver <= 3){
-                version = fver;
+            if(version == 0 && fpver > 1 && fpver <= 4){
+                version = fpver;
                 layer->getFrameFactory()->setProtocolVersion(version);
             }else{
-                logger->warning("Wrong verison of protocol (%d), server got it wrong, ", fver);
+                logger->warning("Wrong verison of protocol (%d), server got it wrong, ", fpver);
                 sock->disconnect();
                 status = 0;
                 return NULL;
@@ -362,7 +362,7 @@ namespace TPProto {
 	//others...
 	logger->warning("Received frame of type %d but don't know what to do, setting return value to NULL", type);
       }else{
-	frame->setProtocolVersion(fver);
+	frame->setProtocolVersion(fpver);
 	frame->setSequenceNumber(sequ);
       }
       
