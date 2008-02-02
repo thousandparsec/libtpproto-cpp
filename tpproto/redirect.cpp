@@ -1,6 +1,6 @@
 /*  Redirect frame class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -52,9 +52,7 @@ namespace TPProto{
         \return True if successful, false otherwise.
     */
     bool Redirect::unpackBuffer(Buffer *buf){
-        char* temp = buf->unpackString();
-        url = temp;
-        delete[] temp;
+        url = buf->unpackString();
         
         type = ft03_Redirect;
 
