@@ -1,3 +1,22 @@
+/*  Buffer - A buffer for frames to be packed into and out of and send on the network.
+ *
+ *  Copyright (C) 2005, 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 #include <iostream>
 #include <netinet/in.h>
@@ -30,6 +49,7 @@ namespace TPProto{
     data = NULL;
     datalen = 0;
     dataptr = 0;
+    stringpadding = false;
   }
 
   /*! \brief Default destructor.
@@ -42,8 +62,8 @@ namespace TPProto{
   /*! \brief Packs a 32 bit int into the buffer.
       \param val The value to be packed.
   */
-  void Buffer::packInt(int val){
-    int netval = htonl(val);
+  void Buffer::packInt(uint32_t val){
+    uint32_t netval = htonl(val);
     data = (char *) realloc(data, datalen + 4);
     
     char* temp = data + datalen;
@@ -56,8 +76,8 @@ namespace TPProto{
   /*! \brief Packs a 64 bit int into the buffer.
       \param val The value to be packed.
   */
-  void Buffer::packInt64(long long val){
-    long long netval = htonq(val);
+  void Buffer::packInt64(uint64_t val){
+    uint64_t netval = htonq(val);
     char *temp = (char *) realloc(data, datalen + 8);
     
     data = temp;
@@ -70,11 +90,19 @@ namespace TPProto{
   /*! \brief Packs a string into the buffer.
       \param val The string to be packed.
   */
-  void Buffer::packString(const char* val){
-    int slen = strlen(val) + 1;
+  void Buffer::packString(const std::string& val){
+    int slen = val.length();
     
     int netlen = htonl(slen);
-    char *temp = (char *) realloc(data, datalen + 4 + slen);
+    
+    uint32_t pad = 0;
+    if(stringpadding){
+      pad = 4 - (slen % 4);
+      if(pad == 4)
+        pad = 0;
+    }
+    
+    char *temp = (char *) realloc(data, datalen + 4 + slen + pad);
     
     data = temp;
     temp += datalen;
@@ -84,18 +112,22 @@ namespace TPProto{
     temp += 4;
     
     // Actual string
-    memcpy(temp, val, slen);
+    memcpy(temp, val.c_str(), slen);
     temp += slen;
     
     
-    datalen += 4 + slen;
+    for(uint32_t i = 0; i < pad; i++){
+      temp[i] = 0;
+    }
+    
+    datalen += 4 + slen + pad;
   }
   
   /*! \brief Unpacks a 32 bit int from the buffer.
       \return The value unpacked.
   */
-  int Buffer::unpackInt(){
-    int nval;
+  uint32_t Buffer::unpackInt(){
+    uint32_t nval;
     memcpy(&nval, data + dataptr, 4);
     dataptr += 4;
     return ntohl(nval);
@@ -104,8 +136,8 @@ namespace TPProto{
   /*! \brief Unpacks a 64 bit int from the buffer.
       \return The value unpacked.
   */
-  long long Buffer::unpackInt64(){
-    long long nval;
+  uint64_t Buffer::unpackInt64(){
+    uint64_t nval;
     memcpy(&nval, data + dataptr, 8);
     dataptr += 8;
     return ntohq(nval);
@@ -114,24 +146,27 @@ namespace TPProto{
   /*! \brief Unpacks a string from the buffer.
       \return The string unpacked.
   */
-  char* Buffer::unpackString(){
-    int len = unpackInt();
-    char *rtnstr = NULL;
+  std::string Buffer::unpackString(){
+    uint32_t len = unpackInt();
     
-    if (len >= 0 && datalen >= dataptr + len) {
-      rtnstr = new char[len + 1];
-      memcpy(rtnstr, data + dataptr, len);
-      data[len] = '\0';
-      dataptr += len;
+    uint32_t pad = 0;
+    if(stringpadding){
+      pad = 4 - (len % 4);
+      if(pad == 4)
+        pad = 0;
+    }
+    
+    if (len > 0 && datalen >= dataptr + len + pad) {
+      std::string rtnstr(data+dataptr, len);
+      dataptr += len + pad;
     } else {
       //Logger::getLogger()->debug("len < 0 or length < upackptr + len");
-      std::cerr << "Buffer::unpackString(): len < 0 or length < upackptr + len" << std::endl;
-      std::cout << "len: " << len << " length: " << datalen << " upackptr: " << dataptr << std::endl;
-      rtnstr = new char[1];
-      rtnstr[0] = '\0';
+      std::cerr << "Buffer::unpackString(): len < 0 or length < upackptr + len + pad" << std::endl;
+      std::cout << "len: " << len << " pad: " << pad << " length: " << datalen << " upackptr: " << dataptr << std::endl;
+      throw new std::exception();
     }
     //printf("unpackptr %d\n", unpackptr);
-    return rtnstr;
+ //   return rtnstr;
   }
 
   /*! \brief Peeks at the value of the 32 bit int at an offset into the
@@ -141,8 +176,8 @@ namespace TPProto{
       \param offset The offset into the buffer.
       \return The 32 bit int value at the offset.
   */
-  int Buffer::peekInt(int offset){
-    int nval;
+  uint32_t Buffer::peekInt(uint32_t offset){
+    uint32_t nval;
     memcpy(&nval, data + offset, 4);
     return ntohl(nval);
   }
@@ -154,8 +189,9 @@ namespace TPProto{
     \param seqnum The sequence number.
     \param type The type number.
     \param len The length of the data of the frame in bytes.
+    \param fver The frame type version, defaults to 0
   */
-  void Buffer::createHeader(int ver, int seqnum, int type, int len){
+  void Buffer::createHeader(uint32_t ver, uint32_t seqnum, uint32_t type, uint32_t len, uint32_t fver){
     if(data != NULL)
       free(data);
     datalen = 16;
@@ -163,8 +199,13 @@ namespace TPProto{
     data = (char*) malloc(datalen);
     data[0] = 'T';
     data[1] = 'P';
-    data[2] = ver / 10 + '0';
-    data[3] = ver % 10 + '0';
+    if(ver < 4){
+      data[2] = ver / 10 + '0';
+      data[3] = ver % 10 + '0';
+    }else{
+      data[2] = ver;
+      data[3] = fver;
+    }
     int temp = htonl(seqnum);
     memcpy(data + 4, &temp, 4);
     temp = htonl(type);
@@ -185,12 +226,17 @@ namespace TPProto{
     in bytes should be stored.
     \return True if the header is valid.
   */
-  bool Buffer::readHeader(int &ver, int &seqnum, int &type, int &len){
+  bool Buffer::readHeader(uint32_t &ver, uint32_t &seqnum, uint32_t &type, uint32_t &len){
     if(data == NULL || data[0] != 'T' || data[1] != 'P'){
       return false;
     }
-    ver = (data[2] - '0') * 10 + data[3] - '0';
-    int temp;
+    if(data[2] == '0'){
+      ver = (data[2] - '0') * 10 + data[3] - '0';
+    }else{
+      ver = data[2];
+      //fver = data[3];
+    }
+    uint32_t temp;
     memcpy(&temp, data + 4, 4);
     seqnum = ntohl(temp);
     memcpy(&temp, data + 8, 4);
@@ -207,7 +253,7 @@ namespace TPProto{
       \param buff The char array of data to be copied as the buffer.
       \param len The length of the array of data for the buffer.
   */
-  void Buffer::setData(char* buff, int len){
+  void Buffer::setData(char* buff, uint32_t len){
     if(data != NULL)
       free(data);
     data = buff;
@@ -228,8 +274,25 @@ namespace TPProto{
   /*! \brief Gets the current length of the data in the buffer.
       \return The length of the buffer in bytes.
   */
-  int Buffer::getLength(){
+  uint32_t Buffer::getLength(){
     return datalen;
   }
 
+  /*! \brief Sets if String Padding is turned on.
+  
+  Should only be called by FrameCodec for use in the String Padding
+  filter.
+  \param nsp The new bool value for String Padding.
+  */
+  void Buffer::setStringPadding(bool nsp){
+    stringpadding = nsp;
+  }
+
+  /*! \brief Checks if String Padding is turned on.
+  \return True if string padding is no, false otherwise.
+  */
+  bool Buffer::getStringPadding() const{
+    return stringpadding;
+  }
+  
 }
