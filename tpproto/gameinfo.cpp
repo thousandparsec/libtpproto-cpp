@@ -19,6 +19,7 @@
  */
 
 #include <cassert>
+#include <sstream>
 
 #include "buffer.h"
 
@@ -54,7 +55,42 @@ namespace TPProto{
   \return True if successfully unpacked, false otherwise.
   */
   bool GameInfo::unpackBuffer(Buffer* buf){
-    //TODO to be written
+    game_name = buf->unpackString();
+    buf->unpackString(); //unpack key, should be empty
+    uint32_t num = buf->unpackInt();
+    for(uint32_t i =0; i < num; i++){
+      pversions.insert(buf->unpackString());
+    }
+    server_ver = buf->unpackString();
+    server_name = buf->unpackString();
+    rules_name = buf->unpackString();
+    rules_ver = buf->unpackString();
+    num = buf->unpackInt();
+    for(uint32_t i = 0; i < num; i++){
+      std::string proto = buf->unpackString();
+      std::string host = buf->unpackString();
+      std::string ip = buf->unpackString();
+      uint32_t port = buf->unpackInt();
+      std::ostringstream formatter;
+      formatter << proto << "://" << host;
+      if((port != 6923 && proto == "tp") || (port != 6924 && proto == "tps")){
+        formatter << ":" << port;
+      }
+      std::string url = formatter.str();
+      urls[url] = ip;
+    }
+    //options
+    num = buf->unpackInt();
+    for(uint32_t i = 0; i < num; i++){
+      uint32_t opid = buf->unpackInt();
+      std::string opstr = buf->unpackString();
+      uint32_t opval = buf->unpackInt();
+      options[opid] = std::pair<std::string, uint32_t>(opstr, opval);
+    }
+    media_url = buf->unpackString();
+    
+    type = ft04_GameInfo;
+    return true;
   }
 
   /*! \brief Gets the game name for the game.
