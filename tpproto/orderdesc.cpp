@@ -26,7 +26,7 @@
 //order parameters
 #include "spacecoord.h"
 #include "timeparameter.h"
-#include "objectparameter.h"
+#include "objectorderparameter.h"
 #include "listparameter.h"
 #include "spacecoordrel.h"
 #include "rangeparameter.h"
@@ -86,7 +86,7 @@ namespace TPProto{
 	opm = new TimeParameter();
 	break;
       case opT_Object_ID:
-	opm = new ObjectParameter();
+	opm = new ObjectOrderParameter();
 	break;
       case opT_List:
 	opm = new ListParameter();

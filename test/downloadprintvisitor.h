@@ -25,7 +25,7 @@ class DownloadPrintVisitor : public TPProto::ObjectVisitor, TPProto::OrderParame
 
   void visitOrderParam(TPProto::SpaceCoordinates* op);
   void visitOrderParam(TPProto::TimeParameter* op);
-  void visitOrderParam(TPProto::ObjectParameter* op);
+  void visitOrderParam(TPProto::ObjectOrderParameter* op);
   void visitOrderParam(TPProto::ListParameter* op);
   void visitOrderParam(TPProto::PlayerParameter* op);
   void visitOrderParam(TPProto::SpaceCoordinatesRel* op);

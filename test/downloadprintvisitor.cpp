@@ -12,7 +12,7 @@
 #include <tpproto/orderparameter.h>
 #include <tpproto/spacecoord.h>
 #include <tpproto/timeparameter.h>
-#include <tpproto/objectparameter.h>
+#include <tpproto/objectorderparameter.h>
 #include <tpproto/listparameter.h>
 #include <tpproto/playerparameter.h>
 #include <tpproto/spacecoordrel.h>
@@ -255,7 +255,7 @@ void DownloadPrintVisitor::visitOrderParam(TimeParameter* op){
   std::cout << "Turns: " << op->getTurns() << std::endl;
 }
 
-void DownloadPrintVisitor::visitOrderParam(ObjectParameter* op){
+void DownloadPrintVisitor::visitOrderParam(ObjectOrderParameter* op){
   printOParam((OrderParameter*)op);
   std::cout << "Objectid: " << op->getObjectId() << std::endl;
 }

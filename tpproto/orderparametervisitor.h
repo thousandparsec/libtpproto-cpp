@@ -9,7 +9,7 @@ namespace TPProto{
 
   class SpaceCoordinates;
   class TimeParameter;
-  class ObjectParameter;
+  class ObjectOrderParameter;
   class ListParameter;
   class PlayerParameter;
   class SpaceCoordinatesRel;
@@ -44,7 +44,7 @@ namespace TPProto{
     All subclasses must override this method.
     \param op The ObjectParameter to visit.
     */
-    virtual void visitOrderParam(ObjectParameter* op) = 0;
+    virtual void visitOrderParam(ObjectOrderParameter* op) = 0;
 
     /*! \brief Visit a ListParameter order parameter.
 
