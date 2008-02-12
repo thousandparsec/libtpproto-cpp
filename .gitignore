@@ -19,3 +19,5 @@ libtpproto.pc
 *.o
 .libs
 .deps
+test/nettest
+test/simpletest
