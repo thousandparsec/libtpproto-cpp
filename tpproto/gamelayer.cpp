@@ -1,6 +1,6 @@
 /*  GameLayer class
  *
- *  Copyright (C) 2005-2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -86,6 +86,7 @@
 #include "adddesign.h"
 #include "modifydesign.h"
 #include "removedesign.h"
+#include "finished.h"
 
 #include "gamelayer.h"
 
@@ -1052,5 +1053,15 @@ namespace TPProto {
         return -1;
     }
 
+    void GameLayer::finishedTurn(){
+        FinishedFrame* ft = protocol->getFrameFactory()->createFinished();
+        if(ft != NULL){
+            uint32_t seqnum = protocol->getFrameCodec()->sendFrame(ft);
+            std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+            for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
+              delete (*itcurr);
+            }
+        }
+    }
 
 }
