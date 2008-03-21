@@ -1,3 +1,22 @@
+/*  Vector3d class
+ *
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 #include <math.h>
 
@@ -13,12 +32,12 @@ namespace TPProto{
     
   }
   
-  /*! \brief Constructs a new Vector3d from 3 long longs.
+  /*! \brief Constructs a new Vector3d from 3 int64_ts.
     \param newx The x value.
     \param newy The y value.
     \param newz The z value.
    */
-  Vector3d::Vector3d(long long newx, long long newy, long long newz){
+  Vector3d::Vector3d(int64_t newx, int64_t newy, int64_t newz){
     x = newx;
     y = newy;
     z = newz;
@@ -82,21 +101,21 @@ namespace TPProto{
   /*! \brief Gets the X value of the vector.
     \return The x value.
   */
-  long long Vector3d::getX() const{
+  int64_t Vector3d::getX() const{
     return x;
   }
   
   /*! \brief Gets the Y value of the vector.
     \return The y value.
   */
-  long long Vector3d::getY() const{
+  int64_t Vector3d::getY() const{
     return y;
   }
 
   /*! \brief Gets the Y value of the vector.
     \return The y value.
   */
-  long long Vector3d::getZ() const{
+  int64_t Vector3d::getZ() const{
     return z;
   }
   
@@ -105,7 +124,7 @@ namespace TPProto{
     \param newy The new y value.
     \param newz The new z value.
   */
-  void Vector3d::setAll(long long newx, long long newy, long long newz){
+  void Vector3d::setAll(int64_t newx, int64_t newy, int64_t newz){
     x = newx;
     y = newy;
     z = newz;
@@ -117,8 +136,8 @@ namespace TPProto{
     \param origin The other vector.
     \return The distance between the vectors.
   */
-  long long Vector3d::getDistance(const Vector3d & origin) const{
-    return (long long)sqrt(getDistanceSq(origin));
+  int64_t Vector3d::getDistance(const Vector3d & origin) const{
+    return (int64_t)sqrt(getDistanceSq(origin));
   }
 
   /*! \brief Gets the square of the distance between this vector and 
@@ -128,11 +147,11 @@ namespace TPProto{
     \param origin The other vector.
     \return The square of the distatnce between the vectors.
   */
-  long long Vector3d::getDistanceSq(const Vector3d & origin) const{
-    long long dx = x - origin.x;
-    long long dy = y - origin.y;
-    long long dz = z - origin.z;
-    return (unsigned long long)(dx * dx) + (unsigned long long)(dy * dy) + (unsigned long long)(dz * dz);
+  uint64_t Vector3d::getDistanceSq(const Vector3d & origin) const{
+    int64_t dx = x - origin.x;
+    int64_t dy = y - origin.y;
+    int64_t dz = z - origin.z;
+    return (uint64_t)(dx * dx) + (uint64_t)(dy * dy) + (uint64_t)(dz * dz);
   }
 
   /*! \brief Pack the vector into a Buffer.
