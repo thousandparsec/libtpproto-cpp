@@ -2,7 +2,7 @@
 #define TPPROTO_FRAMEFACTORY_H
 /*  FrameCodec - changes network protocol to frame objects
  *
- *  Copyright (C) 2005, 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -42,7 +42,15 @@ namespace TPProto{
     class Redirect;
     class GetFeatures;
     class Features;
+    class SetFilters;
+    class GetGameInfo;
+    class GameInfo;
     class Ping;
+    class FinishedFrame;
+    class GetObjectTypesList;
+    class ObjectTypesList;
+    class GetObjectDescription;
+    class ObjectDescription;
     class GetObjectById;
     class GetObjectByPos;
     class Object;
@@ -119,7 +127,15 @@ namespace TPProto{
         virtual Redirect* createRedirect();
         virtual GetFeatures* createGetFeatures();
         virtual Features* createFeatures();
+        virtual SetFilters* createSetFilters();
+        virtual GetGameInfo* createGetGameInfo();
+        virtual GameInfo* createGameInfo();
         virtual Ping* createPing();
+        virtual FinishedFrame* createFinished();
+        virtual GetObjectTypesList* createGetObjectTypesList();
+        virtual ObjectTypesList* createObjectTypesList();
+        virtual GetObjectDescription* createGetObjectDescription();
+        virtual ObjectDescription* createObjectDescription();
         virtual GetObjectById* createGetObjectById();
         virtual GetObjectByPos* createGetObjectByPos();
         virtual GetObjectIdsList* createGetObjectIdsList();

@@ -1,6 +1,6 @@
 /*  FrameFactory class
  *
- *  Copyright (C) 2005,2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005,2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,15 @@
 #include "redirect.h"
 #include "getfeatures.h"
 #include "featuresframe.h"
+#include "setfilters.h"
+#include "getgameinfo.h"
+#include "gameinfo.h"
 #include "ping.h"
+#include "finished.h"
+#include "getobjecttypeslist.h"
+#include "objecttypeslist.h"
+#include "getobjectdesc.h"
+#include "objectdesc.h"
 #include "getobjectbyid.h"
 #include "getobjectbypos.h"
 #include "object.h"
@@ -101,10 +109,10 @@ namespace TPProto {
     /*! \brief Constructs object and sets up defaults.
 
     Defaults are
-        - version 3 of the protocol
+        - version 4 of the protocol
     */
     FrameFactory::FrameFactory(){
-        pver = 3; // TP03
+        pver = 4; // TP04
     }
 
     /*! \brief Require virtual destructor.
@@ -225,12 +233,108 @@ namespace TPProto {
         return NULL;
     }
 
+    /*! \brief Creates a Set Filters Frame.
+    \return A new Set Filters Frame.
+    */
+    SetFilters* FrameFactory::createSetFilters(){
+        if(pver >= 4){
+            SetFilters* f = new SetFilters();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+    
+    /*! \brief Creates a Get Game Info Frame.
+    \return A new Get Game Info Frame.
+    */
+    GetGameInfo* FrameFactory::createGetGameInfo(){
+        if(pver >= 4){
+            GetGameInfo* f = new GetGameInfo();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+    
+    /*! \brief Creates a Game Info Frame.
+    \return A new Game Info Frame.
+    */
+    GameInfo* FrameFactory::createGameInfo(){
+        if(pver >= 4){
+            GameInfo* f = new GameInfo();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
      /*! \brief Creates a Ping Frame.
     \return A new Ping Frame.
     */
     Ping* FrameFactory::createPing(){
         if(pver >= 3){
             Ping* f = new Ping();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a Finished Turn Frame.
+    \return A new Finished Turn Frame.
+    */
+    FinishedFrame* FrameFactory::createFinished(){
+        if(pver >= 4){
+            FinishedFrame* f = new FinishedFrame();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a Get Object Types List Frame.
+    \return A new Get Object Types List Frame.
+    */
+    GetObjectTypesList* FrameFactory::createGetObjectTypesList(){
+        if(pver >= 4){
+            GetObjectTypesList* f = new GetObjectTypesList();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates an Object Types List Frame.
+    \return A new Object Types List Frame.
+    */
+    ObjectTypesList* FrameFactory::createObjectTypesList(){
+        if(pver >= 4){
+            ObjectTypesList* f = new ObjectTypesList();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a Get Object Description Frame.
+    \return A new Get Object Description Frame.
+    */
+    GetObjectDescription* FrameFactory::createGetObjectDescription(){
+        if(pver >= 4){
+            GetObjectDescription* f = new GetObjectDescription();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates an Object Description Frame.
+    \return A new Object Description Frame.
+    */
+    ObjectDescription* FrameFactory::createObjectDescription(){
+        if(pver >= 4){
+            ObjectDescription* f = new ObjectDescription();
             f->setProtocolVersion(pver);
             return f;
         }

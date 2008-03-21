@@ -54,6 +54,9 @@
 #include "componentidslist.h"
 #include "property.h"
 #include "propertyidslist.h"
+#include "gameinfo.h"
+#include "objecttypeslist.h"
+#include "objectdesc.h"
 
 #include "universe.h"
 #include "galaxy.h"
@@ -191,6 +194,18 @@ namespace TPProto{
             
         case ft03_PropertyIds:
             frame = layer->getFrameFactory()->createPropertyIdsList();
+            break;
+            
+        case ft04_GameInfo:
+            frame = layer->getFrameFactory()->createGameInfo();
+            break;
+            
+        case ft04_ObjectDesc:
+            frame = layer->getFrameFactory()->createObjectDescription();
+            break;
+            
+        case ft04_ObjectTypes_List:
+            frame = layer->getFrameFactory()->createObjectTypesList();
             break;
 
         default:
