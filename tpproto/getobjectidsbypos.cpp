@@ -68,7 +68,7 @@ namespace TPProto{
     /*! \brief Sets the radius for the area to be looked at.
         \param nrad The radius to be used.
     */
-    void GetObjectIdsByPos::setRadius(unsigned long long nrad){
+    void GetObjectIdsByPos::setRadius(uint64_t nrad){
         rad = nrad;
     }
 

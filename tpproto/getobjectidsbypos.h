@@ -5,6 +5,8 @@
   \brief Declares GetObjectIdsByPos Frame class.
 */
 
+#include <stdint.h>
+
 #include <tpproto/frame.h>
 #include <tpproto/vector3d.h>
 
@@ -23,11 +25,11 @@ namespace TPProto{
         bool unpackBuffer(Buffer* buf);
 
         void setPosition(const Vector3d &npos);
-        void setRadius(unsigned long long nrad);
+        void setRadius(uint64_t nrad);
 
     private:
         Vector3d pos;
-        unsigned long long rad;
+        uint64_t rad;
 
     };
 
