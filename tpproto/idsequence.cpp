@@ -1,6 +1,6 @@
 /*  IdSequence baseframe class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -28,7 +28,7 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    IdSequence::IdSequence() : Frame(){
+    IdSequence::IdSequence() : Frame(), serial((uint64_t)-1){
         seqkey = 0xffffffff;
         remaining = 0;
     }
@@ -61,6 +61,9 @@ namespace TPProto{
             uint32_t id = buf->unpackInt();
             idlist[id] = buf->unpackInt64();
         }
+        if(protoVer >= 4){
+          serial = buf->unpackInt64();
+        }
         return true;
     }
 
@@ -90,6 +93,17 @@ namespace TPProto{
      */
     std::map<uint32_t, uint64_t> IdSequence::getIds() const{
         return idlist;
+    }
+    
+    /*! \brief Gets the minimum serial number of the ids list.
+    
+      If -1, then only existing ids are in the list. If not, then ids
+      that have changed (including disappearing) since the serial (modtime) given
+      are in the list.
+      \return The minimum serial number.
+    */
+    uint64_t IdSequence::getSerialStart() const{
+      return serial;
     }
 
 }

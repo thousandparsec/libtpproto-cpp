@@ -2,7 +2,7 @@
 #define TPPROTO_IDSEQUENCE_H
 /*  IdSequence baseframe class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -41,6 +41,7 @@ namespace TPProto{
         uint32_t getSeqKey() const;
         uint32_t getRemaining() const;
         std::map<uint32_t, uint64_t> getIds() const;
+        uint64_t getSerialStart() const;
 
     protected:
         /*! \brief The sequence key for this sequence.
@@ -52,6 +53,10 @@ namespace TPProto{
         /*! \brief The map of ids and modification times.
         */
         std::map<uint32_t, uint64_t> idlist;
+        
+        /*! \brief The minimum serial number of the idlist.
+        */
+        uint64_t serial;
 
     };
 

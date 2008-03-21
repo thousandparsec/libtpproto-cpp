@@ -1,3 +1,22 @@
+/*  GetIdSequence baseclass
+ *
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 #include <cassert>
 
@@ -9,7 +28,7 @@ namespace TPProto{
 
     /*! \brief Default constructor.
     */
-    GetIdSequence::GetIdSequence() : Frame(){
+    GetIdSequence::GetIdSequence() : Frame(), serial((uint64_t)-1){
         seqkey = 0xffffffff;
         offset = 0;
         count = 0;
@@ -29,6 +48,9 @@ namespace TPProto{
             buf->packInt(seqkey);
             buf->packInt(offset);
             buf->packInt(count);
+            if(protoVer >= 4){
+              buf->packInt64(serial);
+            }
     }
 
     /*! \brief Unpack from a Buffer, fails always.
@@ -69,6 +91,17 @@ namespace TPProto{
         count = c;
     }
 
+    /*! \brief Sets the lowest serial number to get.
+    
+        If -1 (default) all objects will be fetched. If this
+        is not -1, no serial number (modtime) will be lower that this value, 
+        and ID's that no longer exist will be in the list.
+      \param ss The minimum value of the serial.
+    */
+    void GetIdSequence::setSerialStart(uint64_t ss){
+        serial = ss;
+    }
+    
     /*! \brief Gets the Sequence Key.
 
             Gets the value of the sequence key to use.  If is 0xffffffff (-1)
@@ -95,6 +128,14 @@ namespace TPProto{
      */
     uint32_t GetIdSequence::getCount() const{
         return count;
+    }
+    
+    /*! \brief Gets the minimum serial number that the reply will have.
+    
+      \return The value of the starting serial number.
+    */
+    uint64_t GetIdSequence::getSerialStart() const{
+        return serial;
     }
 
 }

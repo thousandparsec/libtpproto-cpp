@@ -2,7 +2,7 @@
 #define TPPROTO_GETIDSEQUENCE_H
 /*  GetIdSequence baseclass
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,10 +43,12 @@ namespace TPProto{
         void setSeqKey(uint32_t key);
         void setOffset(uint32_t os);
         void setCount(uint32_t c);
+        void setSerialStart(uint64_t ss);
 
         uint32_t getSeqKey() const;
         uint32_t getOffset() const;
         uint32_t getCount() const;
+        uint64_t getSerialStart() const;
 
     protected:
         /*! \brief The sequence key of the sequence to continue.
@@ -59,6 +61,10 @@ namespace TPProto{
         /*! \brief The number of ids to get.
         */
         uint32_t count;
+        
+        /*! \brief The lowest serial number to start with
+        */
+        uint64_t serial;
 
     };
 
