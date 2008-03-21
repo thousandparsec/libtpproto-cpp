@@ -27,9 +27,7 @@ namespace TPProto{
 
   /*! \brief Default constructor.
    */
-  FailFrame::FailFrame(){
-    errcode = 0;
-    errstring = "";
+  FailFrame::FailFrame() : errcode(0), errstring(), refs(){
   }
 
   /*! \brief Required virtual destructor.
@@ -58,6 +56,15 @@ namespace TPProto{
     errcode = buf->unpackInt();
     errstring = buf->unpackString();
     
+    if(protoVer >= 4){
+      int numref = buf->unpackInt();
+      for(int i = 0; i < numref; i++){
+        int32_t reftype = buf->unpackInt();
+        uint32_t refval = buf->unpackInt();
+        refs[reftype] = refval;
+      }
+    }
+    
     type = ft02_Fail;
 
     return true;
@@ -75,6 +82,10 @@ namespace TPProto{
   */
   std::string FailFrame::getErrorString(){
     return errstring;
+  }
+  
+  std::map<int32_t, uint32_t> FailFrame::getReferences(){
+    return refs;
   }
 
 }

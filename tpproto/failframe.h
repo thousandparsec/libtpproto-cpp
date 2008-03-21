@@ -25,6 +25,8 @@
 */
 
 #include <string>
+#include <map>
+#include <stdint.h>
 #include <tpproto/frame.h>
 
 namespace TPProto{
@@ -41,10 +43,12 @@ namespace TPProto{
     
     int getErrorCode();
     std::string getErrorString();
+    std::map<int32_t, uint32_t> getReferences();
 
   private:
     int errcode;
     std::string errstring;
+    std::map<int32_t, uint32_t> refs;
 
   };
 
