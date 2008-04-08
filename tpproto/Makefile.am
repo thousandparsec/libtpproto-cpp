@@ -2,7 +2,9 @@
 
 lib_LTLIBRARIES = libtpproto.la
 
-libtpproto_la_LIBADD = $(LIBGNUTLS_LIBS)
+AM_CXXFLAGS = @libgnutls_CFLAGS@
+
+libtpproto_la_LIBADD = @libgnutls_LIBS@
 libtpproto_la_LDFLAGS = -version-info 2:0:0
 COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     connect.cpp okframe.cpp failframe.cpp login.cpp tcpsocket.cpp sequence.cpp\

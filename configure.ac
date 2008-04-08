@@ -46,8 +46,20 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
    AC_MSG_RESULT(no)
 ])
 
-AM_PATH_LIBGNUTLS(, [AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to 1 if you have the `gnutls' library (-lgnutls).])
-        AM_CONDITIONAL(GNUTLS, true)])
+PKG_CHECK_MODULES(libgnutls, gnutls >= 1.2.10,
+  [
+    AC_DEFINE(HAVE_LIBGNUTLS, 1, Define to 1 if libgnutls is available)
+    AM_CONDITIONAL(GNUTLS, true)
+  ],
+  [
+    AM_CONDITIONAL(GNUTLS, false)
+  ]
+)
+AC_SUBST([
+libgnutls_LIBS
+libgnutls_CFLAGS
+])
+
 
 AC_CONFIG_FILES([
 libtpproto.pc
