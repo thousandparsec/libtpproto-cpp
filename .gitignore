@@ -22,3 +22,5 @@ libtpproto.pc
 test/nettest
 test/simpletest
 *~
+*.loT
+
