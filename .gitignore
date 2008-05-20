@@ -21,3 +21,4 @@ libtpproto.pc
 .deps
 test/nettest
 test/simpletest
+*~
