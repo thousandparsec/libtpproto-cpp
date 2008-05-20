@@ -25,16 +25,10 @@
 
 namespace TPProto{
 
-    Connection::Connection(){
+    Connection::Connection() : socket(NULL){
     }
     
     Connection::~Connection(){
-        if(socket != NULL){
-            if(socket->isConnected()){
-                socket->disconnect();
-            }
-            delete socket;
-        }
     }
     
     void Connection::setSocket(TPSocket* sock){

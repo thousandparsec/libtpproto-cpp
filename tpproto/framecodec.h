@@ -25,6 +25,9 @@
 #include <set>
 #include <map>
 #include <list>
+
+#include <tpproto/connection.h>
+
 /*! \file
   \brief Declares the FrameCodec class.
 
@@ -33,7 +36,6 @@
 
 namespace TPProto{
 
-  class TPSocket;
   class Frame;
   class AsyncFrameListener;
   class Logger;
@@ -49,14 +51,13 @@ namespace TPProto{
         be used if necessary. A ProtocolLayer must be set (by setting
         this object as the FrameCodec for the ProtocolLayer).
     */
-  class FrameCodec{
+  class FrameCodec : public Connection{
   public:
     FrameCodec();
     ~FrameCodec();
 
     //config & setup
 
-    void setSocket(TPSocket * nsock);
     void setAsyncFrameListener(AsyncFrameListener* afl);
     void setLogger(Logger* nlog);
         void setProtocolLayer(ProtocolLayer* pl);
@@ -70,12 +71,15 @@ namespace TPProto{
     //send and receive frames
     uint32_t sendFrame(Frame * f);
     std::list<Frame*> recvFrames(uint32_t seqnum);
+    
+    //Connection related methods
+    void readyToRead();
+    void readyToSend();
 
   private:
     Frame* recvOneFrame();
     void clearIncomingFrames();
 
-    TPSocket * sock;
     AsyncFrameListener* asynclistener;
     Logger* logger;
         ProtocolLayer* layer;

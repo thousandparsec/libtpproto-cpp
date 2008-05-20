@@ -1,11 +1,32 @@
 #ifndef TPPROTO_TPSOCKET_H
 #define TPPROTO_TPSOCKET_H
+/*  TPSocket - sockets abstraction for libtpproto-cpp
+ *
+ *  Copyright (C) 2004, 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with this program; if not, write to the Free Software
+ *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ *
+ */
 
 /*! \file
   \brief Declares the TPSocket base class
 */
 
 namespace TPProto{
+    
+    class Connection;
 
   /*! \brief The TPSocket base class.
 
@@ -16,10 +37,16 @@ namespace TPProto{
   */
   class TPSocket{
   public:
+      TPSocket();
     virtual ~TPSocket();
     
     virtual bool isConnected();
 
+    int getFileDescriptor() const;
+    
+    void setConnection(Connection* conn);
+    Connection* getConnection() const;
+    
     /*! \brief Connects to the server.
 
     All subclasses must override this method.
@@ -37,34 +64,32 @@ namespace TPProto{
     /*! \brief sends some data to the server.
 
     All subclasses must override this method.
-    \param header The header data to send.
-    \param hlen The length of the header in bytes.
     \param data The data to send.
     \param len The length of the data to send.
+    \return The number of bytes sent.
     */
-    virtual void send(char* header, int hlen, char* data, int len) = 0;
+    virtual int send(char* data, int len) = 0;
 
-    /*! \brief Receive a header from the socket.
-
-    All subclasses must override this method.  For some sockets it will be
-    identical to recvBody().
-    \param len The length of the header to receive.
-    \param data The array to store the data in.
-    \return The length written into the data array.
-    */
-    virtual int recvHeader(int len, char* &data) = 0;
-    
     /*! \brief Receive the data from the socket.
 
-    All subclasses must override this method.  For some sockets it will be
-    identical to recvHeader().
+    All subclasses must override this method.
     \param len The length of the data to receive.
     \param data The array to store the data in.
     \return The length written into the data array.
     */
-    virtual int recvBody(int len, char * &data) = 0;
+    virtual int recv(int len, char * &data) = 0;
 
-    virtual bool poll();
+    void readyToSend();
+    void readyToRead();
+
+      protected:
+          /*! The file descriptor
+          */
+          int fd;
+          
+          /*! The connection object for this socket.
+          */
+          Connection * connection;
 
   };
 

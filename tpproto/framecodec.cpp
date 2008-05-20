@@ -51,8 +51,7 @@ namespace TPProto {
     - SilentLogger for the Logger
     - version unknown
   */
-  FrameCodec::FrameCodec(){
-    sock = NULL;
+  FrameCodec::FrameCodec() : Connection(){
     asynclistener = NULL;
     logger = new SilentLogger();
     status = 0;
@@ -70,9 +69,6 @@ namespace TPProto {
   /*! \brief Destructor.
    */
   FrameCodec::~FrameCodec(){
-    if(sock != NULL){
-      delete sock;
-    }
     delete logger;
 
         clearIncomingFrames();
@@ -83,17 +79,6 @@ namespace TPProto {
     delete wmutex;
     pthread_mutex_destroy(smutex);
     delete smutex;
-  }
-
-  /*! \brief Sets the TPSocket to be used for communicating with the server.
-
-  \param nsock The TPSocket to be used.
-  */
-  void FrameCodec::setSocket(TPSocket * nsock){
-    if(sock != NULL)
-      delete sock;
-    sock = nsock;
-        version = 0;
   }
 
   /*! \brief Sets the AsyncFrameListener.
@@ -135,7 +120,7 @@ namespace TPProto {
     \return The status (int).
   */
   int FrameCodec::getStatus(){
-    if(sock == NULL || !sock->isConnected()){
+    if(socket == NULL || !socket->isConnected()){
       status = 0;
     }
     return status;
@@ -155,7 +140,7 @@ namespace TPProto {
   void FrameCodec::pollForAsyncFrames(){
     if(status == 3){
     if(pthread_mutex_trylock(rmutex) == 0){
-      if(sock->poll()){
+      if(socket->poll()){
         pthread_mutex_unlock(rmutex);
 	Frame* frame = recvOneFrame();
 	if(frame != NULL){
@@ -210,14 +195,14 @@ namespace TPProto {
   \param f The Frame to send.
   */
   uint32_t FrameCodec::sendFrame(Frame *f){
-    if(sock->isConnected()){
+    if(socket->isConnected()){
       Buffer *data = new Buffer();
       f->packBuffer(data);
       Buffer *header = new Buffer();
             uint32_t real_seqnum = nextseqnum;
             header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
         pthread_mutex_lock(wmutex);
-      sock->send(header->getData(), header->getLength(), data->getData(), data->getLength());
+      socket->send(header->getData(), header->getLength(), data->getData(), data->getLength());
         nextseqnum++;
         if(nextseqnum == 0)
             nextseqnum++;
@@ -295,16 +280,24 @@ namespace TPProto {
 
     }
 
+    void readyToRead(){
+        
+    }
+    
+    void readyToSend(){
+      
+    }
+    
   /*! \brief Receives one Frame from the network.
 
   Grabs one Frame from the TPSocket.
   \return The received Frame or NULL.
   */
   Frame* FrameCodec::recvOneFrame(){
-    if(sock->isConnected()){
+    if(socket->isConnected()){
       char* head, *body;
         pthread_mutex_lock(rmutex);
-      int rlen = sock->recvHeader(16, head);
+      int rlen = socket->recvHeader(16, head);
       if(rlen != 16){
 	//now what?
 	logger->warning("Could not read whole header");
@@ -327,7 +320,7 @@ namespace TPProto {
       
         if(fpver != 2 && fpver != 3 && fpver != 4){
 	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fpver, sequ, type, len);
-	sock->disconnect();
+	socket->disconnect();
 	status = 0;
 	return NULL;
       }
@@ -339,13 +332,13 @@ namespace TPProto {
                 layer->getFrameFactory()->setProtocolVersion(version);
             }else{
                 logger->warning("Wrong verison of protocol (%d), server got it wrong, ", fpver);
-                sock->disconnect();
+                socket->disconnect();
                 status = 0;
                 return NULL;
             }
         }
 
-      rlen = sock->recvBody(len, body);
+      rlen = socket->recvBody(len, body);
       if(rlen != len){
 	//again, now what?
 	logger->warning("Could not read whole body");
