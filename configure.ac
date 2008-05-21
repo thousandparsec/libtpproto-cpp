@@ -46,6 +46,10 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
    AC_MSG_RESULT(no)
 ])
 
+#check for boost
+AX_BOOST_BASE([1.31.1])
+AX_BOOST_SIGNALS
+
 PKG_CHECK_MODULES(libgnutls, gnutls >= 1.2.10,
   [
     AC_DEFINE(HAVE_LIBGNUTLS, 1, Define to 1 if libgnutls is available)
@@ -55,11 +59,8 @@ PKG_CHECK_MODULES(libgnutls, gnutls >= 1.2.10,
     AM_CONDITIONAL(GNUTLS, false)
   ]
 )
-AC_SUBST([
-libgnutls_LIBS
-libgnutls_CFLAGS
-])
-
+AC_SUBST([libgnutls_LIBS])
+AC_SUBST([libgnutls_CFLAGS])
 
 AC_CONFIG_FILES([
 libtpproto.pc
