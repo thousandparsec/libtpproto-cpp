@@ -2,9 +2,9 @@
 
 lib_LTLIBRARIES = libtpproto.la
 
-AM_CXXFLAGS = @libgnutls_CFLAGS@
+AM_CXXFLAGS = @libgnutls_CFLAGS@ @BOOST_CPPFLAGS@
 
-libtpproto_la_LIBADD = @libgnutls_LIBS@
+libtpproto_la_LIBADD = @libgnutls_LIBS@ @BOOST_LDFLAGS@ @BOOST_SIGNALS_LIB@
 libtpproto_la_LDFLAGS = -version-info 2:0:0
 COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     connect.cpp okframe.cpp failframe.cpp login.cpp tcpsocket.cpp sequence.cpp\
@@ -30,7 +30,7 @@ COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     componentcache.cpp propertycache.cpp createaccount.cpp finished.cpp getgameinfo.cpp \
     setfilters.cpp gameinfo.cpp getobjecttypeslist.cpp getobjectdesc.cpp \
     objecttypeslist.cpp objectdesc.cpp objectparamgroup.cpp objectparameter.cpp \
-    connection.cpp
+    connection.cpp simpleeventloop.cpp
 libtpprotodir = $(includedir)/tpproto
 COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
@@ -56,7 +56,7 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     designcache.h componentcache.h propertycache.h createaccount.h \
     finished.h getgameinfo.h setfilters.h gameinfo.h getobjecttypeslist.h \
     getobjectdesc.h objecttypeslist.h objectdesc.h objectparamgroup.h \
-    objectparameter.h connection.h
+    objectparameter.h connection.h eventloop.h simpleeventloop.h
 
 if GNUTLS
 GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp

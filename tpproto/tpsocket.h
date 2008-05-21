@@ -20,6 +20,8 @@
  *
  */
 
+#include <exception>
+
 /*! \file
   \brief Declares the TPSocket base class
 */
@@ -27,6 +29,9 @@
 namespace TPProto{
     
     class Connection;
+    
+    class DisconnectedException : public std::exception{
+    };
 
   /*! \brief The TPSocket base class.
 
