@@ -121,7 +121,13 @@ namespace TPProto{
                     if(FD_ISSET((*itcurr)->getFileDescriptor(), &write_set)){
                         TPSocket* sock = *itcurr;
                         writeset.erase(itcurr);
-                        sock->readyToSend();
+                        try{
+                            sock->readyToSend();
+                            
+                        }catch(DisconnectedException* e){
+                            writeset.erase(sock);
+                            readset.erase(sock);
+                        }
                         // modifed set, itcurr invalid, just wait for the select loop to go around again
                         break;
                     }
@@ -134,6 +140,7 @@ namespace TPProto{
                             (*itcurr)->readyToRead();
                         }catch(DisconnectedException *e){
                             std::cout << "Disconnected in simpleeventloop" << std::endl;
+                            writeset.erase(*itcurr);
                             delete (*itcurr);
                             readset.erase(itcurr);
                             // modifed set, itcurr invalid, just wait for the select loop to go around again

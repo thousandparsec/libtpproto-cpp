@@ -83,6 +83,9 @@ namespace TPProto{
     void TPSocket::readyToSend(){
         if(connection != NULL)
             connection->readyToSend();
+        if(!isConnected()){
+            throw new DisconnectedException();
+        }
     }
     
     /*! \brief Call when the socket has data ready to be read.
@@ -92,6 +95,9 @@ namespace TPProto{
     void TPSocket::readyToRead(){
         if(connection != NULL)
             connection->readyToRead();
+        if(!isConnected()){
+            throw new DisconnectedException();
+        }
     }
   
 }
