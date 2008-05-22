@@ -157,6 +157,9 @@ namespace TPProto{
         void finishedTurn();
 
     private:
+        
+        void connectCallback(Frame* frame);
+        
         ProtocolLayer* protocol;
         EventLoop* eventloop;
         Logger* logger;

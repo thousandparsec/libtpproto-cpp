@@ -2,7 +2,7 @@
 #define TPPROTO_GAMESTATUSLISTENER_H
 /*  GameStatusListener - Listener for changes in status.
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,9 +39,16 @@ namespace TPProto{
         virtual void connected() = 0;
 
         /*! \brief Called when libtpproto-cpp has been told to redirect.
+        
+        The client has already been disconnected from the redirecting
+        server at this point. If the GameStatusListener returns false, then
+        the client must manually do the redirect. This should be helpful for
+        allowing the client to pop up a dialog asking the user if they want to
+        redirect.
         \param url The url the redirection points to.
+        \return True to follow the redirect, false not to.
         */
-        virtual void redirected(const std::string& url) = 0;
+        virtual bool redirected(const std::string& url) = 0;
 
         /*! \brief Called when the connection is lost to the server.
         */

@@ -1076,4 +1076,28 @@ namespace TPProto {
         }
     }
 
+    void GameLayer::connectCallback(Frame* frame){
+        if(frame->getType() == ft02_OK){
+            delete frame;
+            status = gsConnected;
+            if(statuslistener != NULL)
+                statuslistener->connected();
+            logger->info("Connected");
+            //get features
+            //if tp04, get game info
+            
+        }else if(frame->getType() == ft03_Redirect){
+            status = gsDisconnected;
+            sock->disconnect();
+            if(statuslistener == NULL || (statuslistener != NULL && statuslistener->redirected(static_cast<Redirect*>(frame)->getUrl()))){
+                connect(static_cast<Redirect*>(frame)->getUrl());
+            }
+            delete frame;
+        }else{
+            status = gsDisconnected;
+            logger->error("Could not connect");
+            delete frame;
+        }
+    }
+    
 }
