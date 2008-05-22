@@ -18,7 +18,7 @@
  *
  */
 
-#include <pthread.h>
+
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -57,13 +57,6 @@ namespace TPProto {
     status = 0;
         version = 0;
     nextseqnum = 1; // should be random
-
-    rmutex = new pthread_mutex_t();
-    pthread_mutex_init(rmutex, NULL);
-    wmutex = new pthread_mutex_t();
-    pthread_mutex_init(wmutex, NULL);
-    smutex = new pthread_mutex_t();
-    pthread_mutex_init(smutex, NULL);
   }
 
   /*! \brief Destructor.
@@ -72,13 +65,6 @@ namespace TPProto {
     delete logger;
 
         clearIncomingFrames();
-
-    pthread_mutex_destroy(rmutex);
-    delete rmutex;
-    pthread_mutex_destroy(wmutex);
-    delete wmutex;
-    pthread_mutex_destroy(smutex);
-    delete smutex;
   }
 
   /*! \brief Sets the AsyncFrameListener.
@@ -141,19 +127,15 @@ namespace TPProto {
       Buffer *header = new Buffer();
             uint32_t real_seqnum = nextseqnum;
             header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
-        pthread_mutex_lock(wmutex);
       socket->send(header->getData(), header->getLength());
       socket->send(data->getData(), data->getLength());
         nextseqnum++;
         if(nextseqnum == 0)
             nextseqnum++;
-        pthread_mutex_unlock(wmutex);
       delete data;
       delete header;
 
-        pthread_mutex_lock(smutex);
         incomingframes[real_seqnum] = std::pair<uint32_t, std::list<Frame*>* >(1, new std::list<Frame*>());
-        pthread_mutex_unlock(smutex);
       
             return real_seqnum;
     }
@@ -169,13 +151,10 @@ namespace TPProto {
   \return List of received Frames with the sequence number.
   */
     std::list<Frame*> FrameCodec::recvFrames(uint32_t seqnum){
-        pthread_mutex_lock(smutex);
         if(seqnum == 0 || incomingframes[seqnum].first == 0){
-            pthread_mutex_unlock(smutex);
             return std::list<Frame*>();
         }
         while(incomingframes[seqnum].second != NULL && incomingframes[seqnum].first > incomingframes[seqnum].second->size()){
-            pthread_mutex_unlock(smutex);
     Frame* frame = recvOneFrame();
     if(frame != NULL && frame->getSequenceNumber() == 0){
       // async frame, send it on and try again.
@@ -192,10 +171,8 @@ namespace TPProto {
       
             }else if(frame == NULL){
                 // connection closed, return what we have
-                pthread_mutex_lock(smutex);
                 break;
             }else{
-                pthread_mutex_lock(smutex);
                 std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
                 if(frame->getType() == ft02_Sequence){
                     incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
@@ -203,19 +180,15 @@ namespace TPProto {
                 }else{
                     framelist->push_back(frame);
                 }
-                pthread_mutex_unlock(smutex);
             }
-            pthread_mutex_lock(smutex);
         }
 
         if(incomingframes[seqnum].second == NULL){
-            pthread_mutex_unlock(smutex);
             return std::list<Frame*>();
         }else{
             std::list<Frame*> rtv = *(incomingframes[seqnum].second);
             delete incomingframes[seqnum].second;
             incomingframes.erase(seqnum);
-            pthread_mutex_unlock(smutex);
             return rtv;
         }
 
@@ -237,7 +210,6 @@ namespace TPProto {
   Frame* FrameCodec::recvOneFrame(){
     if(socket->isConnected()){
       char* head, *body;
-        pthread_mutex_lock(rmutex);
       int rlen = socket->recv(16, head);
       if(rlen != 16){
 	//now what?
@@ -286,7 +258,6 @@ namespace TPProto {
 	delete body;
 	return NULL;
       }
-      pthread_mutex_unlock(rmutex);
       Buffer *data = new Buffer();
       data->setData(body, rlen);
       
@@ -308,7 +279,6 @@ namespace TPProto {
   }
 
     void FrameCodec::clearIncomingFrames(){
-        pthread_mutex_lock(smutex);
         for(std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > >::iterator outeriter = incomingframes.begin();
                 outeriter != incomingframes.end(); ++outeriter){
             std::list<Frame*> tmplist = *(outeriter->second.second);
@@ -319,7 +289,6 @@ namespace TPProto {
             delete outeriter->second.second;
         }
         incomingframes.clear();
-        pthread_mutex_unlock(smutex);
     }
     
 }// namespace

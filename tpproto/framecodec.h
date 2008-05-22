@@ -20,7 +20,6 @@
  *
  */
 
-#include <pthread.h>
 #include <string>
 #include <set>
 #include <map>
@@ -83,10 +82,6 @@ namespace TPProto{
     int status;
     int version;
     int nextseqnum;
-
-    pthread_mutex_t* rmutex;
-    pthread_mutex_t* wmutex;
-    pthread_mutex_t* smutex;
 
     std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > > incomingframes;
 
