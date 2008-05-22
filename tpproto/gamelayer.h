@@ -57,6 +57,7 @@ namespace TPProto{
     class DesignCache;
     class ComponentCache;
     class PropertyCache;
+    class EventLoop;
 
     /*! \brief GameStatus enum for the state of the game.
     */
@@ -86,6 +87,7 @@ namespace TPProto{
         void setLogger(Logger* nlog);
         void setGameStatusListener(GameStatusListener* gsl);
         void setCacheMethod(CacheMethod* prototype);
+        void setEventLoop(EventLoop* el);
 
         //status
         GameStatus getStatus();
@@ -156,6 +158,7 @@ namespace TPProto{
 
     private:
         ProtocolLayer* protocol;
+        EventLoop* eventloop;
         Logger* logger;
         GameStatusListener* statuslistener;
         TPSocket* sock;

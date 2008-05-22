@@ -31,6 +31,7 @@
 #include "tpsocket.h"
 #include "framefactory.h"
 #include "protocollayer.h"
+#include "eventloop.h"
 #include "logger.h"
 #include "gamestatuslistener.h"
 #include "asyncframelistener.h"
@@ -139,7 +140,7 @@ namespace TPProto {
         - Disconnected state.
         - "Unknown client" for the client string
     */
-    GameLayer::GameLayer() : protocol(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
+    GameLayer::GameLayer() : protocol(NULL), eventloop(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
             objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
             resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
@@ -233,6 +234,16 @@ namespace TPProto {
         designcache->setCacheMethod(prototype->clone());
         componentcache->setCacheMethod(prototype->clone());
         propertycache->setCacheMethod(prototype->clone());
+    }
+    
+    /*! \brief Sets the EventLoop abstraction to use.
+    Sets which implementation of EventLoop to use.
+    
+    Must be set before connecting to a server.
+    \param el The implementation of the EventLoop to use.
+    */
+    void GameLayer::setEventLoop(EventLoop* el){
+        eventloop = el;
     }
 
     /*! \brief Gets the ProtocolLayer being used.
