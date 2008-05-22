@@ -194,11 +194,48 @@ namespace TPProto {
 
     }
 
-    void readyToRead(){
-        
+    FrameConnection FrameCodec::sendFrame(Frame * f, const FrameSignal::slot_type& callback){
+        if(!socket->isConnected()){
+            throw new DisconnectedException();
+        }
+        Buffer *data = new Buffer();
+        f->packBuffer(data);
+        Buffer *header = new Buffer();
+        uint32_t real_seqnum = nextseqnum;
+        header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
+        socket->send(header->getData(), header->getLength());
+        socket->send(data->getData(), data->getLength());
+        nextseqnum++;
+        if(nextseqnum == 0)
+            nextseqnum++;
+        delete data;
+        delete header;
+        FrameSignal *fs = new FrameSignal();
+        framesignals[real_seqnum] = fs;
+        return fs->connect(callback);
     }
     
-    void readyToSend(){
+    void FrameCodec::readyToRead(){
+        Frame* frame = recvOneFrame();
+        if(frame != NULL){
+            if(frame->getSequenceNumber() == 0){
+                if(asynclistener != NULL){
+                    if(frame->getType() == ft02_Time_Remaining){
+                        asynclistener->recvTimeRemaining((TimeRemaining*)frame);
+                    }
+                }
+            }else{
+                FrameSignal* fs = framesignals[frame->getSequenceNumber()];
+                if(fs != NULL){
+                    (*fs)(frame);
+                }else{
+                    delete frame;
+                }
+            }
+        }
+    }
+    
+    void FrameCodec::readyToSend(){
       
     }
     

@@ -24,6 +24,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <boost/signal.hpp>
 
 #include <tpproto/connection.h>
 
@@ -39,6 +40,9 @@ namespace TPProto{
   class AsyncFrameListener;
   class Logger;
     class ProtocolLayer;
+    
+    typedef boost::signal<void (Frame*)> FrameSignal;
+    typedef boost::signals::connection FrameConnection;
 
     /*! \brief FrameCodec is the main working class the lower layer of libtpproto-cpp.
 
@@ -67,6 +71,7 @@ namespace TPProto{
     //send and receive frames
     uint32_t sendFrame(Frame * f);
     std::list<Frame*> recvFrames(uint32_t seqnum);
+    FrameConnection sendFrame(Frame * f, const FrameSignal::slot_type& callback);
     
     //Connection related methods
     void readyToRead();
@@ -84,6 +89,7 @@ namespace TPProto{
     int nextseqnum;
 
     std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > > incomingframes;
+    std::map<uint32_t, FrameSignal* > framesignals;
 
   };
 
