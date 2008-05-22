@@ -1,6 +1,6 @@
 /*  FrameCodec class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -127,67 +127,7 @@ namespace TPProto {
   }
 
 
-  /*! \brief Checks the connection for any AsyncFrames.
-
-  This should be called occasionally when there hasn't been any
-  interaction between the client and the server.  Most of the time,
-  asynchronous frames will be picked up while processing other frames,
-  but in times of inactivity it a good idea to poll this.  The acturacy
-  of data such as any asynchronous TimeRemaining frame will on how close to
-  the time the frame was received to when this method (or any method that
-  receives any frame from the server) is called.
-  */
-  void FrameCodec::pollForAsyncFrames(){
-    if(status == 3){
-    if(pthread_mutex_trylock(rmutex) == 0){
-      if(socket->poll()){
-        pthread_mutex_unlock(rmutex);
-	Frame* frame = recvOneFrame();
-	if(frame != NULL){
-	  if(frame->getSequenceNumber() == 0){
-	    // async frame, send it on and try again.
-	    if(asynclistener != NULL){
-	      if(frame->getType() == ft02_Time_Remaining){
-		asynclistener->recvTimeRemaining((TimeRemaining*)frame);
-	      }else{
-		logger->warning("Unknown Async Frame type, ignoring");
-	      }
-	    }else{
-	      logger->warning("No AsyncFrameListener, discarding frame");
-	    }
-	  }else{
-	    logger->error("Was expecting Async frame but received a frame of type %d with sequence number %d",
-			  frame->getType(), frame->getSequenceNumber());
-            pthread_mutex_lock(smutex);
-            if(incomingframes.find(frame->getSequenceNumber()) != incomingframes.end() &&
-                    incomingframes[frame->getSequenceNumber()].first > incomingframes[frame->getSequenceNumber()].second->size()){
-                std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
-                if(frame->getType() == ft02_Sequence){
-                    incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
-                    delete frame;
-                }else{
-                    framelist->push_back(frame);
-                }
-            }
-            pthread_mutex_unlock(smutex);
-	  }
-
-	  delete frame;
-	}else{
-	  logger->debug("Frame was null, should have been an async frame");
-	}
-      }else{
-        pthread_mutex_unlock(rmutex);
-        //nothing on socket to get.
-    }
-
-    }
-
-    }else{
-      logger->warning("Trying to poll for async frames but not connected or logged in");
-    }
-  }
-
+ 
   /*! \brief Sends a Frame.
 
   Packs the Frame into a Buffer and sends it via the TPSocket.  Sets the 
@@ -202,7 +142,8 @@ namespace TPProto {
             uint32_t real_seqnum = nextseqnum;
             header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
         pthread_mutex_lock(wmutex);
-      socket->send(header->getData(), header->getLength(), data->getData(), data->getLength());
+      socket->send(header->getData(), header->getLength());
+      socket->send(data->getData(), data->getLength());
         nextseqnum++;
         if(nextseqnum == 0)
             nextseqnum++;
@@ -297,7 +238,7 @@ namespace TPProto {
     if(socket->isConnected()){
       char* head, *body;
         pthread_mutex_lock(rmutex);
-      int rlen = socket->recvHeader(16, head);
+      int rlen = socket->recv(16, head);
       if(rlen != 16){
 	//now what?
 	logger->warning("Could not read whole header");
@@ -338,7 +279,7 @@ namespace TPProto {
             }
         }
 
-      rlen = socket->recvBody(len, body);
+      rlen = socket->recv(len, body);
       if(rlen != len){
 	//again, now what?
 	logger->warning("Could not read whole body");

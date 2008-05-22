@@ -64,9 +64,6 @@ namespace TPProto{
 
     //status
     int getStatus();
-
-    //polling
-    void pollForAsyncFrames();
     
     //send and receive frames
     uint32_t sendFrame(Frame * f);
