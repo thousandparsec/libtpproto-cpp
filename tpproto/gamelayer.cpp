@@ -244,6 +244,7 @@ namespace TPProto {
     */
     void GameLayer::setEventLoop(EventLoop* el){
         eventloop = el;
+        protocol->getFrameCodec()->setEventLoop(eventloop);
     }
 
     /*! \brief Gets the ProtocolLayer being used.

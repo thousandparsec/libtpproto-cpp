@@ -25,7 +25,7 @@
 
 namespace TPProto{
 
-    Connection::Connection() : socket(NULL){
+    Connection::Connection() : socket(NULL), eventloop(NULL){
     }
     
     Connection::~Connection(){
@@ -35,4 +35,8 @@ namespace TPProto{
         socket = sock;
     }
 
+    void Connection::setEventLoop(EventLoop* el){
+        eventloop = el;
+    }
+    
 }

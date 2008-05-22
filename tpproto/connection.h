@@ -27,6 +27,7 @@
 namespace TPProto{
 
     class TPSocket;
+    class EventLoop;
     
     /*! \brief Abstract class for reading and writing to sockets
     
@@ -39,6 +40,7 @@ namespace TPProto{
         virtual ~Connection();
         
         void setSocket(TPSocket* sock);
+        void setEventLoop(EventLoop* el);
         
         /*! \brief Called when the socket has data ready to be read
         
@@ -57,6 +59,9 @@ namespace TPProto{
         /*! \brief The TPSocket this connection is connected to.
         */
         TPSocket* socket;
+        /*! \brief The EventLoop to use.
+        */
+        EventLoop* eventloop;
     };
 }
 
