@@ -35,7 +35,7 @@ namespace TPProto{
     */
     TPSocket::~TPSocket(){
         if(connection != NULL){
-            delete connection;
+            connection->setSocket(NULL);
         }
     }
   
