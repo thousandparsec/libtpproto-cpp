@@ -21,16 +21,12 @@ namespace TPProto{
     bool connect();
     void disconnect();
     
-    void send(char* header, int hlen, char *data, int len);
-    int recvHeader(int len, char* &data);
-    int recvBody(int len, char* &data);
-
-    bool poll();
+    int send(const char *data, int len);
+    int recv(int len, char* &data);
 
     void setServerAddr(const char* host, const char* port = "6923");
 
   private:
-    int sockfd;
     int status;
     char* hostname;
     char* portname;

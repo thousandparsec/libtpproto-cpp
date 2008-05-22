@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include <stdlib.h>
+#include <errno.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -20,9 +21,8 @@ namespace TPProto{
 
   Sets up defaults, that will prevent connecting.
   */
-  TcpSocket::TcpSocket(){
+  TcpSocket::TcpSocket() : TPSocket(){
     status = 0;
-    sockfd = -1;
     hostname = NULL;
     portname = NULL;
   }
@@ -75,18 +75,18 @@ namespace TPProto{
       
       ressave = res;
       
-      sockfd=-1;
+      fd=-1;
       while (res) {
-	sockfd = socket(res->ai_family,
+	fd = socket(res->ai_family,
 			res->ai_socktype,
 			res->ai_protocol);
 	
-	if (!(sockfd < 0)) {
-	  if (::connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+	if (!(fd < 0)) {
+	  if (::connect(fd, res->ai_addr, res->ai_addrlen) == 0)
 	    break;
 	  
-	  close(sockfd);
-	  sockfd=-1;
+	  close(fd);
+	  fd=-1;
 	}
 	res=res->ai_next;
       }
@@ -122,19 +122,19 @@ namespace TPProto{
 	return false;
       }
       
-      if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  
+      if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  
 	fprintf(stderr, "ipv4_only_connect:: could not open socket\n");
 	return false;
       }
       
-      if (connect(sockfd,(struct sockaddr *)&sin, sizeof(sin)) < 0) {
+      if (connect(fd,(struct sockaddr *)&sin, sizeof(sin)) < 0) {
 	fprintf(stderr, "ipv4_only_connect:: could not connect to host=[%s]\n", hostname);
 	return false;
       }
       
 #endif
       
-      if(!(sockfd < 0)){
+      if(!(fd < 0)){
 	status = 1;
 	return true;
       }
@@ -151,84 +151,60 @@ namespace TPProto{
   */
   void TcpSocket::disconnect(){
     if(status == 1){
-      close(sockfd);
-      sockfd = 0;
+      close(fd);
+      fd = 0;
     }
     status = 0;
   }
 
-  /*! \brief Sends a header and data to the socket.
+  /*! \brief Sends data to the socket.
 
-  Sends the frame in two sends, one for the header and one for the data.
-  Saves copying the header and data into another buffer.
-  \param header The header data.
-  \param hlen The length of the header data.
+  \throw DisconnectionException if not connected.
   \param data The data.
   \param len The length of the data.
+  \return The number of bytes sent.
   */
-  void TcpSocket::send(char* header, int hlen, char* data, int len){
-    if(status == 1){
-      ::send(sockfd, header, hlen, 0);
-      ::send(sockfd, data, len, 0);
+    int TcpSocket::send(const char* data, int len){
+        if(status != 1){
+            throw new DisconnectedException();
+        }
+        int slen = ::send(fd, data, len, 0);
+        if(slen == 0){
+            status = 0;
+            close(fd);
+            throw new DisconnectedException();
+        }
+        if(slen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return 0;
+        return slen;
     }
-  }
 
-  /*! \brief Receives a header from the network.
-
-  Identical to recvBody().  If nothing is recieved from the network,
-  we have been disconnected.
-    \param len The length of the header to receive.
-    \param data The array to store the data in.
-    \return The length written into the data array.
-    */
-  int TcpSocket::recvHeader(int len, char* &data){
-    if(status == 1){
-      data = (char*)malloc(len);
-      int rlen = ::recv(sockfd, data, len, 0);
-      if(rlen == 0)
-	status = 0;
-      return rlen;
-    }
-    return 0;
-  }
+ 
 
   /*! \brief Receives data from the network.
 
-  Identical to recvHeader().  If nothing is recieved from the network,
-  we have been disconnected.
+  If nothing is recieved from the network,
+  we have been disconnected, and throws a DisconnectedException.
+    \throw DisconnectionException if not connected.
     \param len The length of the data to receive.
     \param data The array to store the data in.
     \return The length written into the data array.
     */
-  int TcpSocket::recvBody(int len, char* &data){
-    if(status == 1){
-      data = (char*)malloc(len);
-      int rlen = ::recv(sockfd, data, len, 0);
-      if(rlen == 0)
-	status = 0;
-      return rlen;
-    }
-    return 0;
-  }
-
-  /*! \brief Polls the network for data.
-
-  Polls the network using select with zero timeout.  It does actually work.
-  \return True if data is waiting, false otherwise.
-  */
-  bool TcpSocket::poll(){
-    fd_set readfds;
-    struct timeval timeout;
-
-    // just poll, don't wait
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    FD_ZERO(&readfds);
-    FD_SET(sockfd, &readfds);
-
-    return (select(sockfd + 1, &readfds, NULL, NULL, &timeout) == 1);
-
+  int TcpSocket::recv(int len, char* &data){
+        if(status != 1){
+            throw new DisconnectedException();
+        }
+        data = (char*)malloc(len);
+        int rlen = ::recv(fd, data, len, 0);
+        if(rlen == 0){
+            status = 0;
+            close(fd);
+            throw new DisconnectedException();
+        }
+        if(rlen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return 0;
+        return rlen;
+    
   }
 
   /*! \brief Sets the server address and port to connect to.

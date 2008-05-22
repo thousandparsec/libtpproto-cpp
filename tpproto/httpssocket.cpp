@@ -46,9 +46,10 @@ namespace TPProto{
         if(proxyhost != NULL && proxyport != NULL){
             std::string connectstring("CONNECT ");
             connectstring += std::string(hostname) + ":" + portname + " HTTP/1.0\r\nUser-agent: libtpproto-cpp/" VERSION "\r\n\r\n";
-            ::send(sockfd, connectstring.c_str(), connectstring.length(), 0);
+            send(connectstring.c_str(), connectstring.length());
             char buff[1024];
-            uint len = recv(sockfd, buff, 1024, 0);
+            char* ptrbuff = buff;
+            uint len = recv(1024, ptrbuff);
             buff[len] = '\0';
             //TODO check buffer, make sure we got "HTTP/1.0 200"...
         }

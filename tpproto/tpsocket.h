@@ -73,7 +73,7 @@ namespace TPProto{
     \param len The length of the data to send.
     \return The number of bytes sent.
     */
-    virtual int send(char* data, int len) = 0;
+    virtual int send(const char* data, int len) = 0;
 
     /*! \brief Receive the data from the socket.
 

@@ -7,6 +7,7 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <gnutls/gnutls.h>
 
 #ifdef HAVE_CONFIG_H
@@ -23,7 +24,6 @@ namespace TPProto{
   */
   TlsSocket::TlsSocket(){
     status = 0;
-    sockfd = -1;
     hostname = NULL;
     portname = NULL;
     gnutls_global_init ();
@@ -100,18 +100,18 @@ namespace TPProto{
             
             ressave = res;
             
-            sockfd=-1;
+            fd=-1;
             while (res) {
-                sockfd = socket(res->ai_family,
+                fd = socket(res->ai_family,
                                 res->ai_socktype,
                                 res->ai_protocol);
                 
-                if (!(sockfd < 0)) {
-                    if (::connect(sockfd, res->ai_addr, res->ai_addrlen) == 0)
+                if (!(fd < 0)) {
+                    if (::connect(fd, res->ai_addr, res->ai_addrlen) == 0)
                         break;
                 
-                    close(sockfd);
-                    sockfd=-1;
+                    close(fd);
+                    fd=-1;
                 }
                 res=res->ai_next;
             }
@@ -147,27 +147,27 @@ namespace TPProto{
                 return false;
             }
             
-            if ((sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  
+            if ((fd = socket(AF_INET, SOCK_STREAM, 0)) < 0) {  
                 fprintf(stderr, "ipv4_only_connect:: could not open socket\n");
                 return false;
             }
             
-            if (connect(sockfd,(struct sockaddr *)&sin, sizeof(sin)) < 0) {
+            if (connect(fd,(struct sockaddr *)&sin, sizeof(sin)) < 0) {
                 fprintf(stderr, "ipv4_only_connect:: could not connect to host=[%s]\n", host.c_str());
                 return false;
             }
         
     #endif
         
-            if(!(sockfd < 0) && onConnect()){
-                gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) sockfd);
+            if(!(fd < 0) && onConnect()){
+                gnutls_transport_set_ptr (session, (gnutls_transport_ptr_t) fd);
                 int ret = gnutls_handshake (session);
     
                 if (ret < 0){
                     fprintf (stderr, "*** Handshake failed\n");
                     gnutls_perror (ret);
-                    close(sockfd);
-                    sockfd = 0;
+                    close(fd);
+                    fd = 0;
                     gnutls_deinit (session);
                     return false;
                 }
@@ -191,86 +191,57 @@ namespace TPProto{
   void TlsSocket::disconnect(){
     if(status == 1){
         gnutls_bye (session, GNUTLS_SHUT_RDWR);
-        close(sockfd);
+        close(fd);
         gnutls_deinit (session);
-        sockfd = 0;
+        fd = 0;
     }
     status = 0;
   }
 
-  /*! \brief Sends a header and data to the socket.
+  /*! \brief Sends data to the socket.
 
-  Sends the frame in two sends, one for the header and one for the data.
-  Saves copying the header and data into another buffer.
-  \param header The header data.
-  \param hlen The length of the header data.
+  \throw DisconnectionException if not connected.
   \param data The data.
   \param len The length of the data.
+  \return The number of bytes sent.
   */
-  void TlsSocket::send(char* header, int hlen, char* data, int len){
-    if(status == 1){
-      gnutls_record_send(session, header, hlen);
-      gnutls_record_send(session, data, len);
-    }
-  }
-
-  /*! \brief Receives a header from the network.
-
-  Identical to recvBody().  If nothing is recieved from the network,
-  we have been disconnected.
-    \param len The length of the header to receive.
-    \param data The array to store the data in.
-    \return The length written into the data array.
-    */
-  int TlsSocket::recvHeader(int len, char* &data){
-    if(status == 1){
-      data = (char*)malloc(len);
-      int rlen = gnutls_record_recv(session, data, len);
-      if(rlen == 0)
-	status = 0;
-      return rlen;
-    }
-    return 0;
+    int TlsSocket::send(const char* data, int len){
+        if(status != 1){
+            throw new DisconnectedException();
+        }
+        int slen = gnutls_record_send(session, data, len);
+        if(slen == 0){
+            status = 0;
+            disconnect();
+            throw new DisconnectedException();
+        }
+        if(slen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return 0;
+        return slen;
   }
 
   /*! \brief Receives data from the network.
 
-  Identical to recvHeader().  If nothing is recieved from the network,
-  we have been disconnected.
-    \param len The length of the data to receive.
+  \throw DisconnectionException if not connected.
+    \param len The length of the header to receive.
     \param data The array to store the data in.
     \return The length written into the data array.
     */
-  int TlsSocket::recvBody(int len, char* &data){
-    if(status == 1){
-      data = (char*)malloc(len);
-      int rlen = gnutls_record_recv(session, data, len);
-      if(rlen == 0)
-	status = 0;
-      return rlen;
+    int TlsSocket::recv(int len, char* &data){
+        if(status != 1){
+            throw new DisconnectedException();
+        }
+        data = (char*)malloc(len);
+        int rlen = gnutls_record_recv(session, data, len);
+        if(rlen == 0){
+            status = 0;
+            disconnect();
+            throw new DisconnectedException();
+        }
+        if(rlen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return 0;
+        return rlen;
     }
-    return 0;
-  }
-
-  /*! \brief Polls the network for data.
-
-  Polls the network using select with zero timeout.  It does actually work.
-  \return True if data is waiting, false otherwise.
-  */
-  bool TlsSocket::poll(){
-    fd_set readfds;
-    struct timeval timeout;
-
-    // just poll, don't wait
-    timeout.tv_sec = 0;
-    timeout.tv_usec = 0;
-
-    FD_ZERO(&readfds);
-    FD_SET(sockfd, &readfds);
-
-    return (select(sockfd + 1, &readfds, NULL, NULL, &timeout) == 1);
-
-  }
 
   /*! \brief Sets the server address and port to connect to.
 

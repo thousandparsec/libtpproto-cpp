@@ -28,20 +28,15 @@ namespace TPProto{
     
     void disconnect();
     
-    void send(char* header, int hlen, char *data, int len);
-    int recvHeader(int len, char* &data);
-    int recvBody(int len, char* &data);
-
-    bool poll();
+    int send(const char *data, int len);
+    int recv(int len, char* &data);
 
     void setServerAddr(const char* host, const char* port);
 
     protected:
     virtual bool onConnect();
     bool connect(const std::string& host, const std::string& port);
-    /*! \brief The Sock file descriptor for this connection.
-    */
-    int sockfd;
+
     /*! \brief The status of the connection.
         Set to 0 when disconnected.
     */
