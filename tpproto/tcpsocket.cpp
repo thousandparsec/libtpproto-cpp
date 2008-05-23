@@ -169,13 +169,15 @@ namespace TPProto{
             throw new DisconnectedException();
         }
         int slen = ::send(fd, data, len, 0);
-        if(slen == 0){
+       
+        if(slen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return 0;
+         if(slen <= 0){
             status = 0;
             close(fd);
             throw new DisconnectedException();
         }
-        if(slen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
-            return 0;
+        
         return slen;
     }
 
@@ -196,13 +198,14 @@ namespace TPProto{
         }
         data = (char*)malloc(len);
         int rlen = ::recv(fd, data, len, 0);
-        if(rlen == 0){
+       
+        if(rlen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
+            return 0;
+         if(rlen <= 0){
             status = 0;
             close(fd);
             throw new DisconnectedException();
         }
-        if(rlen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))
-            return 0;
         return rlen;
     
   }
