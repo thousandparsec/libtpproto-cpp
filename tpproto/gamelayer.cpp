@@ -19,6 +19,7 @@
  */
 
 #include <iostream>
+#include <boost/bind.hpp>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -261,7 +262,7 @@ namespace TPProto {
     This method connects to the server given as the address. The types of url
     supported are tp, tps, https and http. Tps and https depend on TLS being enabled.
     \param address The URL to connect to.
-    \return True if connected, false otherwise.
+    \return True if connection in progress, false otherwise.
     */
     bool GameLayer::connect(const std::string& address){
         if(status != gsDisconnected){
@@ -333,7 +334,7 @@ namespace TPProto {
     /*! \brief Connects using a given TPSocket.
     Connects to a server using a given TPSocket.
     \param nsock The TPSocket to connect using.
-    \return True if connected, false otherwise.
+    \return True if connection in progress, false otherwise.
     */
     bool GameLayer::connect(TPSocket* nsock){
         if(status != gsDisconnected){
@@ -347,39 +348,8 @@ namespace TPProto {
             status = gsConnecting;
             Connect * cf = protocol->getFrameFactory()->createConnect();
             cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
-            uint32_t seqnum = protocol->getFrameCodec()->sendFrame(cf);
+            protocol->getFrameCodec()->sendFrame(cf, boost::bind(&GameLayer::connectCallback, this, _1));
             delete cf;
-            
-            std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-            Frame * reply = NULL;
-            if(replies.size() >= 1){
-                reply = replies.front();
-            }
-            
-            if(reply != NULL && reply->getType() == ft02_OK){
-                // expect OK back
-                //  or maybe error
-                status = gsConnected;
-                if(statuslistener != NULL)
-                    statuslistener->connected();
-                logger->info("Connected");
-                delete reply;
-                updateCaches();
-                return true;
-            }else if(reply != NULL && reply->getType() == ft03_Redirect){
-                //signal we are redirecting 
-                if(statuslistener != NULL)
-                    statuslistener->redirected(static_cast<Redirect*>(reply)->getUrl());
-                bool rtv = connect(static_cast<Redirect*>(reply)->getUrl());
-                delete reply;
-                return rtv;
-            }else{
-                status = gsDisconnected;
-                logger->error("Could not connect");
-                sock->disconnect();
-                if(reply != NULL)
-                    delete reply;
-            }
         }else{
             logger->error("Could not open socket to server");
         }
