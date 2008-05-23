@@ -112,7 +112,9 @@ namespace TPProto {
         
         void recvTimeRemaining(TimeRemaining* trf){
             if(trf->getTimeRemaining() == 0){
-                layer->status = gsEOTInProgress;
+                if(layer->status == gsLoggedIn){
+                    layer->status = gsEOTInProgress;
+                }
                 if(layer->statuslistener != NULL){
                     layer->statuslistener->eotStarted();
                     layer->statuslistener->timeToEot(trf->getTimeRemaining());
@@ -965,29 +967,13 @@ namespace TPProto {
     /*! \brief Gets the time remaining before the end of turn.
     
     Fetches the time remaining till the end of turn from the server.
-    \returns The time in seconds before the end of turn, or
-    -1 if there was an error.
+    The actual value is returned through the GameStatusListener::timeToEoT().
     */
-    int GameLayer::getTimeRemaining(){
+    void GameLayer::getTimeRemaining(){
         GetTime* gt = protocol->getFrameFactory()->createGetTimeRemaining();
         
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(gt);
+        protocol->getFrameCodec()->sendFrame(gt, boost::bind(&GameLayer::timeRemainingCallback, this, _1));
         delete gt;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL && reply->getType() == ft02_Time_Remaining){
-            int time = ((TimeRemaining*)reply)->getTimeRemaining();
-            delete reply;
-            if(statuslistener != NULL)
-                statuslistener->timeToEot(time);
-            return time;
-        }
-        if(reply != NULL)
-            delete reply;
-        return -1;
     }
 
     void GameLayer::finishedTurn(){
@@ -1084,4 +1070,12 @@ namespace TPProto {
         }
     }
     
+    void GameLayer::timeRemainingCallback(Frame* frame){
+        if(frame->getType() == ft02_Time_Remaining){
+            if(statuslistener != NULL){
+                statuslistener->timeToEot(((TimeRemaining*)frame)->getTimeRemaining());
+            }
+        }
+        delete frame;
+    }
 }

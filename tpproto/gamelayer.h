@@ -153,7 +153,7 @@ namespace TPProto{
         Property* getProperty(uint32_t propid);
         
         //Time
-        int getTimeRemaining();
+        void getTimeRemaining();
         void finishedTurn();
 
     private:
@@ -162,6 +162,7 @@ namespace TPProto{
         void featureCallback(Frame* frame);
         void loginCallback(Frame* frame);
         void accountCreateCallback(Frame* frame);
+        void timeRemainingCallback(Frame* frame);
         
         ProtocolLayer* protocol;
         EventLoop* eventloop;
