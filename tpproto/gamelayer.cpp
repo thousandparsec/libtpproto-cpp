@@ -345,7 +345,8 @@ namespace TPProto {
             return false;
         }
         sock = nsock;
-        protocol->getFrameCodec()->setSocket(sock);
+        sock->setConnection(protocol->getFrameCodec());
+        eventloop->listenForSocketRead(sock);
         if(sock->connect()){
             logger->debug("Connection opened");
             status = gsConnecting;
@@ -353,6 +354,7 @@ namespace TPProto {
             cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
             protocol->getFrameCodec()->sendFrame(cf, boost::bind(&GameLayer::connectCallback, this, _1));
             delete cf;
+            return true;
         }else{
             logger->error("Could not open socket to server");
         }
@@ -421,10 +423,10 @@ namespace TPProto {
         if(status != gsDisconnected && sock != NULL){
             sock->disconnect();
             logger->info("Disconnected");
+             status = gsDisconnected;
             if(statuslistener != NULL)
                 statuslistener->disconnected();
         }
-        status = gsDisconnected;
     }
 
     /*! \brief Tells all the caches to update.

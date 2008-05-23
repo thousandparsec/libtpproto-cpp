@@ -227,8 +227,11 @@ namespace TPProto {
             }else{
                 FrameSignal* fs = framesignals[frame->getSequenceNumber()];
                 if(fs != NULL){
+                    if(fs->num_slots() == 0)
+                        logger->warning("Noone listenering on FrameSignal");
                     (*fs)(frame);
                 }else{
+                    logger->warning("No FrameSignal set for this frame sequence");
                     delete frame;
                 }
             }
