@@ -217,7 +217,7 @@ namespace TPProto {
     \return The GameStatus enum value for the current state.
     */
     GameStatus GameLayer::getStatus(){
-        if(sock == NULL || !sock->isConnected()){
+        if((sock == NULL || !sock->isConnected()) && status != gsDisconnected){
             status = gsDisconnected;
             if(statuslistener != NULL)
                 statuslistener->disconnected();
@@ -1022,6 +1022,7 @@ namespace TPProto {
     
     void GameLayer::featureCallback(Frame* frame){
         if(frame->getType() == ft03_Features){
+            logger->debug("New features frame received");
             if(serverfeatures != NULL)
                 delete serverfeatures;
             serverfeatures = (Features*)frame;
