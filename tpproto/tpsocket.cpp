@@ -38,16 +38,6 @@ namespace TPProto{
             connection->setSocket(NULL);
         }
     }
-  
-  /*! \brief Checks if the socket is connected.
-
-  Subclasses should override this method and track whether they 
-  are connected or not.  Default always returns false.
-  \return True if connected, false otherwise.
-  */
-  bool TPSocket::isConnected(){
-    return false;
-  }
 
     /*! \brief Gets the FileDescriptor.
     

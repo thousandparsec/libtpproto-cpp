@@ -45,7 +45,13 @@ namespace TPProto{
       TPSocket();
     virtual ~TPSocket();
     
-    virtual bool isConnected();
+    /*! \brief Checks if the socket is connected.
+
+    All subclasses must override this method and track whether they 
+    are connected or not.
+    \return True if connected, false otherwise.
+     */
+    virtual bool isConnected() = 0;
 
     int getFileDescriptor() const;
     
