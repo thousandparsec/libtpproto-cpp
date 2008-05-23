@@ -159,6 +159,7 @@ namespace TPProto{
     private:
         
         void connectCallback(Frame* frame);
+        void featureCallback(Frame* frame);
         
         ProtocolLayer* protocol;
         EventLoop* eventloop;

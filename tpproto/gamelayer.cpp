@@ -77,6 +77,7 @@
 #include "orderdesc.h"
 #include "getorderdesc.h"
 #include "featuresframe.h"
+#include "getfeatures.h"
 #include "redirect.h"
 #include "resourcedesc.h"
 #include "player.h"
@@ -1050,12 +1051,15 @@ namespace TPProto {
         if(frame->getType() == ft02_OK){
             delete frame;
             status = gsConnected;
-            if(statuslistener != NULL)
-                statuslistener->connected();
             logger->info("Connected");
             //get features
+            GetFeatures * gf = protocol->getFrameFactory()->createGetFeatures();
+            protocol->getFrameCodec()->sendFrame(gf, boost::bind(&GameLayer::featureCallback, this, _1));
+            delete gf;
             //if tp04, get game info
             
+            if(statuslistener != NULL)
+                statuslistener->connected();
         }else if(frame->getType() == ft03_Redirect){
             status = gsDisconnected;
             sock->disconnect();
@@ -1066,6 +1070,16 @@ namespace TPProto {
         }else{
             status = gsDisconnected;
             logger->error("Could not connect");
+            delete frame;
+        }
+    }
+    
+    void GameLayer::featureCallback(Frame* frame){
+        if(frame->getType() == ft03_Features){
+            if(serverfeatures != NULL)
+                delete serverfeatures;
+            serverfeatures = (Features*)frame;
+        }else{
             delete frame;
         }
     }
