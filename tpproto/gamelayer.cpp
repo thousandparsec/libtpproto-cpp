@@ -373,36 +373,11 @@ namespace TPProto {
           account->setPass(password);
           account->setEmail(email);
           account->setComment(comment);
-          uint32_t seqnum = protocol->getFrameCodec()->sendFrame(account);
+          protocol->getFrameCodec()->sendFrame(account, boost::bind(&GameLayer::accountCreateCallback, this, _1));
           delete account;
           
-          std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-          Frame * reply = NULL;
-          if(replies.size() >= 1){
-              reply = replies.front();
-          }
-          
-          if(reply != NULL && reply->getType() == ft02_OK){
-              // expect OK back
-              //  or maybe error
-              logger->info("Account created");
-              delete reply;
-              if(!sock->isConnected()){
-                status = gsDisconnected;
-                if(statuslistener != NULL)
-                  statuslistener->disconnected();
-              }else{
-                status = gsLoggedIn;
-                if(statuslistener != NULL)
-                    statuslistener->loggedIn();
-              }
-              return true;
-          }else{
-              logger->warning("Did not create account");
-              if(reply != NULL)
-                  delete reply;
-          }
-        
+          return true;
+
       }
       if(!sock->isConnected()){
           status = gsDisconnected;
@@ -417,37 +392,16 @@ namespace TPProto {
     Sends a Login Frame to the server and waits for a reply.
     \param username The username to connect as.
     \param password The password of the account of the username.
-    \return True if successful, false otherwise.
+    \return True if successfully started, false otherwise.
     */
     bool GameLayer::login(const std::string &username, const std::string &password){
         if(status == gsConnected && sock->isConnected()){
             Login * login = protocol->getFrameFactory()->createLogin();
             login->setUser(username);
             login->setPass(password);
-            uint32_t seqnum = protocol->getFrameCodec()->sendFrame(login);
+           protocol->getFrameCodec()->sendFrame(login, boost::bind(&GameLayer::loginCallback, this, _1));
             delete login;
-            
-            std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-            Frame * reply = NULL;
-            if(replies.size() >= 1){
-                reply = replies.front();
-            }
-            
-            if(reply != NULL && reply->getType() == ft02_OK){
-                // expect OK back
-                //  or maybe error
-                status = gsLoggedIn;
-                if(statuslistener != NULL)
-                    statuslistener->loggedIn();
-                logger->info("Logged in");
-                delete reply;
-                return true;
-            }else{
-                logger->warning("Did not log in");
-                if(reply != NULL)
-                    delete reply;
-            }
-            
+            return true;
         }
         if(!sock->isConnected()){
             status = gsDisconnected;
@@ -1085,6 +1039,48 @@ namespace TPProto {
             serverfeatures = (Features*)frame;
         }else{
             delete frame;
+        }
+    }
+    
+    void GameLayer::loginCallback(Frame* frame){
+        if(frame->getType() == ft02_OK){
+            delete frame;
+            status = gsLoggedIn;
+            logger->info("Logged In");
+            
+            if(statuslistener != NULL)
+                statuslistener->loggedIn(true);
+        }else if(frame->getType() == ft03_Redirect){
+            status = gsDisconnected;
+            sock->disconnect();
+            if(statuslistener == NULL || (statuslistener != NULL && statuslistener->redirected(static_cast<Redirect*>(frame)->getUrl()))){
+                connect(static_cast<Redirect*>(frame)->getUrl());
+            }
+            delete frame;
+        }else{
+            logger->error("Login failed: %s", ((FailFrame*)frame)->getErrorString().c_str());
+            //TODO tp04 fail frame refs?
+            if(statuslistener != NULL){
+                statuslistener->loggedIn(false);
+            }
+        }
+    }
+    
+    void GameLayer::accountCreateCallback(Frame* frame){
+        if(frame->getType() == ft02_OK){
+            delete frame;
+            logger->info("Account created");
+            
+            if(statuslistener != NULL){
+                statuslistener->accountCreated(true);
+            }
+        }else{
+            delete frame;
+            logger->error("Account Creation failed: %s", ((FailFrame*)frame)->getErrorString().c_str());
+            //TODO tp04 fail frame refs?
+            if(statuslistener != NULL){
+                statuslistener->accountCreated(false);
+            }
         }
     }
     

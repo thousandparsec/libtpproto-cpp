@@ -160,6 +160,8 @@ namespace TPProto{
         
         void connectCallback(Frame* frame);
         void featureCallback(Frame* frame);
+        void loginCallback(Frame* frame);
+        void accountCreateCallback(Frame* frame);
         
         ProtocolLayer* protocol;
         EventLoop* eventloop;
