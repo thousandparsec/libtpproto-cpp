@@ -34,7 +34,7 @@ namespace TPProto{
 /*! \brief Enum of Frame types.
 
 */ 
-  typedef enum {
+  enum FrameType {
     // New Frame Codes
     ft02_Invalid = -1,
     ft02_OK = 0,
@@ -112,13 +112,13 @@ namespace TPProto{
     ft02_Max,
     
     
-  } FrameType;
+  };
   
 /*! \brief Frame error codes.
   
 Used by FailFrame to indicate the type of error.
 */
-  typedef enum {
+  enum FrameErrorCode {
     fec_Invalid = -1,
     fec_ProtocolError = 0,
     fec_FrameError = 1,
@@ -127,7 +127,7 @@ Used by FailFrame to indicate the type of error.
     fec_NonExistant = 4,
     fec_PermissionDenied = 5,
     fec_Max
-  } FrameErrorCode;
+  };
   
   class Buffer;
 
