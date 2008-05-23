@@ -20,6 +20,8 @@
 
 #include <iostream>
 
+#include "nettest.h"
+
 #include "testgamestatelistener.h"
 
 using namespace TPProto;
@@ -32,6 +34,7 @@ TestGameStateListener::~TestGameStateListener(){
 
 void TestGameStateListener::connected(){
     std::cout << "GAMESTATUS: connected" << std::endl;
+    nettest->login();
 }
 
 bool TestGameStateListener::redirected(const std::string& url){
@@ -41,10 +44,18 @@ bool TestGameStateListener::redirected(const std::string& url){
 
 void TestGameStateListener::disconnected(){
     std::cout << "GAMESTATUS: disconnected" << std::endl;
+    if(nettest->getStatus() != 0)
+        nettest->stopTest();
 }
 
 void TestGameStateListener::loggedIn(bool state){
     std::cout << "GAMESTATUS: Logged in" << std::endl;
+    if(state){
+        //nettest->getUniverse();
+        nettest->allDone();
+    }else{
+        nettest->stopTest();
+    }
 }
 
 void TestGameStateListener::accountCreated(bool state){

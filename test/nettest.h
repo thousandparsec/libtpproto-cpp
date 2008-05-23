@@ -37,11 +37,16 @@ class NetTest{
         
         void doTest();
         
+        void stopTest();
+        
         //Parts of the test
         void connect();
         void login();
         
+        void allDone();
+        
         int getStatus();
+        
     
     private:
         TPProto::GameLayer* mygame;

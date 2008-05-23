@@ -22,6 +22,8 @@
  
 #include <tpproto/gamestatuslistener.h>
 
+class NetTest;
+
 class TestGameStateListener : public TPProto::GameStatusListener{
     public:
     TestGameStateListener();
@@ -36,6 +38,7 @@ class TestGameStateListener : public TPProto::GameStatusListener{
     virtual void eotEnded();
     virtual void timeToEot(uint32_t timetoeot);
 
+    NetTest* nettest;
 };
 
 #endif

@@ -103,11 +103,13 @@ int main(int argc, char** argv){
 }
 
 NetTest::NetTest(){
+    status = 0;
     mygame = new GameLayer();
     myel = new SimpleEventLoop();
     mygame->setEventLoop(myel);
     mygame->setLogger(new StdoutLogger());
     TestGameStateListener * testlistener = new TestGameStateListener();
+    testlistener->nettest = this;
     mygame->setGameStatusListener(testlistener);
     mygame->setClientString("libtpproto-cpp_NetTest");
     
@@ -117,7 +119,7 @@ NetTest::NetTest(){
     std::cout << "Test setup complete" << std::endl;
 
     std::cout << "Starting status: " << mygame->getStatus() << std::endl;
-    status = 0;
+    
 }
 
 NetTest::~NetTest(){
@@ -141,11 +143,23 @@ void NetTest::setUserPass(const std::string& nu, const std::string& np){
 }
 
 void NetTest::doTest(){
-    myel->setTimer(120, boost::bind(&SimpleEventLoop::endEventLoop, myel));
+    myel->setTimer(120, boost::bind(&NetTest::stopTest, this));
     
     myel->setTimer(2, boost::bind(&NetTest::connect, this));
     
     myel->runEventLoop();
+}
+
+void NetTest::stopTest(){
+    if(mygame->getStatus() != gsDisconnected){
+        mygame->disconnect();
+    }
+    myel->endEventLoop();
+}
+
+void NetTest::allDone(){
+    status = 0;
+    stopTest();
 }
 
 void NetTest::connect(){
@@ -154,7 +168,7 @@ void NetTest::connect(){
       std::cout << "Connected ok, status: " << mygame->getStatus() << std::endl;
     }else{
         std::cout << "Could not start connection: " << mygame->getStatus() << std::endl;
-        myel->endEventLoop();
+        stopTest();
     }
 }
 
@@ -164,7 +178,7 @@ void NetTest::login(){
             std::cout << "Login ok, status: " << mygame->getStatus() << std::endl;
         }else{
             std::cout << "Could not start login: " << mygame->getStatus() << std::endl;
-            myel->endEventLoop();
+            stopTest();
         }
 }
 
