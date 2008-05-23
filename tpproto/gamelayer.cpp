@@ -1070,6 +1070,10 @@ namespace TPProto {
         }else{
             status = gsDisconnected;
             logger->error("Could not connect");
+            //TODO: check why, maybe wrong protocol version?
+            sock->disconnect();
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
             delete frame;
         }
     }

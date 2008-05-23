@@ -54,9 +54,15 @@ namespace TPProto{
         */
         virtual void disconnected() = 0;
 
-        /*! \brief Called when the player is sucessfully logged in.
+        /*! \brief Called when the player's account is created sucessfully or not.
+        \param status True if account created, false otherwise.
         */
-        virtual void loggedIn() = 0;
+        virtual void accountCreated(bool status) = 0;
+        
+        /*! \brief Called when the player is sucessfully logged in or not.
+        \param status True if logged in, false otherwise.
+        */
+        virtual void loggedIn(bool status) = 0;
 
         /*! \brief Called when libtpproto-cpp notices that EOT has started.
         Noticed when a Time frame is sent that has 0 time. This could be well
