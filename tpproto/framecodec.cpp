@@ -204,7 +204,9 @@ namespace TPProto {
         uint32_t real_seqnum = nextseqnum;
         header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
         socket->send(header->getData(), header->getLength());
-        socket->send(data->getData(), data->getLength());
+        if(data->getLength() > 0){
+            socket->send(data->getData(), data->getLength());
+        }
         nextseqnum++;
         if(nextseqnum == 0)
             nextseqnum++;
@@ -216,6 +218,9 @@ namespace TPProto {
     }
     
     void FrameCodec::readyToRead(){
+        if(!socket->isConnected()){
+            logger->debug("Socket disconnected at begining of FrameCodec::readyToRead()");
+        }
         Frame* frame = recvOneFrame();
         if(frame != NULL){
             if(frame->getSequenceNumber() == 0){
@@ -235,6 +240,9 @@ namespace TPProto {
                     delete frame;
                 }
             }
+        }
+        if(!socket->isConnected()){
+            logger->debug("Socket disconnected at end of FrameCodec::readyToRead()");
         }
     }
     
