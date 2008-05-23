@@ -49,7 +49,7 @@ namespace TPProto{
     
     This SimpleEventLoop is used by the tests and some example programs.
     */
-    class SimpleEventLoop{
+    class SimpleEventLoop : public EventLoop{
         public:
             SimpleEventLoop();
             virtual ~SimpleEventLoop();
