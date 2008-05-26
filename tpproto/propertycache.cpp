@@ -1,6 +1,6 @@
 /*  PropertyCache - Cache of Properties class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    PropertyCache::PropertyCache() : Cache(){
+    PropertyCache::PropertyCache() : Cache(), watchers(), waiters(){
     }
 
     /*! \brief Destructor.
@@ -45,21 +45,35 @@ namespace TPProto {
     PropertyCache::~PropertyCache(){
     }
 
-    /*! \brief Gets a Property from the cache.
-    \param propid The id of the Property to get.
-    \return The Property, or NULL.
-    */
-    Property*  PropertyCache::getProperty(uint32_t propid){
-        return static_cast<Property*>(cache->getById(propid));
+    void PropertyCache::requestProperty(uint32_t propid, const PropertyCallback &cb){
+        PropertySignal* bs = waiters[propid];
+        if(bs == NULL){
+            bs = new PropertySignal();
+            waiters[propid] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(propid);
     }
-
-    /*! \brief Gets a set of all Property Ids.
-    \return A set of Property Ids.
-    */
-    std::set<uint32_t> PropertyCache::getPropertyIds(){
-        return cache->getAllIds();
+    
+    boost::signals::connection PropertyCache::watchProperty(uint32_t propid, const PropertyCallback &cb){
+        PropertySignal *bs = watchers[propid];
+        if(bs == NULL){
+            bs = new PropertySignal();
+            watchers[propid] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestProperty(propid, cb);
+        return conn;
     }
-
+    
+    void PropertyCache::requestPropertyIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection PropertyCache::watchPropertyIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
+    }
+    
     GetIdSequence* PropertyCache::createGetIdSequenceFrame(){
         return protocol->getFrameFactory()->createGetPropertyIdsList();
     }
@@ -86,4 +100,33 @@ namespace TPProto {
         }
     }
 
+    void PropertyCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Property> property(boost::dynamic_pointer_cast<Property>(item));
+        if(property){
+            PropertySignal* bs = waiters[property->getPropertyId()];
+            if(bs != NULL){
+                (*bs)(property);
+                delete bs;
+            }
+            waiters.erase(property->getPropertyId());
+            bs = watchers[property->getPropertyId()];
+            if(bs != NULL){
+                (*bs)(property);
+            }
+        }
+        
+    }
+    
+    void PropertyCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Property> property(boost::dynamic_pointer_cast<Property>(item));
+        if(property){
+            PropertySignal* bs = waiters[property->getPropertyId()];
+            if(bs != NULL){
+                (*bs)(property);
+                delete bs;
+            }
+            waiters.erase(property->getPropertyId());
+        }
+    }
+    
 }

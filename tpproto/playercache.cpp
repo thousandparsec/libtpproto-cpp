@@ -1,6 +1,6 @@
 /*  PlayerCache - Cache of Objects class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    PlayerCache::PlayerCache() : Cache(){
+    PlayerCache::PlayerCache() : Cache(), watchers(), waiters(){
     }
 
     /*! \brief Destructor.
@@ -42,17 +42,44 @@ namespace TPProto {
     PlayerCache::~PlayerCache(){
     }
 
-    /*! \brief Gets a Player from the cache.
-    \param playerid The id of the Player to get.
-    \return The Player, or NULL.
-    */
-    Player*  PlayerCache::getPlayer(uint32_t playerid){
-        if(playerid != 0xffffffff)
-            return static_cast<Player*>(cache->getById(playerid));
-        else
-            return NULL;
+    void PlayerCache::requestPlayer(uint32_t pid, const PlayerCallback &cb){
+        if(pid != 0xffffffff){
+            PlayerSignal* bs = waiters[pid];
+            if(bs == NULL){
+                bs = new PlayerSignal();
+                waiters[pid] = bs;
+            }
+            bs->connect(cb);
+            cache->getById(pid);
+        }else{
+            (cb.get_slot_function())(boost::shared_ptr<Player>());
+        }
     }
-
+    
+    boost::signals::connection PlayerCache::watchPlayer(uint32_t pid, const PlayerCallback &cb){
+        if(pid != 0xfffffff){
+            PlayerSignal *bs = watchers[pid];
+            if(bs == NULL){
+                bs = new PlayerSignal();
+                watchers[pid] = bs;
+            }
+            boost::signals::connection conn = bs->connect(cb);
+            requestPlayer(pid, cb);
+            return conn;
+        }else{
+            requestPlayer(pid, cb);
+            return boost::signals::connection();
+        }
+    }
+    
+    void PlayerCache::requestPlayerIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection PlayerCache::watchPlayerIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
+    }
+    
     GetIdSequence* PlayerCache::createGetIdSequenceFrame(){
         return NULL;
     }
@@ -74,4 +101,33 @@ namespace TPProto {
         return 0LL;
     }
 
+    void PlayerCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Player> player(boost::dynamic_pointer_cast<Player>(item));
+        if(player){
+            PlayerSignal* bs = waiters[player->getPlayerId()];
+            if(bs != NULL){
+                (*bs)(player);
+                delete bs;
+            }
+            waiters.erase(player->getPlayerId());
+            bs = watchers[player->getPlayerId()];
+            if(bs != NULL){
+                (*bs)(player);
+            }
+        }
+        
+    }
+    
+    void PlayerCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Player> player(boost::dynamic_pointer_cast<Player>(item));
+        if(player){
+            PlayerSignal* bs = waiters[player->getPlayerId()];
+            if(bs != NULL){
+                (*bs)(player);
+                delete bs;
+            }
+            waiters.erase(player->getPlayerId());
+        }
+    }
+    
 }

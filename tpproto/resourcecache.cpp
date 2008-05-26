@@ -1,6 +1,6 @@
 /*  ResourceCache - Cache of ResourceDescriptions class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -43,21 +43,36 @@ namespace TPProto {
     ResourceCache::~ResourceCache(){
     }
 
-    /*! \brief Gets an ResourceDescription from the cache.
-    \param restype The type of the ResourceDescription to get.
-    \return The ResourceDescription, or NULL.
-    */
-    ResourceDescription*  ResourceCache::getResourceDescription(uint32_t restype){
-        return static_cast<ResourceDescription*>(cache->getById(restype));
+    void ResourceCache::requestResourceDescription(uint32_t restype, const ResourceDescCallback &cb){
+        ResourceDescSignal* bs = waiters[restype];
+        if(bs == NULL){
+            bs = new ResourceDescSignal();
+            waiters[restype] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(restype);
     }
-
-    /*! \brief Gets a set of all Resource Types.
-    \return A set of Resource type numbers.
-    */
-    std::set<uint32_t> ResourceCache::getResourceTypes(){
-        return cache->getAllIds();
+    
+    boost::signals::connection ResourceCache::watchResourceDescription(uint32_t restype, const ResourceDescCallback &cb){
+        ResourceDescSignal *bs = watchers[restype];
+        if(bs == NULL){
+            bs = new ResourceDescSignal();
+            watchers[restype] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestResourceDescription(restype, cb);
+        return conn;
     }
-
+    
+    void ResourceCache::requestResourceTypes(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection ResourceCache::watchResourceTypes(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
+    }
+    
+    
     GetIdSequence* ResourceCache::createGetIdSequenceFrame(){
         return protocol->getFrameFactory()->createGetResourceTypesList();
     }
@@ -81,6 +96,35 @@ namespace TPProto {
             return res->getModTime();
         }else{
             return 0LL;
+        }
+    }
+    
+    void ResourceCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<ResourceDescription> resdesc(boost::dynamic_pointer_cast<ResourceDescription>(item));
+        if(resdesc){
+            ResourceDescSignal* bs = waiters[resdesc->getResourceType()];
+            if(bs != NULL){
+                (*bs)(resdesc);
+                delete bs;
+            }
+            waiters.erase(resdesc->getResourceType());
+            bs = watchers[resdesc->getResourceType()];
+            if(bs != NULL){
+                (*bs)(resdesc);
+            }
+        }
+        
+    }
+    
+    void ResourceCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<ResourceDescription> resdesc(boost::dynamic_pointer_cast<ResourceDescription>(item));
+        if(resdesc){
+            ResourceDescSignal* bs = waiters[resdesc->getResourceType()];
+            if(bs != NULL){
+                (*bs)(resdesc);
+                delete bs;
+            }
+            waiters.erase(resdesc->getResourceType());
         }
     }
 

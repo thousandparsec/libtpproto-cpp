@@ -2,7 +2,7 @@
 #define TPPROTO_PLAYERCACHE_H
 /*  PlayerCache - Cache of Players class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,13 +24,17 @@
   \brief Declares the PlayerCache class.
 */
 
-#include <set>
+#include <map>
+#include <boost/signal.hpp>
 
 #include "cache.h"
 
 namespace TPProto{
 
     class Player;
+    
+    typedef boost::signal<void (boost::shared_ptr<Player>)> PlayerSignal;
+    typedef PlayerSignal::slot_type PlayerCallback;
 
     /*! \brief A Cache that caches Players.
     
@@ -40,13 +44,23 @@ namespace TPProto{
     PlayerCache();
     virtual ~PlayerCache();
 
-    Player* getPlayer(uint32_t playerid);
+    void requestPlayer(uint32_t pid, const PlayerCallback &cb);
+    boost::signals::connection watchPlayer(uint32_t pid, const PlayerCallback &cb);
+    
+    void requestPlayerIds(const IdSetCallback& cb);
+    boost::signals::connection watchPlayerIds(const IdSetCallback& cb);
 
     virtual GetIdSequence* createGetIdSequenceFrame();
     virtual GetById* createGetByIdFrame();
     virtual uint32_t getIdFromFrame(Frame* frame);
     virtual uint64_t getModTimeFromFrame(Frame* frame);
+    
+    virtual void newItem(boost::shared_ptr<Frame> item);
+    virtual void existingItem(boost::shared_ptr<Frame> item);
 
+        private:
+            std::map<uint32_t, PlayerSignal*> watchers;
+            std::map<uint32_t, PlayerSignal*> waiters;
     };
 
 }
