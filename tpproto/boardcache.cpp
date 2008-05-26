@@ -1,6 +1,6 @@
 /*  BoardCache - Cache of Boards class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -45,12 +45,38 @@ namespace TPProto {
 
     /*! \brief Gets an Board from the cache.
     \param bid The id of the Board to get.
-    \return The Board, or NULL.
+    \param cb The callback to call when the Board is available.
     */
-    Board*  BoardCache::getBoard(uint32_t bid){
-        return static_cast<Board*>(cache->getById(bid));
+    void BoardCache::requestBoard(uint32_t bid, const BoardCallback &cb){
+        BoardSignal* bs = waiters[bid];
+        if(bs == NULL){
+            bs = new BoardSignal();
+            waiters[bid] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(bid);
     }
-
+    
+    /*! \brief Watch for changes to a Board in the cache.
+    
+    The first time the board is change (or arrives for the first time) it is
+    possible that two copies of the same board are delievered.
+    
+    \param bid The id of the Board to watch.
+    \param cb The callback to call when the Board changes.
+    \return connection object to manage the subscription to this board.
+     */
+    boost::signals::connection BoardCache::watchBoard(uint32_t bid, const BoardCallback &cb){
+        BoardSignal *bs = watchers[bid];
+        if(bs == NULL){
+            bs = new BoardSignal();
+            watchers[bid] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestBoard(bid, cb);
+        return conn;
+    }
+    
     /*! \brief Set an Board Id as invalid and mark to be refetched.
     \param bid The id of the Board to invalidate.
     */
@@ -59,10 +85,14 @@ namespace TPProto {
     }
 
     /*! \brief Gets a set of all Board Ids.
-    \return A set of Board Ids.
+    Returned via IdSetCallback.
     */
-    std::set<uint32_t> BoardCache::getBoardIds(){
-        return cache->getAllIds();
+    void BoardCache::requestBoardIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection BoardCache::watchBoardIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
     }
 
     GetIdSequence* BoardCache::createGetIdSequenceFrame(){
@@ -91,4 +121,33 @@ namespace TPProto {
         }
     }
 
+    void BoardCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Board> board(boost::dynamic_pointer_cast<Board>(item));
+        if(board){
+            BoardSignal* bs = waiters[board->getId()];
+            if(bs != NULL){
+                (*bs)(board);
+                delete bs;
+            }
+            waiters.erase(board->getId());
+            bs = watchers[board->getId()];
+            if(bs != NULL){
+                (*bs)(board);
+            }
+        }
+        
+    }
+    
+    void BoardCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Board> board(boost::dynamic_pointer_cast<Board>(item));
+        if(board){
+            BoardSignal* bs = waiters[board->getId()];
+            if(bs != NULL){
+                (*bs)(board);
+                delete bs;
+            }
+            waiters.erase(board->getId());
+        }
+    }
+    
 }
