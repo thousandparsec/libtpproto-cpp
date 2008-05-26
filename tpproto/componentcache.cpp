@@ -1,6 +1,6 @@
 /*  ComponentCache - Cache of Components class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -37,7 +37,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    ComponentCache::ComponentCache() : Cache(){
+    ComponentCache::ComponentCache() : Cache(), watchers(), waiters(){
     }
 
     /*! \brief Destructor.
@@ -47,17 +47,35 @@ namespace TPProto {
 
     /*! \brief Gets an Component from the cache.
     \param compid The id of the Component to get.
-    \return The Component, or NULL.
+    \param cb The ComponentCallback to call to return the Component.
     */
-    Component*  ComponentCache::getComponent(uint32_t compid){
-        return static_cast<Component*>(cache->getById(compid));
+    void ComponentCache::requestComponent(uint32_t compid, const ComponentCallback &cb){
+        ComponentSignal* bs = waiters[compid];
+        if(bs == NULL){
+            bs = new ComponentSignal();
+            waiters[compid] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(compid);
+    }
+    
+    boost::signals::connection ComponentCache::watchComponent(uint32_t compid, const ComponentCallback &cb){
+        ComponentSignal *bs = watchers[compid];
+        if(bs == NULL){
+            bs = new ComponentSignal();
+            watchers[compid] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestComponent(compid, cb);
+        return conn;
     }
 
-    /*! \brief Gets a set of all Component Ids.
-    \return A set of Component Ids.
-    */
-    std::set<uint32_t> ComponentCache::getComponentIds(){
-        return cache->getAllIds();
+    void ComponentCache::requestComponentIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection ComponentCache::watchComponentIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
     }
 
     GetIdSequence* ComponentCache::createGetIdSequenceFrame(){
@@ -86,4 +104,32 @@ namespace TPProto {
         }
     }
 
+    void ComponentCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Component> component(boost::dynamic_pointer_cast<Component>(item));
+        if(component){
+            ComponentSignal* bs = waiters[component->getComponentId()];
+            if(bs != NULL){
+                (*bs)(component);
+                delete bs;
+            }
+            waiters.erase(component->getComponentId());
+            bs = watchers[component->getComponentId()];
+            if(bs != NULL){
+                (*bs)(component);
+            }
+        }
+    }
+    
+    void ComponentCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Component> component(boost::dynamic_pointer_cast<Component>(item));
+        if(component){
+            ComponentSignal* bs = waiters[component->getComponentId()];
+            if(bs != NULL){
+                (*bs)(component);
+                delete bs;
+            }
+            waiters.erase(component->getComponentId());
+        }
+    }
+    
 }
