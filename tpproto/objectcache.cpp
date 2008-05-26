@@ -1,6 +1,6 @@
 /*  ObjectCache - Cache of Objects class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    ObjectCache::ObjectCache() : Cache(){
+    ObjectCache::ObjectCache() : Cache(), watchers(), waiters(){
     }
 
     /*! \brief Destructor.
@@ -45,12 +45,37 @@ namespace TPProto {
 
     /*! \brief Gets an Object from the cache.
     \param obid The id of the Object to get.
-    \return The Object, or NULL.
+    \param cb The Callback to return the Object to.
     */
-    Object*  ObjectCache::getObject(uint32_t obid){
-        return static_cast<Object*>(cache->getById(obid));
+    void ObjectCache::requestObject(uint32_t obid, const ObjectCallback& cb){
+        ObjectSignal* bs = waiters[obid];
+        if(bs == NULL){
+            bs = new ObjectSignal();
+            waiters[obid] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(obid);
     }
 
+    /*! \brief Watches an Object in the cache.
+    
+    It is possible that the first version of the object is given twice to the
+    callback.
+    
+    \param obid The id of the Object to get.
+    \param cb The Callback to return the Object to.
+     */
+    boost::signals::connection ObjectCache::watchObject(uint32_t obid, const ObjectCallback& cb){
+        ObjectSignal* bs = watchers[obid];
+        if(bs == NULL){
+            bs = new ObjectSignal();
+            watchers[obid] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestObject(obid, cb);
+        return conn;
+    }
+    
     /*! \brief Set an Object Id as invalid and mark to be refetched.
     \param obid The id of the Object to invalidate.
     */
@@ -59,12 +84,16 @@ namespace TPProto {
     }
 
     /*! \brief Gets a set of all Object Ids.
-    \return A set of Object Ids.
-    */
-    std::set<uint32_t> ObjectCache::getObjectIds(){
-        return cache->getAllIds();
-    }
 
+    */
+    void  ObjectCache::requestObjectIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection  ObjectCache::watchObjectIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
+    }
+    
     GetIdSequence* ObjectCache::createGetIdSequenceFrame(){
         return protocol->getFrameFactory()->createGetObjectIdsList();
     }
@@ -91,4 +120,32 @@ namespace TPProto {
         }
     }
 
+    void ObjectCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Object> object(boost::dynamic_pointer_cast<Object>(item));
+        if(object){
+            ObjectSignal* bs = waiters[object->getId()];
+            if(bs != NULL){
+                (*bs)(object);
+                delete bs;
+            }
+            waiters.erase(object->getId());
+            bs = watchers[object->getId()];
+            if(bs != NULL){
+                (*bs)(object);
+            }
+        }
+    }
+    
+    void ObjectCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Object> object(boost::dynamic_pointer_cast<Object>(item));
+        if(object){
+            ObjectSignal* bs = waiters[object->getId()];
+            if(bs != NULL){
+                (*bs)(object);
+                delete bs;
+            }
+            waiters.erase(object->getId());
+        }
+    }
+    
 }

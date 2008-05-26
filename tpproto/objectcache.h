@@ -2,7 +2,7 @@
 #define TPPROTO_OBJECTCACHE_H
 /*  ObjectCache - Cache of Objects class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,13 +24,17 @@
   \brief Declares the ObjectCache class.
 */
 
-#include <set>
+#include <map>
+#include <boost/signal.hpp>
 
 #include "cache.h"
 
 namespace TPProto{
 
     class Object;
+    
+    typedef boost::signal<void (boost::shared_ptr<Object>)> ObjectSignal;
+    typedef ObjectSignal::slot_type ObjectCallback;
 
     /*! \brief A Cache that caches Objects.
     
@@ -40,16 +44,26 @@ namespace TPProto{
     ObjectCache();
     virtual ~ObjectCache();
 
-    Object* getObject(uint32_t obid);
+    void requestObject(uint32_t obid, const ObjectCallback &cb);
+    boost::signals::connection watchObject(uint32_t obid, const ObjectCallback &cb);
+    
     void invalidateObject(uint32_t obid);
     
-    std::set<uint32_t> getObjectIds();
+    void requestObjectIds(const IdSetCallback& cb);
+    boost::signals::connection watchObjectIds(const IdSetCallback& cb);
 
     virtual GetIdSequence* createGetIdSequenceFrame();
     virtual GetById* createGetByIdFrame();
     virtual uint32_t getIdFromFrame(Frame* frame);
     virtual uint64_t getModTimeFromFrame(Frame* frame);
 
+    virtual void newItem(boost::shared_ptr<Frame> item);
+    virtual void existingItem(boost::shared_ptr<Frame> item);
+
+        private:
+            std::map<uint32_t, ObjectSignal*> watchers;
+            std::map<uint32_t, ObjectSignal*> waiters;
+    
     };
 
 }
