@@ -41,8 +41,6 @@ namespace TPProto{
     virtual void getById(uint32_t id);
     virtual void markInvalid(uint32_t id);
 
-    virtual void getAllIds();
-
     virtual CacheMethod* clone();
     
         protected:
