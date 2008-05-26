@@ -1,6 +1,6 @@
 /*  CacheNoneMethod - Methods of caching Frames that doesn't class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@
 
 #include <list>
 #include <set>
+#include <boost/bind.hpp>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -55,57 +56,49 @@ namespace TPProto {
     void CacheNoneMethod::update(){
     }
 
-    Frame* CacheNoneMethod::getById(uint32_t id){
+    void CacheNoneMethod::getById(uint32_t id){
         GetById* gbi = cache->createGetByIdFrame();
         gbi->addId(id);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(gbi);
+        protocol->getFrameCodec()->sendFrame(gbi, boost::bind(&CacheNoneMethod::receiveItem, this, _1));
         delete gbi;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-
-        if(reply == NULL || reply->getType() == ft02_Fail){
-            //logger->error("The returned frame is failure or null");
-            delete reply;
-            return NULL;
-        }
-
-        return reply;
-
     }
 
     void CacheNoneMethod::markInvalid(uint32_t id){
     }
 
-    std::set<uint32_t> CacheNoneMethod::getAllIds(){
-        std::set<uint32_t> out;
+    void CacheNoneMethod::getIdList(){
+        
         GetIdSequence *frame = cache->createGetIdSequenceFrame();
         if(frame != NULL){
             frame->setCount(8737); // When this code is shifted out, this should be in a loop to get all the items
-            uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+            protocol->getFrameCodec()->sendFrame(frame, boost::bind(&CacheNoneMethod::receiveIdList, this, _1));
             
-            std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-            Frame * reply = NULL;
-            if(replies.size() >= 1){
-                reply = replies.front();
-            }
-            
-            if(reply != NULL && reply->getType() != ft02_Fail){
-                std::map<uint32_t, uint64_t> ids = static_cast<IdSequence*>(reply)->getIds();
-                for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
-                    out.insert(itcurr->first);
-                }
-            }else{
-                //logger->debug("Expecting idsequence frame, but got %d instead", reply->getType());
-            }
+           delete frame; 
         }
-        return out;
+        
     }
 
     CacheMethod* CacheNoneMethod::clone(){
         return new CacheNoneMethod(*this);
     }
 
+    void CacheNoneMethod::receiveItem(Frame* frame){
+        if(frame->getType() != ft02_Fail){
+            cache->newItem(boost::shared_ptr<Frame>(frame));
+        }else{
+            delete frame;
+        }
+    }
+    
+    void CacheNoneMethod::receiveIdList(Frame* frame){
+        std::set<uint32_t> out;
+        if(frame != NULL && frame->getType() != ft02_Fail){
+            std::map<uint32_t, uint64_t> ids = static_cast<IdSequence*>(frame)->getIds();
+            for(std::map<uint32_t, uint64_t>::iterator itcurr = ids.begin(); itcurr != ids.end(); ++itcurr){
+                out.insert(itcurr->first);
+            }
+        }
+        newIdList(out);
+    }
+    
 }

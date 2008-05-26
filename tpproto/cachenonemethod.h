@@ -2,7 +2,7 @@
 #define TPPROTO_CACHENONEMETHOD_H
 /*  CacheNoneMethod - Method of caching Frames that doesn't do any caching class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,12 +38,17 @@ namespace TPProto{
 
     virtual void update();
 
-    virtual Frame* getById(uint32_t id);
+    virtual void getById(uint32_t id);
     virtual void markInvalid(uint32_t id);
 
-    virtual std::set<uint32_t> getAllIds();
+    virtual void getAllIds();
 
     virtual CacheMethod* clone();
+    
+        protected:
+            void getIdList();
+            void receiveItem(Frame* frame);
+            void receiveIdList(Frame* frame);
 
     };
 
