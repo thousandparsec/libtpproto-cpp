@@ -1,6 +1,6 @@
 /*  CategoryCache - Cache of Categories class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -40,7 +40,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    CategoryCache::CategoryCache() : Cache(){
+    CategoryCache::CategoryCache() : Cache(), watchers(), waiters(){
     }
 
     /*! \brief Destructor.
@@ -48,69 +48,83 @@ namespace TPProto {
     CategoryCache::~CategoryCache(){
     }
 
-    /*! \brief Gets an Category from the cache.
-    \param catid The id of the Category to get.
-    \return The Category, or NULL.
-    */
-    Category*  CategoryCache::getCategory(uint32_t catid){
-        return static_cast<Category*>(cache->getById(catid));
+   
+    void CategoryCache::requestCategory(uint32_t catid, const CategoryCallback &cb){
+        CategorySignal* bs = waiters[catid];
+        if(bs == NULL){
+            bs = new CategorySignal();
+            waiters[catid] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(catid);
     }
-
-    /*! \brief Adds a Category to the server.
+    
+    boost::signals::connection CategoryCache::watchCategory(uint32_t catid, const CategoryCallback &cb){
+        CategorySignal *bs = watchers[catid];
+        if(bs == NULL){
+            bs = new CategorySignal();
+            watchers[catid] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestCategory(catid, cb);
+        return conn;
+    }
+    
+    /*c! \brief Adds a Category to the server.
     \param cat The Category to add.
     \return True if added successfully, false otherwise.
     */
-    bool CategoryCache::addCategory(Category* cat){
-        AddCategory* frame = protocol->getFrameFactory()->createAddCategory();
-        frame->setName(cat->getName());
-        frame->setDescription(cat->getDescription());
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                cache->update();
-                return true;
-            }
-            delete reply;
-        }
-        return false;
-    }
+//     bool CategoryCache::addCategory(Category* cat){
+//         AddCategory* frame = protocol->getFrameFactory()->createAddCategory();
+//         frame->setName(cat->getName());
+//         frame->setDescription(cat->getDescription());
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_OK){
+//                 
+//                 delete reply;
+//                 cache->update();
+//                 return true;
+//             }
+//             delete reply;
+//         }
+//         return false;
+//     }
 
-    /*! \brief Removes a category from the server.
+    /*c! \brief Removes a category from the server.
     
     Sends the RemoveCategory frame and receives the reply.
     \param catid The Category Id to remove.
     \return True if sucessful, false otherwise.
   */
-    bool CategoryCache::removeCategory(uint32_t catid){
-        RemoveCategory* frame = protocol->getFrameFactory()->createRemoveCategory();
-        frame->removeCategoryId(catid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft02_OK){
-            delete reply;
-            cache->markInvalid(catid);
-            return true;
-            
-        }
-        delete reply;
-        
-        return false;
-    }
+//     bool CategoryCache::removeCategory(uint32_t catid){
+//         RemoveCategory* frame = protocol->getFrameFactory()->createRemoveCategory();
+//         frame->removeCategoryId(catid);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         
+//         if(reply != NULL && reply->getType() == ft02_OK){
+//             delete reply;
+//             cache->markInvalid(catid);
+//             return true;
+//             
+//         }
+//         delete reply;
+//         
+//         return false;
+//     }
 
     /*! \brief Set an Category Id as invalid and mark to be refetched.
     \param catid The id of the Category to invalidate.
@@ -119,11 +133,12 @@ namespace TPProto {
         cache->markInvalid(catid);
     }
 
-    /*! \brief Gets a set of all Category Ids.
-    \return A set of Category Ids.
-    */
-    std::set<uint32_t> CategoryCache::getCategoryIds(){
-        return cache->getAllIds();
+    void CategoryCache::requestCategoryIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection CategoryCache::watchCategoryIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
     }
 
     GetIdSequence* CategoryCache::createGetIdSequenceFrame(){
@@ -152,4 +167,33 @@ namespace TPProto {
         }
     }
 
+    void CategoryCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Category> category(boost::dynamic_pointer_cast<Category>(item));
+        if(category){
+            CategorySignal* bs = waiters[category->getCategoryId()];
+            if(bs != NULL){
+                (*bs)(category);
+                delete bs;
+            }
+            waiters.erase(category->getCategoryId());
+            bs = watchers[category->getCategoryId()];
+            if(bs != NULL){
+                (*bs)(category);
+            }
+        }
+        
+    }
+    
+    void CategoryCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Category> category(boost::dynamic_pointer_cast<Category>(item));
+        if(category){
+            CategorySignal* bs = waiters[category->getCategoryId()];
+            if(bs != NULL){
+                (*bs)(category);
+                delete bs;
+            }
+            waiters.erase(category->getCategoryId());
+        }
+    }
+    
 }

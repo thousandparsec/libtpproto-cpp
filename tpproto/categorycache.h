@@ -2,7 +2,7 @@
 #define TPPROTO_CATEGORYCACHE_H
 /*  CategoryCache - Cache of Categories class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -24,13 +24,17 @@
   \brief Declares the CategoryCache class.
 */
 
-#include <set>
+#include <map>
+#include <boost/signal.hpp>
 
 #include "cache.h"
 
 namespace TPProto{
 
     class Category;
+    
+    typedef boost::signal<void (boost::shared_ptr<Category>)> CategorySignal;
+    typedef CategorySignal::slot_type CategoryCallback;
 
     /*! \brief A Cache that caches Categories.
     
@@ -40,18 +44,28 @@ namespace TPProto{
     CategoryCache();
     virtual ~CategoryCache();
 
-    Category* getCategory(uint32_t catid);
-    bool addCategory(Category* cat);
-    bool removeCategory(uint32_t catid);
+    void requestCategory(uint32_t catid, const CategoryCallback &cb);
+    boost::signals::connection watchCategory(uint32_t catid, const CategoryCallback &cb);
+    
+//     bool addCategory(Category* cat);
+//     bool removeCategory(uint32_t catid);
+    
     void invalidateCategory(uint32_t catid);
 
-    std::set<uint32_t> getCategoryIds();
+    void requestCategoryIds(const IdSetCallback& cb);
+    boost::signals::connection watchCategoryIds(const IdSetCallback& cb);
 
     virtual GetIdSequence* createGetIdSequenceFrame();
     virtual GetById* createGetByIdFrame();
     virtual uint32_t getIdFromFrame(Frame* frame);
     virtual uint64_t getModTimeFromFrame(Frame* frame);
 
+    virtual void newItem(boost::shared_ptr<Frame> item);
+    virtual void existingItem(boost::shared_ptr<Frame> item);
+
+        private:
+            std::map<uint32_t, CategorySignal*> watchers;
+            std::map<uint32_t, CategorySignal*> waiters;
     };
 
 }

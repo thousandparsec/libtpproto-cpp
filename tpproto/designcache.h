@@ -24,13 +24,17 @@
   \brief Declares the DesignCache class.
 */
 
-#include <set>
+#include <map>
+#include <boost/signal.hpp>
 
 #include "cache.h"
 
 namespace TPProto{
 
     class Design;
+    
+    typedef boost::signal<void (boost::shared_ptr<Design>)> DesignSignal;
+    typedef DesignSignal::slot_type DesignCallback;
 
     /*! \brief A Cache that caches Designs.
     
@@ -40,19 +44,29 @@ namespace TPProto{
     DesignCache();
     virtual ~DesignCache();
 
-    Design* getDesign(uint32_t designid);
+    void requestDesign(uint32_t designid, const DesignCallback &cb);
+    boost::signals::connection watchDesign(uint32_t designid, const DesignCallback &cb);
+    
     bool addDesign(Design* design);
     bool modifyDesign(Design* design);
     bool removeDesign(uint32_t designid);
     void invalidateDesign(uint32_t designid);
 
-    std::set<uint32_t> getDesignIds();
+    void requestDesignIds(const IdSetCallback& cb);
+    boost::signals::connection watchDesignIds(const IdSetCallback& cb);
 
     virtual GetIdSequence* createGetIdSequenceFrame();
     virtual GetById* createGetByIdFrame();
     virtual uint32_t getIdFromFrame(Frame* frame);
     virtual uint64_t getModTimeFromFrame(Frame* frame);
 
+    virtual void newItem(boost::shared_ptr<Frame> item);
+    virtual void existingItem(boost::shared_ptr<Frame> item);
+
+        private:
+            std::map<uint32_t, DesignSignal*> watchers;
+            std::map<uint32_t, DesignSignal*> waiters;
+    
     };
 
 }

@@ -1,6 +1,6 @@
 /*  DesignCache - Cache of Designs class
  *
- *  Copyright (C) 2006  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -41,7 +41,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    DesignCache::DesignCache() : Cache(){
+    DesignCache::DesignCache() : Cache(), watchers(), waiters(){
     }
 
     /*! \brief Destructor.
@@ -49,12 +49,25 @@ namespace TPProto {
     DesignCache::~DesignCache(){
     }
 
-    /*! \brief Gets an Design from the cache.
-    \param designid The id of the Design to get.
-    \return The Design, or NULL.
-    */
-    Design*  DesignCache::getDesign(uint32_t designid){
-        return static_cast<Design*>(cache->getById(designid));
+    void DesignCache::requestDesign(uint32_t designid, const DesignCallback &cb){
+        DesignSignal* bs = waiters[designid];
+        if(bs == NULL){
+            bs = new DesignSignal();
+            waiters[designid] = bs;
+        }
+        bs->connect(cb);
+        cache->getById(designid);
+    }
+    
+    boost::signals::connection DesignCache::watchDesign(uint32_t designid, const DesignCallback &cb){
+        DesignSignal *bs = watchers[designid];
+        if(bs == NULL){
+            bs = new DesignSignal();
+            watchers[designid] = bs;
+        }
+        boost::signals::connection conn = bs->connect(cb);
+        requestDesign(designid, cb);
+        return conn;
     }
 
     /*! \brief Adds a Design to the server.
@@ -145,11 +158,12 @@ namespace TPProto {
         cache->markInvalid(designid);
     }
 
-    /*! \brief Gets a set of all Design Ids.
-    \return A set of Design Ids.
-    */
-    std::set<uint32_t> DesignCache::getDesignIds(){
-        return cache->getAllIds();
+    void DesignCache::requestDesignIds(const IdSetCallback& cb){
+        cache->getAllIds(cb);
+    }
+    
+    boost::signals::connection DesignCache::watchDesignIds(const IdSetCallback& cb){
+        return cache->watchAllIds(cb);
     }
 
     GetIdSequence* DesignCache::createGetIdSequenceFrame(){
@@ -178,4 +192,32 @@ namespace TPProto {
         }
     }
 
+    void DesignCache::newItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Design> design(boost::dynamic_pointer_cast<Design>(item));
+        if(design){
+            DesignSignal* bs = waiters[design->getDesignId()];
+            if(bs != NULL){
+                (*bs)(design);
+                delete bs;
+            }
+            waiters.erase(design->getDesignId());
+            bs = watchers[design->getDesignId()];
+            if(bs != NULL){
+                (*bs)(design);
+            }
+        }
+    }
+    
+    void DesignCache::existingItem(boost::shared_ptr<Frame> item){
+        boost::shared_ptr<Design> design(boost::dynamic_pointer_cast<Design>(item));
+        if(design){
+            DesignSignal* bs = waiters[design->getDesignId()];
+            if(bs != NULL){
+                (*bs)(design);
+                delete bs;
+            }
+            waiters.erase(design->getDesignId());
+        }
+    }
+    
 }
