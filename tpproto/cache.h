@@ -25,7 +25,9 @@
 */
 
 #include <stdint.h>
+#include <set>
 #include <boost/shared_ptr.hpp>
+#include <boost/signal.hpp>
 
 namespace TPProto{
 
@@ -34,6 +36,8 @@ namespace TPProto{
     class GetById;
     class CacheMethod;
     class ProtocolLayer;
+    
+    typedef boost::signal<void (std::set<uint32_t>)>::slot_type IdSetCallback;
 
     /*! \brief Interface to a cache.
     Most of the work is done by CacheMethod, so this class is mostly just an interface, with subclasses
