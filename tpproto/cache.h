@@ -48,7 +48,7 @@ namespace TPProto{
     Cache();
     virtual ~Cache();
 
-    void update();
+    virtual void update();
     void setCacheMethod(CacheMethod* cm);
     void setProtocolLayer(ProtocolLayer* pl);
 

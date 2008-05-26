@@ -44,6 +44,8 @@ namespace TPProto{
     BoardCache();
     virtual ~BoardCache();
 
+    void update();
+    
     void requestBoard(uint32_t bid, const BoardCallback &cb);
     boost::signals::connection watchBoard(uint32_t bid, const BoardCallback &cb);
     void invalidateBoard(uint32_t bid);
@@ -61,8 +63,11 @@ namespace TPProto{
     virtual void existingItem(boost::shared_ptr<Frame> item);
 
         private:
+            void receiveMyBoard(Frame* frame);
             std::map<uint32_t, BoardSignal*> watchers;
             std::map<uint32_t, BoardSignal*> waiters;
+            uint32_t myboardid;
+            BoardSignal myboardwaiters;
     };
 
 }

@@ -18,6 +18,8 @@
  *
  */
 
+#include <boost/bind.hpp>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -28,6 +30,7 @@
 #include "getboardidslist.h"
 #include "protocollayer.h"
 #include "framefactory.h"
+#include "framecodec.h"
 
 #include "boardcache.h"
 
@@ -35,7 +38,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    BoardCache::BoardCache() : Cache(){
+    BoardCache::BoardCache() : Cache(), watchers(), waiters(), myboardid(-1), myboardwaiters(){
     }
 
     /*! \brief Destructor.
@@ -43,11 +46,30 @@ namespace TPProto {
     BoardCache::~BoardCache(){
     }
 
+    /*! \brief Updates the cache.
+    In BoardCache, we also see what our board's Id is, so we can direct people to it.
+    */
+    void BoardCache::update(){
+        if(myboardid == -1){
+            GetBoard* gb = protocol->getFrameFactory()->createGetBoard();
+            gb->addId(0);
+            protocol->getFrameCodec()->sendFrame(gb, boost::bind(&BoardCache::receiveMyBoard, this, _1));
+        }
+        Cache::update();
+    }
+    
     /*! \brief Gets an Board from the cache.
     \param bid The id of the Board to get.
     \param cb The callback to call when the Board is available.
     */
     void BoardCache::requestBoard(uint32_t bid, const BoardCallback &cb){
+        if(bid == 0){
+            if(myboardid == -1){
+                myboardwaiters.connect(cb);
+                return;
+            }
+            bid = myboardid;
+        }
         BoardSignal* bs = waiters[bid];
         if(bs == NULL){
             bs = new BoardSignal();
@@ -61,6 +83,8 @@ namespace TPProto {
     
     The first time the board is change (or arrives for the first time) it is
     possible that two copies of the same board are delievered.
+    
+    Also, do not watch the personal board using id 0, as this will fail (badly).
     
     \param bid The id of the Board to watch.
     \param cb The callback to call when the Board changes.
@@ -147,6 +171,17 @@ namespace TPProto {
                 delete bs;
             }
             waiters.erase(board->getId());
+        }
+    }
+    
+    void BoardCache::receiveMyBoard(Frame* frame){
+        Board* board = dynamic_cast<Board*>(frame);
+        if(board){
+            myboardid = board->getId();
+            myboardwaiters(boost::shared_ptr<Board>(board));
+            myboardwaiters.disconnect_all_slots();
+        }else{
+            delete frame;
         }
     }
     
