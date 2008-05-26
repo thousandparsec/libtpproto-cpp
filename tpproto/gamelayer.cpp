@@ -64,8 +64,6 @@
 #include "connect.h"
 #include "createaccount.h"
 #include "login.h"
-#include "object.h"
-#include "board.h"
 #include "getmessage.h"
 #include "message.h"
 #include "removemessage.h"
@@ -79,16 +77,7 @@
 #include "featuresframe.h"
 #include "getfeatures.h"
 #include "redirect.h"
-#include "resourcedesc.h"
-#include "player.h"
-#include "category.h"
-#include "design.h"
-#include "component.h"
-#include "property.h"
 #include "probeorder.h"
-#include "adddesign.h"
-#include "modifydesign.h"
-#include "removedesign.h"
 #include "finished.h"
 
 #include "gamelayer.h"
@@ -445,32 +434,12 @@ namespace TPProto {
     }
 
 
-    /*! \brief Gets objectids from the server.
+    /*! \brief Gets the ObjectCache.
     
-    Gets the complete list of Object ids.
-    \return The set of object id.
+    \return The ObjectCache.
     */
-    std::set<uint32_t> GameLayer::getObjectIds(){
-        return objectcache->getObjectIds();
-    }
-
-    /*! \brief Gets an object from the server.
-    
-    Gets an object from the server and returns the Object.
-    \param obid The Object id of the object to get.
-    \return The Object.
-    */
-    Object* GameLayer::getObject(uint32_t obid){
-        return objectcache->getObject(obid);
-    }
-
-    /*! \brief Gets the Universe Object.
-
-    A handy method to get the Universe Object.
-    \return The Object of the Universe.
-    */
-    Object* GameLayer::getUniverse(){
-        return getObject(0);
+    ObjectCache* GameLayer::getObjectCache() const{
+        return objectcache;
     }
 
     /*! \brief Gets Orders from the server.
@@ -651,32 +620,12 @@ namespace TPProto {
         return false;
     }
 
-    /*! \brief Gets boardids from the server.
+    /*! \brief Gets the BoardCache.
         
-        Gets the complete list of Board ids.
-    \return The set of board id.
+    \return The BoardCache.
     */
-    std::set<uint32_t> GameLayer::getBoardIds(){
-        return boardcache->getBoardIds();
-    }
-
-    /*! \brief Gets a Board from the server.
-    
-    Sends the GetBoard Frame and gets the Board back from the server.
-    \param boardid The Board id for the board to get from the server.
-    \return The Board, or NULL if error.
-    */
-    Board* GameLayer::getBoard(uint32_t boardid){
-        return boardcache->getBoard(boardid);
-    }
-
-    /*! \brief Gets the logged in player's personal Board.
-    
-    A little easier and quicker than FrameCodec::getBoards.
-    \return The Board object for the Player's Board.
-    */
-    Board* GameLayer::getPersonalBoard(){
-        return getBoard(0);
+    BoardCache* GameLayer::getBoardCache() const{
+        return boardcache;
     }
 
     /*! \brief Gets Messages from the server.
@@ -802,167 +751,52 @@ namespace TPProto {
     }
 
 
-    /*! \brief Gets a Resource Description from the server.
+    /*! \brief Gets the ResourceCache.
     
-    Gets and returns a Resource Description from the server..
-    \param restype The type of resource to get the description for.
-    \return The ResourceDescription..
+    \return The ResourceCache.
     */
-    ResourceDescription* GameLayer::getResourceDescription(uint32_t restype){
-        return resourcecache->getResourceDescription(restype);
+    ResourceCache* GameLayer::getResourceCache() const{
+        return resourcecache;
     }
 
-    /*! \brief Gets a player from the server.
+    /*! \brief Gets the PlayerCache.
     
-    Gets a player from the server and returns the Player.
-    \param playerid The player id of the player to get.
-    \return The Player.
+    \return The PlayerCache.
     */
-    Player* GameLayer::getPlayer(uint32_t playerid){
-        return playercache->getPlayer(playerid);
-    }
-
-    /*! \brief Gets Category ids from the server.
-    
-    Gets the complete list of Category ids.
-    \return The set of category id.
-    */
-    std::set<uint32_t> GameLayer::getCategoryIds(){
-        return categorycache->getCategoryIds();
-    }
-
-    /*! \brief Gets a category from the server.
-    
-    Gets a category from the server and returns it.
-    \param catid The Category id of the category to get.
-    \return The Category.
-    */
-    Category* GameLayer::getCategory(uint32_t catid){
-        return categorycache->getCategory(catid);
-    }
-
-    /*! \brief Creates a Category object.
-    \return A new category object.
-    */
-    Category* GameLayer::createCategory(){
-        return protocol->getFrameFactory()->createCategory();
-    }
-
-    /*! \brief Adds a Category to the server.
-    
-    Sends the Category Frame to the server.
-    \param cat The Category to add.
-    \return True if successful, false otherwise.
-    */
-    bool GameLayer::addCategory(Category* cat){
-        return categorycache->addCategory(cat);
-    }
-
-    /*! \brief Removes a category from the server.
-    
-    Sends the RemoveCategory frame and receives the reply.
-    \param catid The Category Id to remove.
-    \return True if sucessful, false otherwise.
-  */
-    bool GameLayer::removeCategory(uint32_t catid){
-        return categorycache->removeCategory(catid);
+    PlayerCache* GameLayer::getPlayerCache() const{
+        return playercache;
     }
     
-
-    /*! \brief Gets designids from the server.
+    /*! \brief Gets the CategoryCache.
     
-    Gets the complete list of Design ids.
-    \return The set of design id.
+    \return The CategoryCache.
     */
-    std::set<uint32_t> GameLayer::getDesignIds(){
-        return designcache->getDesignIds();
+    CategoryCache* GameLayer::getCategoryCache() const{
+        return categorycache;
     }
 
-    /*! \brief Gets a design from the server.
+    /*! \brief Gets the DesignCache.
     
-    Gets a design from the server and returns the Design.
-    \param designid The Design id of the design to get.
-    \return The Design.
+    \return The DesignCache.
     */
-    Design* GameLayer::getDesign(uint32_t designid){
-        return designcache->getDesign(designid);
+    DesignCache* GameLayer::getDesignCache() const{
+        return designcache;
     }
 
-    /*! \brief Creates a Design object.
-    \return A new design object.
+    /*! \brief Gets the ComponentCache.
+    
+    \return The ComponentCache.
     */
-    Design* GameLayer::createDesign(){
-        return protocol->getFrameFactory()->createDesign();
+    ComponentCache* GameLayer::getComponentCache() const{
+        return componentcache;
     }
 
-    /*! \brief Adds a Design to the server.
+    /*! \brief Gets the PropertyCache.
     
-    Sends the Design Frame to the server.
-    \param d The Design to add.
-    \return True if successful, false otherwise.
+    \return The PropertyCache.
     */
-    bool GameLayer::addDesign(Design* d){
-        return designcache->addDesign(d);
-    }
-
-    /*! \brief Modifies a Design on the server.
-    
-    Sends a ModifyDesign Frame to the server.
-    \param d The Design to modify.
-    \return True if successful, false otherwise.
-    */
-    bool GameLayer::modifyDesign(Design* d){
-        return designcache->modifyDesign(d);
-    }
-    
-    /*! \brief Removes a design from the server.
-    
-    Sends the RemoveDesign frame and receives the reply.
-    \param designid The Design Id to remove.
-    \return True if sucessful, false otherwise.
-    */
-    bool GameLayer::removeDesign(uint32_t designid){
-        return designcache->removeDesign(designid);
-    }
-
-
-    /*! \brief Gets component ids from the server.
-    
-    Gets the complete list of Component ids.
-    \return The set of component id.
-    */
-    std::set<uint32_t> GameLayer::getComponentIds(){
-        return componentcache->getComponentIds();
-    }
-
-    /*! \brief Gets a Component from the server.
-    
-    Gets a component from the server and returns the Component.
-    \param compid The Component id of the component to get.
-    \return The Component.
-    */
-    Component* GameLayer::getComponent(uint32_t compid){
-        return componentcache->getComponent(compid);
-    }
-
-
-    /*! \brief Gets propertyids from the server.
-    
-    Gets the complete list of Property ids.
-    \return The set of property id.
-    */
-    std::set<uint32_t> GameLayer::getPropertyIds(){
-        return propertycache->getPropertyIds();
-    }
-
-    /*! \brief Gets a Property from the server.
-    
-    Gets a property from the server and returns the Property.
-    \param propid The property id of the property to get.
-    \return The Property.
-    */
-    Property* GameLayer::getProperty(uint32_t propid){
-        return propertycache->getProperty(propid);
+    PropertyCache* GameLayer::getPropertyCache() const{
+        return propertycache;
     }
 
 

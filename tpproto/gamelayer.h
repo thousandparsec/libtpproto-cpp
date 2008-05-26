@@ -35,16 +35,8 @@ namespace TPProto{
     class Logger;
     class ProtocolLayer;
     class TPSocket;
-    class Object;
     class Order;
-    class Board;
     class Message;
-    class ResourceDescription;
-    class Player;
-    class Category;
-    class Design;
-    class Component;
-    class Property;
     class Features;
     class GameStatusListener;
     class GameLayerAsyncFrameListener;
@@ -106,9 +98,7 @@ namespace TPProto{
     
 
         //Objects
-        std::set<uint32_t> getObjectIds();
-        Object* getObject(uint32_t obid);
-        Object* getUniverse();
+       ObjectCache* getObjectCache() const;
 
         //Orders
         std::list<Order*> getOrders(uint32_t obid, uint32_t num);
@@ -120,9 +110,7 @@ namespace TPProto{
         bool removeOrder(uint32_t obid, uint32_t slot);
 
         //Boards and Messages
-        std::set<uint32_t> getBoardIds();
-        Board* getBoard(uint32_t boardid);
-        Board* getPersonalBoard();
+        BoardCache* getBoardCache() const;
         std::list<Message*> getMessages(uint32_t boardid, uint32_t num);
         Message* createMessage();
         Message* getMessage(uint32_t boardid, uint32_t slot);
@@ -130,27 +118,16 @@ namespace TPProto{
         bool removeMessage(uint32_t boardid, uint32_t slot);
 
         //Resource types
-        ResourceDescription* getResourceDescription(uint32_t restype);
+        ResourceCache* getResourceCache() const;
         
         //Players
-        Player* getPlayer(uint32_t playerid);
+        PlayerCache* getPlayerCache() const;
         
         //Designs
-        std::set<uint32_t> getCategoryIds();
-        Category* getCategory(uint32_t catid);
-        Category* createCategory();
-        bool addCategory(Category* cat);
-        bool removeCategory(uint32_t catid);
-        std::set<uint32_t> getDesignIds();
-        Design* getDesign(uint32_t designid);
-        Design* createDesign();
-        bool addDesign(Design* d);
-        bool modifyDesign(Design* d);
-        bool removeDesign(uint32_t designid);
-        std::set<uint32_t> getComponentIds();
-        Component* getComponent(uint32_t compid);
-        std::set<uint32_t> getPropertyIds();
-        Property* getProperty(uint32_t propid);
+        CategoryCache* getCategoryCache() const;
+        DesignCache* getDesignCache() const;
+        ComponentCache* getComponentCache() const;
+        PropertyCache* getPropertyCache() const;
         
         //Time
         void getTimeRemaining();
