@@ -31,13 +31,13 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    CacheMethod::CacheMethod() : cache(NULL), protocol(NULL){
+    CacheMethod::CacheMethod() : cache(NULL), protocol(NULL), waiters(), watchers(){
     }
 
     /*! \brief Copy Constructor, sets all fields to NULL.
         Subclasses should call this, and initialise any fields it might have.
     */
-    CacheMethod::CacheMethod(const CacheMethod& rhs) : cache(NULL), protocol(NULL){
+    CacheMethod::CacheMethod(const CacheMethod& rhs) : cache(NULL), protocol(NULL), waiters(), watchers(){
     }
 
     /*! \brief Destructor, virtual
@@ -60,5 +60,30 @@ namespace TPProto {
         protocol = pl;
     }
 
+    /*! \brief Gets all the ids
+    \param cb The callback to send the set of ids to..
+     */
+    void CacheMethod::getAllIds(const IdSetCallback& cb){
+        waiters.connect(cb);
+        getIdList();
+    }
+    
+    boost::signals::connection CacheMethod::watchAllIds(const IdSetCallback& cb){
+        waiters.connect(cb);
+        boost::signals::connection conn = watchers.connect(cb);
+        getIdList();
+        return conn;
+    }
+    
+    void CacheMethod::newIdList(std::set<uint32_t> list){
+        waiters(list);
+        waiters.disconnect_all_slots();
+        watchers(list);
+    }
+    
+    void CacheMethod::existingList(std::set<uint32_t> list){
+        waiters(list);
+        waiters.disconnect_all_slots();
+    }
 }
 

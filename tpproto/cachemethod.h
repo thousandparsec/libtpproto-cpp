@@ -26,12 +26,16 @@
 
 #include <map>
 #include <set>
+#include <boost/signal.hpp>
 
 namespace TPProto{
 
     class Frame;
     class Cache;
     class ProtocolLayer;
+    
+    typedef boost::signal<void (std::set<uint32_t>)> IdSetSignal;
+    typedef IdSetSignal::slot_type IdSetCallback;
 
     /*! \brief Base class for a method of caching frames.
     Works in partnership with Cache to cache frames. CacheMethod determains how to cache the
@@ -53,10 +57,12 @@ namespace TPProto{
     void setProtocolLayer(ProtocolLayer* pl);
 
     /*! \brief Gets a item from the cache by Id.
+    
+    Returned by call to Cache::newItem or Cache::existingItem
+    
     \param id The Id of the item to get.
-    \return The frame of the item.
     */
-    virtual Frame* getById(uint32_t id) = 0;
+    virtual void getById(uint32_t id) = 0;
 
     /*! \brief Marks an item as invalid.
     If a method wishes to it can refetch it from the server. The pointer to the
@@ -66,9 +72,11 @@ namespace TPProto{
     virtual void markInvalid(uint32_t id) = 0;
 
     /*! \brief Gets all the ids
-    \return A set of all the ids.
+    \param cb The callback to send the set of ids to..
     */
-    virtual std::set<uint32_t> getAllIds() = 0;
+    void getAllIds(const IdSetCallback& cb);
+    
+    boost::signals::connection watchAllIds(const IdSetCallback& cb);
 
     /*! \brief Returns an empty clone of this CacheMethod.
     body should be return new CacheMethodNameCopyConstructor(this);
@@ -76,6 +84,10 @@ namespace TPProto{
     virtual CacheMethod* clone() = 0;
 
     protected:
+        virtual void getIdList() = 0;
+        void newIdList(std::set<uint32_t> list);
+        void existingList(std::set<uint32_t> list);
+        
     /*! \brief The Cache this CacheMethod will use.
     */
     Cache* cache;
@@ -83,6 +95,9 @@ namespace TPProto{
     /*! \brief The ProtocolLayer that will be used.
     */
     ProtocolLayer* protocol;
+    
+    IdSetSignal waiters;
+    IdSetSignal watchers;
 
     };
 
