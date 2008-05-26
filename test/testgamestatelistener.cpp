@@ -52,7 +52,7 @@ void TestGameStateListener::loggedIn(bool state){
     std::cout << "GAMESTATUS: Logged in" << std::endl;
     if(state){
         //nettest->getUniverse();
-        nettest->allDone();
+        nettest->getPlayer();
     }else{
         nettest->stopTest();
     }

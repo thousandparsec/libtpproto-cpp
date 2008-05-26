@@ -26,12 +26,17 @@
 #include <tpproto/board.h>
 #include <tpproto/message.h>
 #include <tpproto/order.h>
+#include <tpproto/player.h>
 #include <tpproto/timeparameter.h>
 #include <tpproto/logger.h>
 #include <tpproto/gamelayer.h>
 #include <tpproto/simpleeventloop.h>
 
-#include "downloadprintvisitor.h"
+#include <tpproto/objectcache.h>
+#include <tpproto/boardcache.h>
+#include <tpproto/playercache.h>
+
+//#include "downloadprintvisitor.h"
 #include "testgamestatelistener.h"
 
 #include "nettest.h"
@@ -181,6 +186,83 @@ void NetTest::login(){
             stopTest();
         }
 }
+
+void NetTest::getUniverse(){
+    status = 4;
+    mygame->getObjectCache()->requestObject(0, boost::bind(&NetTest::receiveUniverse, this, _1));
+}
+
+void NetTest::getAllObjectIds(){
+    status = 5;
+    mygame->getObjectCache()->requestObjectIds(boost::bind(&NetTest::receiveAllObjectIds, this, _1));
+}
+
+void NetTest::getBoard(){
+    status = 6;
+    mygame->getBoardCache()->requestBoard(0, boost::bind(&NetTest::receiveBoard, this, _1));
+}
+
+void NetTest::getPlayer(){
+    status = 7;
+    mygame->getPlayerCache()->requestPlayer(1, boost::bind(&NetTest::receivePlayer, this, _1));
+}
+
+
+void NetTest::receiveUniverse(boost::shared_ptr<Object> universe){
+    if(universe){
+        std::cout << "Got the Universe object ok, status: " << mygame->getStatus() << std::endl;
+        std::cout << "ID: " << universe->getId() << std::endl;
+        std::cout << "name: " << universe->getName() << std::endl;
+        std::cout << "type: " << universe->getObjectType() << std::endl;
+        std::cout << "size: " << universe->getSize() << std::endl;
+        //std::cout << "age: " << universe->getAge() << std::endl;
+
+        std::set<unsigned int> obset = universe->getContainedObjectIds();
+        std::cout << "Num contained: " << obset.size() << std::endl << "Contains: ";
+        for(std::set<unsigned int>::iterator itcurr = obset.begin(); itcurr != obset.end(); ++itcurr){
+            std::cout << (*itcurr) << " ";
+        }
+        std::cout << std::endl;
+        
+        getAllObjectIds();
+    }else{
+        std::cerr << "Did not get the universe, status: " << mygame->getStatus() << std::endl;
+        stopTest();
+    }
+}
+
+void NetTest::receiveAllObjectIds(std::set<uint32_t> ids){
+    std::cout << "Received All Object Ids" << std::endl;
+    
+    getBoard();
+}
+
+void NetTest::receiveBoard(boost::shared_ptr<Board> board){
+    if(board){
+        std::cout << "Personal board, id: " << board->getId() << std::endl << "name: " << board->getName()
+                << std::endl << "Desc: " << board->getDescription() << std::endl << "Num messages: "
+                << board->numMessages() << std::endl;
+        getPlayer();
+    }else{
+        std::cerr << "Did not get Board, status: " << mygame->getStatus() << std::endl;
+        stopTest();
+    }
+}
+
+void NetTest::receivePlayer(boost::shared_ptr<Player> player){
+    if(player){
+        std::cout << "Got player" << std::endl;
+        std::cout << "Playerid: " << player->getPlayerId() << std::endl;
+        std::cout << "Name: " << player->getPlayerName() << std::endl;
+        std::cout << "Race: " << player->getRaceName() << std::endl;
+        allDone();
+    }else{
+        std::cerr << "Did not get Player, status: " << mygame->getStatus() << std::endl;
+        stopTest();
+    }
+    
+}
+
 
 // 	Object* universe = myfc->getUniverse();
 // 	if(universe != NULL){

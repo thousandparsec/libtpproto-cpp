@@ -6,7 +6,7 @@ EXTRA_DIST = nettest.sh
 INCLUDES = -I$(top_srcdir)/src
 
 
-nettest_SOURCES = nettest.cpp downloadprintvisitor.h downloadprintvisitor.cpp \
+nettest_SOURCES = nettest.cpp \
     testgamestatelistener.h testgamestatelistener.cpp nettest.h
 
 nettest_LDADD= \

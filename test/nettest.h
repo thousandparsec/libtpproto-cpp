@@ -21,10 +21,16 @@
  */
 
 #include <string>
+#include <set>
+#include <stdint.h>
+#include <boost/shared_ptr.hpp>
 
 namespace TPProto{
     class SimpleEventLoop;
     class GameLayer;
+    class Object;
+    class Board;
+    class Player;
 }
 
 class NetTest{
@@ -42,6 +48,10 @@ class NetTest{
         //Parts of the test
         void connect();
         void login();
+        void getUniverse();
+        void getAllObjectIds();
+        void getBoard();
+        void getPlayer();
         
         void allDone();
         
@@ -49,6 +59,11 @@ class NetTest{
         
     
     private:
+        void receiveUniverse(boost::shared_ptr<TPProto::Object> universe);
+        void receiveAllObjectIds(std::set<uint32_t> ids);
+        void receiveBoard(boost::shared_ptr<TPProto::Board> board);
+        void receivePlayer(boost::shared_ptr<TPProto::Player> player);
+        
         TPProto::GameLayer* mygame;
         TPProto::SimpleEventLoop* myel;
         int status;
