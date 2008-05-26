@@ -103,6 +103,8 @@ int main(int argc, char** argv){
       }
       nettest.doTest();
       
+      std::cout << "Status is: " << nettest.getStatus() << std::endl;
+      
       return nettest.getStatus();
   }
 }
@@ -185,6 +187,10 @@ void NetTest::login(){
             std::cout << "Could not start login: " << mygame->getStatus() << std::endl;
             stopTest();
         }
+}
+
+void NetTest::loggedIn(){
+    mygame->updateCaches();
 }
 
 void NetTest::getUniverse(){

@@ -56,6 +56,7 @@ class NetTest{
         void allDone();
         
         int getStatus();
+        void loggedIn();
         
     
     private:

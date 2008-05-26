@@ -51,8 +51,9 @@ void TestGameStateListener::disconnected(){
 void TestGameStateListener::loggedIn(bool state){
     std::cout << "GAMESTATUS: Logged in" << std::endl;
     if(state){
+        nettest->loggedIn();
         //nettest->getUniverse();
-        nettest->getPlayer();
+        nettest->getBoard();
     }else{
         nettest->stopTest();
     }
