@@ -43,6 +43,8 @@ namespace TPProto{
     public:
     PlayerCache();
     virtual ~PlayerCache();
+    
+    void update();
 
     void requestPlayer(uint32_t pid, const PlayerCallback &cb);
     boost::signals::connection watchPlayer(uint32_t pid, const PlayerCallback &cb);
@@ -59,8 +61,11 @@ namespace TPProto{
     virtual void existingItem(boost::shared_ptr<Frame> item);
 
         private:
+            void receiveMyPlayer(Frame* frame);
             std::map<uint32_t, PlayerSignal*> watchers;
             std::map<uint32_t, PlayerSignal*> waiters;
+            uint32_t myplayerid;
+            PlayerSignal myplayerwaiters;
     };
 
 }

@@ -18,6 +18,8 @@
  *
  */
 
+#include <boost/bind.hpp>
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -27,6 +29,7 @@
 #include "getplayer.h"
 #include "protocollayer.h"
 #include "framefactory.h"
+#include "framecodec.h"
 
 #include "playercache.h"
 
@@ -34,7 +37,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    PlayerCache::PlayerCache() : Cache(), watchers(), waiters(){
+    PlayerCache::PlayerCache() : Cache(), watchers(), waiters(), myplayerid(-1), myplayerwaiters(){
     }
 
     /*! \brief Destructor.
@@ -42,8 +45,24 @@ namespace TPProto {
     PlayerCache::~PlayerCache(){
     }
 
+    void PlayerCache::update(){
+        if(myplayerid == -1){
+            GetPlayer* gp = protocol->getFrameFactory()->createGetPlayer();
+            gp->addId(0);
+            protocol->getFrameCodec()->sendFrame(gp, boost::bind(&PlayerCache::receiveMyPlayer, this, _1));
+        }
+        Cache::update();
+    }
+    
     void PlayerCache::requestPlayer(uint32_t pid, const PlayerCallback &cb){
         if(pid != 0xffffffff){
+            if(pid == 0){
+                if(myplayerid == -1){
+                    myplayerwaiters.connect(cb);
+                    return;
+                }
+                pid = myplayerid;
+            }
             PlayerSignal* bs = waiters[pid];
             if(bs == NULL){
                 bs = new PlayerSignal();
@@ -127,6 +146,17 @@ namespace TPProto {
                 delete bs;
             }
             waiters.erase(player->getPlayerId());
+        }
+    }
+    
+    void PlayerCache::receiveMyPlayer(Frame* frame){
+        Player* player = dynamic_cast<Player*>(frame);
+        if(player){
+            myplayerid = player->getPlayerId();
+            myplayerwaiters(boost::shared_ptr<Player>(player));
+            myplayerwaiters.disconnect_all_slots();
+        }else{
+            delete frame;
         }
     }
     
