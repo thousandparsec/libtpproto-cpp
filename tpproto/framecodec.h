@@ -2,7 +2,7 @@
 #define TPPROTO_FRAMECODEC_H
 /*  FrameCodec - changes network protocol to frame objects
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -69,16 +69,19 @@ namespace TPProto{
     int getStatus();
     
     //send and receive frames
-    uint32_t sendFrame(Frame * f);
-    std::list<Frame*> recvFrames(uint32_t seqnum);
+    //uint32_t sendFrame(Frame * f);
+    //std::list<Frame*> recvFrames(uint32_t seqnum);
     FrameConnection sendFrame(Frame * f, const FrameSignal::slot_type& callback);
     
     //Connection related methods
     void readyToRead();
     void readyToSend();
+    
+    //receive built frame
+    void receivedFrame(Frame* frame);
 
   private:
-    Frame* recvOneFrame();
+    void recvOneFrame();
     void clearIncomingFrames();
 
     AsyncFrameListener* asynclistener;
@@ -90,6 +93,7 @@ namespace TPProto{
 
     std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > > incomingframes;
     std::map<uint32_t, FrameSignal* > framesignals;
+    std::map<uint32_t, uint32_t> expectedframes;
 
   };
 

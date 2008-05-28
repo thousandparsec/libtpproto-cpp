@@ -42,6 +42,7 @@ namespace TPProto{
     class GameLayerAsyncFrameListener;
     class CacheMethod;
     class ObjectCache;
+    class OrderDescCache;
     class PlayerCache;
     class BoardCache;
     class ResourceCache;
@@ -99,6 +100,9 @@ namespace TPProto{
 
         //Objects
        ObjectCache* getObjectCache() const;
+       
+       //OrderDescription
+       OrderDescCache* getOrderDescCache() const;
 
         //Orders
         std::list<Order*> getOrders(uint32_t obid, uint32_t num);
@@ -140,6 +144,7 @@ namespace TPProto{
         void loginCallback(Frame* frame);
         void accountCreateCallback(Frame* frame);
         void timeRemainingCallback(Frame* frame);
+        void finishedTurnCallback(Frame* frame);
         
         ProtocolLayer* protocol;
         EventLoop* eventloop;
@@ -154,6 +159,7 @@ namespace TPProto{
         GameLayerAsyncFrameListener* asyncframes;
 
         ObjectCache* objectcache;
+        OrderDescCache* orderdesccache;
         PlayerCache* playercache;
         BoardCache* boardcache;
         ResourceCache* resourcecache;

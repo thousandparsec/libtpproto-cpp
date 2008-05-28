@@ -2,7 +2,7 @@
 #define TPPROTO_FRAMEBUILDER_H
 /*  FrameBuilder - creates frame objects from type number
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 */
 
 #include <stdint.h>
+#include <boost/shared_ptr.hpp>
 
 namespace TPProto{
 
@@ -33,6 +34,7 @@ namespace TPProto{
     class Object;
     class Order;
     class Buffer;
+    class OrderDescCache;
 
     /*! \brief Builds Frames from frame type and Buffer.
 
@@ -44,14 +46,20 @@ namespace TPProto{
         virtual ~FrameBuilder();
 
         void setProtocolLayer(ProtocolLayer* pl);
-        virtual Frame* buildFrame(uint32_t type, Buffer* data);
-        virtual Object* buildObject(uint32_t type);
-        virtual Order* buildOrder(uint32_t type);
-
+        void setOrderDescCache(OrderDescCache* odc);
+        
+        virtual void buildFrame(uint32_t type, Buffer* data, uint32_t ftver, uint32_t seqnum);
+        
     protected:
+        void processOrderDescription(Frame* frame, Buffer* data, boost::shared_ptr<OrderDescription> od);
+        
         /*! \brief The ProtocolLayer this FrameBuilder is part of.
         */
         ProtocolLayer* layer;
+        
+        /*! The OrderDescCache to use to create Orders.
+        */
+        OrderDescCache* orderdesccache;
 
     };
 

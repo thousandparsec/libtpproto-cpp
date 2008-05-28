@@ -75,24 +75,24 @@ namespace TPProto {
     \return True if added successfully, false otherwise.
     */
     bool DesignCache::addDesign(Design* design){
-        AddDesign* frame = protocol->getFrameFactory()->createAddDesign();
-        frame->copyFromDesign(design);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                cache->update();
-                return true;
-            }
-            delete reply;
-        }
+//         AddDesign* frame = protocol->getFrameFactory()->createAddDesign();
+//         frame->copyFromDesign(design);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_OK){
+//                 
+//                 delete reply;
+//                 cache->update();
+//                 return true;
+//             }
+//             delete reply;
+//         }
         return false;
     }
 
@@ -101,24 +101,24 @@ namespace TPProto {
     \return True if modified successfully, false otherwise.
     */
     bool DesignCache::modifyDesign(Design* design){
-        ModifyDesign* frame = protocol->getFrameFactory()->createModifyDesign();
-        frame->copyFromDesign(design);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                cache->markInvalid(design->getDesignId());
-                return true;
-            }
-            delete reply;
-        }
+//         ModifyDesign* frame = protocol->getFrameFactory()->createModifyDesign();
+//         frame->copyFromDesign(design);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_OK){
+//                 
+//                 delete reply;
+//                 cache->markInvalid(design->getDesignId());
+//                 return true;
+//             }
+//             delete reply;
+//         }
         return false;
     }
 
@@ -129,25 +129,25 @@ namespace TPProto {
     \return True if sucessful, false otherwise.
   */
     bool DesignCache::removeDesign(uint32_t designid){
-        RemoveDesign* frame = protocol->getFrameFactory()->createRemoveDesign();
-        frame->removeDesignId(designid);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply != NULL && reply->getType() == ft02_OK){
-            delete reply;
-            cache->markInvalid(designid);
-            return true;
-            
-        }
-        delete reply;
-        
+//         RemoveDesign* frame = protocol->getFrameFactory()->createRemoveDesign();
+//         frame->removeDesignId(designid);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         
+//         if(reply != NULL && reply->getType() == ft02_OK){
+//             delete reply;
+//             cache->markInvalid(designid);
+//             return true;
+//             
+//         }
+//         delete reply;
+//         
         return false;
     }
 

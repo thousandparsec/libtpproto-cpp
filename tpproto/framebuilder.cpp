@@ -1,6 +1,6 @@
 /*  FrameBuilder class
  *
- *  Copyright (C) 2005  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@
  *
  */
 
+#include <boost/bind.hpp>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -27,7 +28,7 @@
 #include "framecodec.h"
 #include "protocollayer.h"
 #include "buffer.h"
-#include "getorderdesc.h"
+#include "orderdesccache.h"
 
 #include "okframe.h"
 #include "failframe.h"
@@ -85,14 +86,20 @@ namespace TPProto{
         layer = pl;
     }
 
+    void FrameBuilder::setOrderDescCache(OrderDescCache* odc){
+        orderdesccache = odc;
+    }
+    
     /*! \brief Builds a frame from it's type.
     Builds a frame subclass object that corresponds to the type given, or
     NULL if none is found.
+    Frame sent to FrameCodec::receivedFrame().
     \param type The type of frame to build.
     \param data The Buffer of data that is the contents of the frame.
-    \return The frame for the type, or NULL.
+    \param ftver The version of the frametype
+    \param seqnum The sequence number
     */
-    Frame* FrameBuilder::buildFrame(uint32_t type, Buffer* data){
+    void FrameBuilder::buildFrame(uint32_t type, Buffer* data, uint32_t ftver, uint32_t seqnum){
         Frame* frame = NULL;
         // may need to switch on version too
         switch(type){
@@ -109,7 +116,8 @@ namespace TPProto{
             break;
 
         case ft02_Object:
-            frame = buildObject(data->peekInt(4));
+            frame = layer->getFrameFactory()->createObject();
+                    //buildObject(data->peekInt(4));
             break;
 
         case ft02_OrderDesc:
@@ -117,7 +125,7 @@ namespace TPProto{
             break;
 
         case ft02_Order:
-            frame = buildOrder(data->peekInt(8));
+            frame = layer->getFrameFactory()->createOrder();
             break;
 
         case ft02_Time_Remaining:
@@ -213,63 +221,80 @@ namespace TPProto{
             break;
         }
         
-        if(frame != NULL && !frame->unpackBuffer(data)){
-            delete frame;
-            frame = NULL;
+        if(frame != NULL){
+            frame->setSequenceNumber(seqnum);
+            //frame->setFrameTypeVersion(ftver); //TODO when frame supports it
+            if(type == ft02_Object){
+                
+            }else if(type == ft02_Order){
+                orderdesccache->requestOrderDescription(data->peekInt(8), boost::bind(&FrameBuilder::processOrderDescription, this, frame, data, _1));
+            }else{
+                if(frame->unpackBuffer(data)){
+                    delete data;
+                    layer->getFrameCodec()->receivedFrame(frame);
+                }else{
+                    delete frame;
+                    delete data;
+                    //TODO create a fail frame with local error, and give to framecodec
+                }
+            }
+            
         }
-        return frame;
     }
 
-    /*! \brief Creates the correct Object object from the type.
+    void FrameBuilder::processOrderDescription(Frame* frame, Buffer* data, boost::shared_ptr<OrderDescription> od){
+        if(od){
+            Order* order = static_cast<Order*>(frame);
+            order->setOrderType(od);
+            if(order->unpackBuffer(data)){
+                delete data;
+                layer->getFrameCodec()->receivedFrame(frame);
+            }else{
+                delete frame;
+                delete data;
+                //fail frame as above
+            }
+        }else{
+            delete frame;
+            delete data;
+            //fail frame as above
+        }
+    }
+    
+    /*c! \brief Creates the correct Object object from the type.
 
         Looks at the type in order to create the correct 
         Object based on the object type number.
         \param type The type of Object to build.
         \return The created Object.
     */
-    Object* FrameBuilder::buildObject(uint32_t type){
-        Object* ob;
+//     Object* FrameBuilder::buildObject(uint32_t type){
+//         Object* ob;
+// 
+//         switch(type){
+//         case 0:
+//             ob = new Universe();
+//             break;
+//         case 1:
+//             ob = new Galaxy();
+//             break;
+//         case 2:
+//             ob = new StarSystem();
+//             break;
+//         case 3:
+//             ob = new Planet();
+//             break;
+//         case 4:
+//             ob = new Fleet();
+//             break;
+// 
+//         default:
+//             ob = NULL;
+//             break;
+//         }
+// 
+//         return ob;
+//     }
 
-        switch(type){
-        case 0:
-            ob = new Universe();
-            break;
-        case 1:
-            ob = new Galaxy();
-            break;
-        case 2:
-            ob = new StarSystem();
-            break;
-        case 3:
-            ob = new Planet();
-            break;
-        case 4:
-            ob = new Fleet();
-            break;
 
-        default:
-            ob = NULL;
-            break;
-        }
-
-        return ob;
-    }
-
-    /*! \brief Creates the correct Order type from the type.
-    Fetches the order description from the server, then returns
-    the correct type.
-    \param type The Order type.
-    */
-    Order* FrameBuilder::buildOrder(uint32_t type){
-        GetOrderDescription* god = layer->getFrameFactory()->createGetOrderDescription();
-        god->addId(type);
-        uint32_t seq = layer->getFrameCodec()->sendFrame(god);
-        OrderDescription* od = dynamic_cast<OrderDescription*>(layer->getFrameCodec()->recvFrames(seq).front());
-        if(od != NULL){
-            Order* f = layer->getFrameFactory()->createOrder();
-            f->setOrderType(od);
-            return f;
-        }
-        return NULL;
-    }
 }

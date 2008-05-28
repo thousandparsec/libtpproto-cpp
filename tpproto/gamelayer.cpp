@@ -48,6 +48,7 @@
 // caches
 #include "cachemethod.h"
 #include "objectcache.h"
+#include"orderdesccache.h"
 #include "playercache.h"
 #include "boardcache.h"
 #include "resourcecache.h"
@@ -135,7 +136,8 @@ namespace TPProto {
     */
     GameLayer::GameLayer() : protocol(NULL), eventloop(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
-            objectcache(new ObjectCache()), playercache(new PlayerCache()), boardcache(new BoardCache()),
+            objectcache(new ObjectCache()), orderdesccache(new OrderDescCache()), 
+            playercache(new PlayerCache()), boardcache(new BoardCache()),
             resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
             designcache(new DesignCache()), componentcache(new ComponentCache()),
             propertycache(new PropertyCache()){
@@ -145,6 +147,7 @@ namespace TPProto {
         asyncframes->setGameLayer(this);
         protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
         objectcache->setProtocolLayer(protocol);
+        orderdesccache->setProtocolLayer(protocol);
         playercache->setProtocolLayer(protocol);
         boardcache->setProtocolLayer(protocol);
         resourcecache->setProtocolLayer(protocol);
@@ -152,6 +155,7 @@ namespace TPProto {
         designcache->setProtocolLayer(protocol);
         componentcache->setProtocolLayer(protocol);
         propertycache->setProtocolLayer(protocol);
+        protocol->getFrameBuilder()->setOrderDescCache(orderdesccache);
     }
 
     /*! \brief Destructor.
@@ -167,6 +171,7 @@ namespace TPProto {
         }
         delete asyncframes;
         delete objectcache;
+        delete orderdesccache;
         delete playercache;
         delete boardcache;
         delete resourcecache;
@@ -220,6 +225,7 @@ namespace TPProto {
     */
     void GameLayer::setCacheMethod(CacheMethod* prototype){
         objectcache->setCacheMethod(prototype->clone());
+        orderdesccache->setCacheMethod(prototype->clone());
         boardcache->setCacheMethod(prototype->clone());
         playercache->setCacheMethod(prototype->clone());
         resourcecache->setCacheMethod(prototype->clone());
@@ -424,6 +430,7 @@ namespace TPProto {
     */
     void GameLayer::updateCaches(){
         objectcache->update();
+        orderdesccache->update();
         boardcache->update();
         playercache->update();
         resourcecache->update();
@@ -442,6 +449,13 @@ namespace TPProto {
         return objectcache;
     }
 
+    /*! \brief Gets the OrderDescCache.
+    \return The OrderDescCache.
+    */
+    OrderDescCache* GameLayer::getOrderDescCache() const{
+        return orderdesccache;
+    }
+    
     /*! \brief Gets Orders from the server.
     
     This method sends the GetOrder Frame to the server and returns the
@@ -451,26 +465,26 @@ namespace TPProto {
     \return List of Orders.
     */
     std::list<Order*> GameLayer::getOrders(uint32_t obid, uint32_t num){
-        GetOrder* frame = protocol->getFrameFactory()->createGetOrder();
-        frame->setObjectId(obid);
-        frame->addOrderRange(0, num);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> reply = protocol->getFrameCodec()->recvFrames(seqnum);
+//         GetOrder* frame = protocol->getFrameFactory()->createGetOrder();
+//         frame->setObjectId(obid);
+//         frame->addOrderRange(0, num);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> reply = protocol->getFrameCodec()->recvFrames(seqnum);
         std::list<Order*> out;
-        for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
-            Frame * ob = *itcurr;
-            if(ob != NULL && ob->getType() == ft02_Order){
-                out.push_back((Order*)ob);
-            }else if(ob != NULL){
-                logger->debug("Expecting order frames, but got %d instead", ob->getType());
-                delete ob;
-            }else{
-                logger->debug("Expecting order frames, but got NULL");
-                
-            }
-        }
-        
+//         for(std::list<Frame*>::iterator itcurr = reply.begin(); itcurr != reply.end(); ++itcurr){
+//             Frame * ob = *itcurr;
+//             if(ob != NULL && ob->getType() == ft02_Order){
+//                 out.push_back((Order*)ob);
+//             }else if(ob != NULL){
+//                 logger->debug("Expecting order frames, but got %d instead", ob->getType());
+//                 delete ob;
+//             }else{
+//                 logger->debug("Expecting order frames, but got NULL");
+//                 
+//             }
+//         }
+//         
         return out;
     }
 
@@ -483,24 +497,24 @@ namespace TPProto {
     \return The order retreved.
     */
     Order* GameLayer::getOrder(uint32_t obid, uint32_t slot){
-        GetOrder* frame = protocol->getFrameFactory()->createGetOrder();
-        frame->setObjectId(obid);
-        frame->addOrderId(slot);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_Order){
-                
-                return dynamic_cast<Order*>(reply);
-            }
-            delete reply;
-        }
+//         GetOrder* frame = protocol->getFrameFactory()->createGetOrder();
+//         frame->setObjectId(obid);
+//         frame->addOrderId(slot);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_Order){
+//                 
+//                 return dynamic_cast<Order*>(reply);
+//             }
+//             delete reply;
+//         }
         return NULL;
         
     }
@@ -513,7 +527,8 @@ namespace TPProto {
     \return The new Order.
     */
     Order* GameLayer::createOrderFrame(int type){
-        return protocol->getFrameBuilder()->buildOrder(type);
+        //return protocol->getFrameBuilder()->buildOrder(type);
+        return NULL;
     }
 
     /*! \brief Inserts an Order into the objects order queue.
@@ -522,25 +537,25 @@ namespace TPProto {
     \returns True if successful, false otherwise.
     */
     bool GameLayer::insertOrder(Order* frame){
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                
-                return true;
-            }else{
-                logger->debug("Expected ok frame, got %d", reply->getType());
-            }
-            delete reply;
-        }else{
-            logger->debug("Expected ok frame, got NULL");
-        }
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_OK){
+//                 
+//                 delete reply;
+//                 
+//                 return true;
+//             }else{
+//                 logger->debug("Expected ok frame, got %d", reply->getType());
+//             }
+//             delete reply;
+//         }else{
+//             logger->debug("Expected ok frame, got NULL");
+//         }
         return false;
     }
 
@@ -568,21 +583,22 @@ namespace TPProto {
     \return The reply Order with read-only fields filled.
     */
     Order* GameLayer::probeOrder(Order* frame){
-        ProbeOrder * fr = protocol->getFrameFactory()->createProbeOrder();
-        fr->copyFromOrder(frame);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
-        delete fr;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        
-        if(reply == NULL || reply->getType() != ft02_Order){
-            logger->error("The returned frame isn't an order");
-        }
-        
-        return static_cast<Order*>(reply);
+//         ProbeOrder * fr = protocol->getFrameFactory()->createProbeOrder();
+//         fr->copyFromOrder(frame);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(fr);
+//         delete fr;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         
+//         if(reply == NULL || reply->getType() != ft02_Order){
+//             logger->error("The returned frame isn't an order");
+//         }
+//         
+//         return static_cast<Order*>(reply);
+        return NULL;
         
     }
 
@@ -594,29 +610,29 @@ namespace TPProto {
     \return True if sucessful, false otherwise.
     */
     bool GameLayer::removeOrder(uint32_t obid, uint32_t slot){
-        RemoveOrder* ro = protocol->getFrameFactory()->createRemoveOrder();
-        ro->setObjectId(obid);
-        ro->removeOrderId(slot);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(ro);
-    
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                
-                return true;
-            }else{
-                logger->debug("Expected ok frame, got %d", reply->getType());
-            }
-            delete reply;
-        }else{
-            logger->debug("Expected ok frame, got NULL");
-        }
+//         RemoveOrder* ro = protocol->getFrameFactory()->createRemoveOrder();
+//         ro->setObjectId(obid);
+//         ro->removeOrderId(slot);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(ro);
+//     
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_OK){
+//                 
+//                 delete reply;
+//                 
+//                 return true;
+//             }else{
+//                 logger->debug("Expected ok frame, got %d", reply->getType());
+//             }
+//             delete reply;
+//         }else{
+//             logger->debug("Expected ok frame, got NULL");
+//         }
         return false;
     }
 
@@ -637,23 +653,23 @@ namespace TPProto {
     */
     std::list<Message*> GameLayer::getMessages(uint32_t boardid, uint32_t num){
         std::list<Message*> out;
-        GetMessage* frame = protocol->getFrameFactory()->createGetMessage();
-        frame->setBoard(boardid);
-        frame->addMessageRange(0, num);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
-            Frame * ob = *itcurr;
-            if(ob != NULL && ob->getType() == ft02_Message){
-                out.push_back((Message*)ob);
-            }else if(ob != NULL){
-                logger->debug("Expecting message frames, but got %d instead", ob->getType());
-            }else{
-                logger->debug("Expecting message frames, but got NULL");
-            }
-        }
-    
+//         GetMessage* frame = protocol->getFrameFactory()->createGetMessage();
+//         frame->setBoard(boardid);
+//         frame->addMessageRange(0, num);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
+//             Frame * ob = *itcurr;
+//             if(ob != NULL && ob->getType() == ft02_Message){
+//                 out.push_back((Message*)ob);
+//             }else if(ob != NULL){
+//                 logger->debug("Expecting message frames, but got %d instead", ob->getType());
+//             }else{
+//                 logger->debug("Expecting message frames, but got NULL");
+//             }
+//         }
+//     
         return out;
     
     }
@@ -673,24 +689,24 @@ namespace TPProto {
     \return The Message.
     */
     Message* GameLayer::getMessage(uint32_t boardid, uint32_t slot){
-        GetMessage* frame = protocol->getFrameFactory()->createGetMessage();
-        frame->setBoard(boardid);
-        frame->addMessageId(slot);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_Message){
-                
-                return dynamic_cast<Message*>(reply);
-            }
-            delete reply;
-        }
+//         GetMessage* frame = protocol->getFrameFactory()->createGetMessage();
+//         frame->setBoard(boardid);
+//         frame->addMessageId(slot);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+// 
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_Message){
+//                 
+//                 return dynamic_cast<Message*>(reply);
+//             }
+//             delete reply;
+//         }
         return NULL;
     }
 
@@ -701,22 +717,22 @@ namespace TPProto {
     \return True if successful, false otherwise.
     */
     bool GameLayer::postMessage(Message* frame){
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-        if(reply != NULL){
-            if(reply->getType() == ft02_OK){
-                
-                delete reply;
-                
-                return true;
-            }
-            delete reply;
-        }
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+//         if(reply != NULL){
+//             if(reply->getType() == ft02_OK){
+//                 
+//                 delete reply;
+//                 
+//                 return true;
+//             }
+//             delete reply;
+//         }
         return false;
     }
 
@@ -728,25 +744,25 @@ namespace TPProto {
     \return True if message is removed, false otherwise.
     */
     bool GameLayer::removeMessage(uint32_t boardid, uint32_t slot){
-        RemoveMessage* frame = protocol->getFrameFactory()->createRemoveMessage();
-        frame->setBoard(boardid);
-        frame->removeMessageId(slot);
-        uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-        delete frame;
-        std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-        
-        Frame * reply = NULL;
-        if(replies.size() >= 1){
-            reply = replies.front();
-        }
-
-        if(reply != NULL && reply->getType() == ft02_OK){
-            delete reply;
-            return true;
-            
-        }
-        delete reply;
-        
+//         RemoveMessage* frame = protocol->getFrameFactory()->createRemoveMessage();
+//         frame->setBoard(boardid);
+//         frame->removeMessageId(slot);
+//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
+//         delete frame;
+//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
+//         
+//         Frame * reply = NULL;
+//         if(replies.size() >= 1){
+//             reply = replies.front();
+//         }
+// 
+//         if(reply != NULL && reply->getType() == ft02_OK){
+//             delete reply;
+//             return true;
+//             
+//         }
+//         delete reply;
+//         
         return false;
     }
 
@@ -815,11 +831,7 @@ namespace TPProto {
     void GameLayer::finishedTurn(){
         FinishedFrame* ft = protocol->getFrameFactory()->createFinished();
         if(ft != NULL){
-            uint32_t seqnum = protocol->getFrameCodec()->sendFrame(ft);
-            std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-            for(std::list<Frame*>::iterator itcurr = replies.begin(); itcurr != replies.end(); ++itcurr){
-              delete (*itcurr);
-            }
+            protocol->getFrameCodec()->sendFrame(ft, boost::bind(&GameLayer::finishedTurnCallback, this, _1));
         }
     }
 
@@ -915,4 +927,11 @@ namespace TPProto {
         }
         delete frame;
     }
+    
+    void GameLayer::finishedTurnCallback(Frame* frame){
+        //check the frame type
+        //disable sending finishedturn frames if fail frame.
+        delete frame;
+    }
+    
 }

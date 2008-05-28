@@ -337,6 +337,15 @@ namespace TPProto {
         return NULL;
     }
 
+    /*! \brief Creates an Object Frame.
+    \return A new Object Frame.
+    */
+    Object* FrameFactory::createObject(){
+        Object* f = new Object();
+        f->setProtocolVersion(pver);
+        return f;
+    }
+    
      /*! \brief Creates a GetObjectById Frame.
     \return A new GetObjectById Frame.
     */

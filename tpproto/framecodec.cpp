@@ -114,35 +114,35 @@ namespace TPProto {
 
 
  
-  /*! \brief Sends a Frame.
+  /*c! \brief Sends a Frame.
 
   Packs the Frame into a Buffer and sends it via the TPSocket.  Sets the 
   sequence number and increments the sequence number counter.
   \param f The Frame to send.
   */
-  uint32_t FrameCodec::sendFrame(Frame *f){
-    if(socket->isConnected()){
-      Buffer *data = new Buffer();
-      f->packBuffer(data);
-      Buffer *header = new Buffer();
-            uint32_t real_seqnum = nextseqnum;
-            header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
-      socket->send(header->getData(), header->getLength());
-      socket->send(data->getData(), data->getLength());
-        nextseqnum++;
-        if(nextseqnum == 0)
-            nextseqnum++;
-      delete data;
-      delete header;
+//   uint32_t FrameCodec::sendFrame(Frame *f){
+//     if(socket->isConnected()){
+//       Buffer *data = new Buffer();
+//       f->packBuffer(data);
+//       Buffer *header = new Buffer();
+//             uint32_t real_seqnum = nextseqnum;
+//             header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
+//       socket->send(header->getData(), header->getLength());
+//       socket->send(data->getData(), data->getLength());
+//         nextseqnum++;
+//         if(nextseqnum == 0)
+//             nextseqnum++;
+//       delete data;
+//       delete header;
+// 
+//         incomingframes[real_seqnum] = std::pair<uint32_t, std::list<Frame*>* >(1, new std::list<Frame*>());
+//       
+//             return real_seqnum;
+//     }
+//         return 0;
+//   }
 
-        incomingframes[real_seqnum] = std::pair<uint32_t, std::list<Frame*>* >(1, new std::list<Frame*>());
-      
-            return real_seqnum;
-    }
-        return 0;
-  }
-
-  /*! \brief Receives a normal Frame.
+  /*c! \brief Receives a normal Frame.
 
   Receives a normal Frame from the TPSocket, passing any asynchronous frames
   to the AsyncFrameListener until a normal frame is received. Only call this once 
@@ -150,49 +150,49 @@ namespace TPProto {
     \param seqnum The sequence number for the frame to get.
   \return List of received Frames with the sequence number.
   */
-    std::list<Frame*> FrameCodec::recvFrames(uint32_t seqnum){
-        if(seqnum == 0 || incomingframes[seqnum].first == 0){
-            return std::list<Frame*>();
-        }
-        while(incomingframes[seqnum].second != NULL && incomingframes[seqnum].first > incomingframes[seqnum].second->size()){
-    Frame* frame = recvOneFrame();
-    if(frame != NULL && frame->getSequenceNumber() == 0){
-      // async frame, send it on and try again.
-      
-      if(asynclistener != NULL){
-	if(frame->getType() == ft02_Time_Remaining){
-	  asynclistener->recvTimeRemaining((TimeRemaining*)frame);
-	}
-      }
-      
-      if(frame != NULL){
-	delete frame;
-      }
-      
-            }else if(frame == NULL){
-                // connection closed, return what we have
-                break;
-            }else{
-                std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
-                if(frame->getType() == ft02_Sequence){
-                    incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
-                    delete frame;
-                }else{
-                    framelist->push_back(frame);
-                }
-            }
-        }
-
-        if(incomingframes[seqnum].second == NULL){
-            return std::list<Frame*>();
-        }else{
-            std::list<Frame*> rtv = *(incomingframes[seqnum].second);
-            delete incomingframes[seqnum].second;
-            incomingframes.erase(seqnum);
-            return rtv;
-        }
-
-    }
+//     std::list<Frame*> FrameCodec::recvFrames(uint32_t seqnum){
+//         if(seqnum == 0 || incomingframes[seqnum].first == 0){
+//             return std::list<Frame*>();
+//         }
+//         while(incomingframes[seqnum].second != NULL && incomingframes[seqnum].first > incomingframes[seqnum].second->size()){
+//     Frame* frame = recvOneFrame();
+//     if(frame != NULL && frame->getSequenceNumber() == 0){
+//       // async frame, send it on and try again.
+//       
+//       if(asynclistener != NULL){
+// 	if(frame->getType() == ft02_Time_Remaining){
+// 	  asynclistener->recvTimeRemaining((TimeRemaining*)frame);
+// 	}
+//       }
+//       
+//       if(frame != NULL){
+// 	delete frame;
+//       }
+//       
+//             }else if(frame == NULL){
+//                 // connection closed, return what we have
+//                 break;
+//             }else{
+//                 std::list<Frame*>* framelist = incomingframes[frame->getSequenceNumber()].second;
+//                 if(frame->getType() == ft02_Sequence){
+//                     incomingframes[frame->getSequenceNumber()].first = ((Sequence*)frame)->getNumber();
+//                     delete frame;
+//                 }else{
+//                     framelist->push_back(frame);
+//                 }
+//             }
+//         }
+// 
+//         if(incomingframes[seqnum].second == NULL){
+//             return std::list<Frame*>();
+//         }else{
+//             std::list<Frame*> rtv = *(incomingframes[seqnum].second);
+//             delete incomingframes[seqnum].second;
+//             incomingframes.erase(seqnum);
+//             return rtv;
+//         }
+// 
+//     }
 
     FrameConnection FrameCodec::sendFrame(Frame * f, const FrameSignal::slot_type& callback){
         if(!socket->isConnected()){
@@ -221,7 +221,18 @@ namespace TPProto {
         if(!socket->isConnected()){
             logger->debug("Socket disconnected at begining of FrameCodec::readyToRead()");
         }
-        Frame* frame = recvOneFrame();
+        recvOneFrame();
+        
+        if(!socket->isConnected()){
+            logger->debug("Socket disconnected at end of FrameCodec::readyToRead()");
+        }
+    }
+    
+    void FrameCodec::readyToSend(){
+      
+    }
+    
+    void FrameCodec::receivedFrame(Frame* frame){
         if(frame != NULL){
             if(frame->getSequenceNumber() == 0){
                 if(asynclistener != NULL){
@@ -241,21 +252,13 @@ namespace TPProto {
                 }
             }
         }
-        if(!socket->isConnected()){
-            logger->debug("Socket disconnected at end of FrameCodec::readyToRead()");
-        }
-    }
-    
-    void FrameCodec::readyToSend(){
-      
     }
     
   /*! \brief Receives one Frame from the network.
 
   Grabs one Frame from the TPSocket.
-  \return The received Frame or NULL.
   */
-  Frame* FrameCodec::recvOneFrame(){
+  void FrameCodec::recvOneFrame(){
     if(socket->isConnected()){
       char* head, *body;
       int rlen = socket->recv(16, head);
@@ -263,7 +266,7 @@ namespace TPProto {
 	//now what?
 	logger->warning("Could not read whole header");
 	delete head;
-	return NULL;
+	return;
       }
       
       uint32_t len, type, sequ, fpver, fver;
@@ -275,7 +278,7 @@ namespace TPProto {
 	// invalid header
 	logger->warning("Header invalid");
 	delete header;
-	return NULL;
+	return;
       }
       delete header;
       
@@ -283,7 +286,7 @@ namespace TPProto {
 	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fpver, sequ, type, len);
 	socket->disconnect();
 	status = 0;
-	return NULL;
+	return;
       }
       
         if(fpver != version){
@@ -295,7 +298,7 @@ namespace TPProto {
                 logger->warning("Wrong verison of protocol (%d), server got it wrong, ", fpver);
                 socket->disconnect();
                 status = 0;
-                return NULL;
+                return;
             }
         }
 
@@ -304,26 +307,14 @@ namespace TPProto {
 	//again, now what?
 	logger->warning("Could not read whole body");
 	delete body;
-	return NULL;
+	return;
       }
       Buffer *data = new Buffer();
       data->setData(body, rlen);
       
-      Frame* frame = layer->getFrameBuilder()->buildFrame(type, data);
+      layer->getFrameBuilder()->buildFrame(type, data, fver, sequ);
 
-      if(frame == NULL){
-	//others...
-	logger->warning("Received frame of type %d but don't know what to do, setting return value to NULL", type);
-      }else{
-	frame->setProtocolVersion(fpver);
-	frame->setSequenceNumber(sequ);
-      }
-      
-      delete data;
-
-      return frame;
     }
-    return NULL;
   }
 
     void FrameCodec::clearIncomingFrames(){

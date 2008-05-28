@@ -136,6 +136,7 @@ namespace TPProto{
         virtual ObjectTypesList* createObjectTypesList();
         virtual GetObjectDescription* createGetObjectDescription();
         virtual ObjectDescription* createObjectDescription();
+        virtual Object* createObject();
         virtual GetObjectById* createGetObjectById();
         virtual GetObjectByPos* createGetObjectByPos();
         virtual GetObjectIdsList* createGetObjectIdsList();
