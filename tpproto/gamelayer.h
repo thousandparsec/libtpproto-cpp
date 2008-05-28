@@ -41,6 +41,7 @@ namespace TPProto{
     class GameStatusListener;
     class GameLayerAsyncFrameListener;
     class CacheMethod;
+    class ObjectDescCache;
     class ObjectCache;
     class OrderDescCache;
     class PlayerCache;
@@ -98,6 +99,9 @@ namespace TPProto{
         void updateCaches();
     
 
+        //ObjectDescriptions
+        ObjectDescCache* getObjectDescCache() const;
+        
         //Objects
        ObjectCache* getObjectCache() const;
        
@@ -158,6 +162,7 @@ namespace TPProto{
 
         GameLayerAsyncFrameListener* asyncframes;
 
+        ObjectDescCache* objectdesccache;
         ObjectCache* objectcache;
         OrderDescCache* orderdesccache;
         PlayerCache* playercache;

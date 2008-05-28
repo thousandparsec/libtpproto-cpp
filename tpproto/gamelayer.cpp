@@ -47,6 +47,7 @@
 
 // caches
 #include "cachemethod.h"
+#include "objectdesccache.h"
 #include "objectcache.h"
 #include"orderdesccache.h"
 #include "playercache.h"
@@ -136,6 +137,7 @@ namespace TPProto {
     */
     GameLayer::GameLayer() : protocol(NULL), eventloop(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
+            objectdesccache(new ObjectDescCache()),
             objectcache(new ObjectCache()), orderdesccache(new OrderDescCache()), 
             playercache(new PlayerCache()), boardcache(new BoardCache()),
             resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
@@ -170,6 +172,7 @@ namespace TPProto {
             delete serverfeatures;
         }
         delete asyncframes;
+        delete objectdesccache;
         delete objectcache;
         delete orderdesccache;
         delete playercache;
@@ -224,6 +227,7 @@ namespace TPProto {
     \param prototype A CacheMethod that will be cloned for each Cache to use.
     */
     void GameLayer::setCacheMethod(CacheMethod* prototype){
+        objectdesccache->setCacheMethod(prototype->clone());
         objectcache->setCacheMethod(prototype->clone());
         orderdesccache->setCacheMethod(prototype->clone());
         boardcache->setCacheMethod(prototype->clone());
@@ -429,6 +433,7 @@ namespace TPProto {
     Call if you want the caches to be updated.
     */
     void GameLayer::updateCaches(){
+        objectdesccache->update();
         objectcache->update();
         orderdesccache->update();
         boardcache->update();
@@ -440,6 +445,13 @@ namespace TPProto {
         propertycache->update();
     }
 
+    
+    /*! \brief Gets the ObjectDescCache.
+    \return The ObjectDescCache.
+    */
+    ObjectDescCache* GameLayer::getObjectDescCache() const{
+        return objectdesccache;
+    }
 
     /*! \brief Gets the ObjectCache.
     
