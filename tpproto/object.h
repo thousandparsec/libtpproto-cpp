@@ -44,14 +44,6 @@ namespace TPProto{
     void packBuffer(Buffer* buf);
     bool unpackBuffer(Buffer* buf);
 
-    /*! \brief Be visited by an ObjectVisitor.
-
-    This method must be overridden by all subclasses, to call the
-    correct visit method in ObjectVisitor.
-    \param vis The ObjectVisitor that wants to visit this object.
-    */
-    virtual void visit(ObjectVisitor * vis) = 0;
-
     unsigned int getId();
     std::string getName();
     Vector3d getPos();
