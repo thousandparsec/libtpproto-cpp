@@ -30,7 +30,8 @@ COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     setfilters.cpp gameinfo.cpp getobjecttypeslist.cpp getobjectdesc.cpp \
     objecttypeslist.cpp objectdesc.cpp objectparamgroup.cpp objectparameter.cpp \
     connection.cpp simpleeventloop.cpp orderdesccache.cpp objectdesccache.cpp \
-    position3dobjectparam.cpp velocity3dobjectparam.cpp
+    position3dobjectparam.cpp velocity3dobjectparam.cpp sizeobjectparam.cpp \
+    integerobjectparam.cpp
 libtpprotodir = $(includedir)/tpproto
 COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
@@ -57,7 +58,7 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     getobjectdesc.h objecttypeslist.h objectdesc.h objectparamgroup.h \
     objectparameter.h connection.h eventloop.h simpleeventloop.h orderdesccache.h \
     objectdesccache.h position3dobjectparam.h objectparametervisitor.h \
-    velocity3dobjectparam.h
+    velocity3dobjectparam.h sizeobjectparam.h integerobjectparam.h
 
 if GNUTLS
 GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp
