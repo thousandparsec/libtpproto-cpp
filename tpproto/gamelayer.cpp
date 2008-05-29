@@ -148,6 +148,7 @@ namespace TPProto {
         sock = NULL;
         asyncframes->setGameLayer(this);
         protocol->getFrameCodec()->setAsyncFrameListener(asyncframes);
+        objectdesccache->setProtocolLayer(protocol);
         objectcache->setProtocolLayer(protocol);
         orderdesccache->setProtocolLayer(protocol);
         playercache->setProtocolLayer(protocol);
