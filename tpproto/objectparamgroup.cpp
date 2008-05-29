@@ -24,13 +24,10 @@
 #include "buffer.h"
 #include "objectparameter.h"
 //object parameters
-// #include "spacecoord.h"
-// #include "timeparameter.h"
-// #include "objectparameter.h"
-// #include "listparameter.h"
-// #include "spacecoordrel.h"
-// #include "rangeparameter.h"
-// #include "stringparameter.h"
+#include "position3dobjectparam.h"
+#include "velocity3dobjectparam.h"
+#include "sizeobjectparam.h"
+#include "integerobjectparam.h"
 
 #include "objectparamgroup.h"
 
@@ -80,18 +77,18 @@ namespace TPProto{
       std::string pdesc = buf->unpackString();
       ObjectParameter* opm = NULL;
       switch(ptype){
-//       case opT_Space_Coord_Abs:
-// 	opm = new SpaceCoordinates();
-// 	break;
-//       case opT_Time:
-// 	opm = new TimeParameter();
-// 	break;
-//       case opT_Object_ID:
-// 	opm = new ObjectParameter();
-// 	break;
-//       case opT_List:
-// 	opm = new ListParameter();
-// 	break;
+          case obpT_Position_3D:
+              opm = new Position3dObjectParam();
+              break;
+          case obpT_Velocity_3D:
+              opm = new Velocity3dObjectParam();
+              break;
+          case obpT_Size:
+              opm = new SizeObjectParam();
+              break;
+          case obpT_Integer:
+              opm = new IntegerObjectParam();
+              break;
 
       default:
         break;
