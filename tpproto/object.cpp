@@ -20,13 +20,18 @@
 #include <cassert>
 
 #include "buffer.h"
-#include "objectvisitor.h"
+#include "objectdesc.h"
 
 #include "object.h"
 
 namespace TPProto{
 
-  /*! \brief Required virtual destructor.
+    /*! Constructor.
+    */
+    Object::Object() : Frame(), id(0), obtype(), name(), description(), parent(0), contained(), modtime(0){
+    }
+    
+  /*! \brief Required destructor.
    */
   Object::~Object(){
   }
@@ -48,35 +53,51 @@ namespace TPProto{
   */
   bool Object::unpackBuffer(Buffer* buf){
     id = buf->unpackInt();
-    /* FIXME: Can we check this exists?? */
-    obtype = buf->unpackInt();
+    //skip the ob type because it has to already be set.
+    buf->unpackInt();
     name = buf->unpackString();
-    size = buf->unpackInt64();
-    pos.unpack(buf);
-    vel.unpack(buf);
-    /* FIXME: Sanity check? */
+    if(protoVer >= 4){
+        description = buf->unpackString();
+        parent = buf->unpackInt();
+    }else{
+        //size = buf->unpackInt64();
+        //pos.unpack(buf);
+        //vel.unpack(buf);
+    }
+     /* FIXME: Sanity check? */
     int count = buf->unpackInt();
     contained.clear();
     for(int i = 0; i < count; i++){
       contained.insert(buf->unpackInt());
     }
-    availableorders.clear();
-    /* FIXME: Sanity check? */
-    count = buf->unpackInt();
-    for(int i = 0; i < count; i++){
-      availableorders.insert(buf->unpackInt());
+    if(protoVer < 4){
+//         availableorders.clear();
+//         /* FIXME: Sanity check? */
+//         count = buf->unpackInt();
+//         for(int i = 0; i < count; i++){
+//         availableorders.insert(buf->unpackInt());
+//         }
+//         numorders = buf->unpackInt();
+//         //4 unint32 padding (TP02), or modtime and 2 uint32 padding (TP03)
+//         if(protoVer == 2){
+//             buf->unpackInt();
+//             buf->unpackInt();
+//         }else{
+//             modtime = buf->unpackInt64();
+//         }
+//         buf->unpackInt();
+//         buf->unpackInt();
+//     }else{
+//         modtime = buf->unpackInt64();
+//         buf->unpackInt();
+//         buf->unpackInt();
+//         buf->unpackInt();
+//         buf->unpackInt();
     }
-    numorders = buf->unpackInt();
-    //4 unint32 padding (TP02), or modtime and 2 uint32 padding (TP03)
-    if(protoVer == 2){
-        buf->unpackInt();
-        buf->unpackInt();
-    }else{
-        modtime = buf->unpackInt64();
-    }
-    buf->unpackInt();
-    buf->unpackInt();
 
+    //unpack parameters
+    //TODO
+    
     type = ft02_Object;
 
     return true;
@@ -86,7 +107,7 @@ namespace TPProto{
   /*! \brief Gets the Object's id number.
     \return The id number.
   */
-  unsigned int Object::getId(){
+  uint32_t Object::getId(){
     return id;
   }
 
@@ -97,55 +118,32 @@ namespace TPProto{
     return name;
   }
 
-  /*! \brief Gets the position of the object.
-    \return Vector3d of the position.
+  /*! \brief Gets the Object's description.
+  \return The description of the object.
   */
-  Vector3d Object::getPos(){
-    return pos;
+  std::string Object::getDescription(){
+      return description;
   }
-
-  /*! \brief Gets the velocity of the object.
-    \return Vector3d of the velocity.
-  */
-  Vector3d Object::getVel(){
-    return vel;
-  }
-
+  
   /*! \brief Gets the object type number of the object.
     \return The object type number.
   */
-  unsigned int Object::getObjectType(){
-    return obtype;
+  uint32_t Object::getObjectType(){
+    return obtype->getObjectType();
   }
 
-  /*! \brief Gets the diameter of the object in units.
-    \return The diameter of the object.
+  /*! \brief Gets the Parent object's Id.
+  \return The Objectid of the Parent of this object.
   */
-  uint64_t Object::getSize(){
-    return size;
+  uint32_t Object::getParentId(){
+      return parent;
   }
-
+  
   /*! \brief Gets the set of contained objectids.
     \return The set of contained object ids.
   */
-  std::set<unsigned int> Object::getContainedObjectIds(){
+  std::set<uint32_t> Object::getContainedObjectIds(){
     return contained;
-  }
-
-  /*! \brief Gets the set of available Order types.
-    \return The set of order types.
-  */
-  std::set<unsigned int> Object::getAvailableOrders(){
-    return availableorders;
-  }
-
-  /*! \brief Gets the number of Orders on this object.
-
-  The ids of the Orders are from 0 to numorders-1.
-  \return The number of orders.
-  */
-  unsigned int Object::getNumberOrders(){
-    return numorders;
   }
 
   /*! \brief Gets the last time this object was modified.
@@ -153,6 +151,16 @@ namespace TPProto{
   */
   uint64_t Object::getLastModifiedTime(){
     return modtime;
+  }
+  
+  /*! \brief Sets the ObjectDescription this Object should use.
+  Must be set before calling unpackBuffer.
+  \param od The ObjectDescription.
+  */
+  void Object::setObjectType(boost::shared_ptr<ObjectDescription> od){
+      obtype = od;
+      //parameters
+      //TODO
   }
 
 }

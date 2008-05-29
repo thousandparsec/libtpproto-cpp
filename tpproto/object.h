@@ -24,77 +24,67 @@
   \brief Declares Object Frame baseclass.
 */
 
+#include <stdint.h>
 #include <string>
 #include <set>
+#include <boost/shared_ptr.hpp>
+
 #include <tpproto/frame.h>
-#include <tpproto/vector3d.h>
 
 namespace TPProto{
 
-  class ObjectVisitor;
+  class ObjectDescription;
 
-  /*! \brief The Object Frame baseclass.
+  /*! \brief The Object Frame class.
     
-  All Objects in the game are a subclass of this class.
+  All Objects in the game are instances of this class.
+  Parameters from the ObjectDescription are used to give the
+  type of this object.
   */
   class Object : public Frame{
   public:
-    virtual ~Object();
+      Object();
+      ~Object();
 
     void packBuffer(Buffer* buf);
     bool unpackBuffer(Buffer* buf);
 
-    unsigned int getId();
+    uint32_t getId();
     std::string getName();
-    Vector3d getPos();
-    Vector3d getVel();
-    unsigned int getObjectType();
-    uint64_t getSize();
-    std::set<unsigned int> getContainedObjectIds();
-    std::set<unsigned int> getAvailableOrders();
-    unsigned int getNumberOrders();
+    std::string getDescription();
+    uint32_t getObjectType();
+    uint32_t getParentId();
+    std::set<uint32_t> getContainedObjectIds();
     uint64_t getLastModifiedTime();
+    //something about parameters
     
-    
+    void setObjectType(boost::shared_ptr<ObjectDescription> od);
 
   protected:
     /*! \brief The Object's Id
      */
-    unsigned int id;
+    uint32_t id;
     
-    /*! \brief The current position of the object.
-     */
-    Vector3d pos;
-    
-    /*! \brief The current velocity of the object.
-     */
-    Vector3d vel;
 
-    /*! \brief The object type number.
+    /*! \brief The ObjectDescription for this object.
      */
-    unsigned int obtype;
-    
-    /*! \brief The diameter of the object in units.
-     */
-    uint64_t size;
+    boost::shared_ptr<ObjectDescription> obtype;
     
     /*! \brief The object's name.
      */
     std::string name;
+    
+    /*! The object's description.
+    */
+    std::string description;
+    
+    /*! The object's parent objectid.
+    */
+    uint32_t parent;
 
     /*! \brief The set of objectids that this object contains.
      */
-    std::set<unsigned int> contained;
-
-    /*! \brief The set of orderid that can be placed on this object.
-     */
-    std::set<unsigned int> availableorders;
-    
-    /*! \brief The number of orders on this object.
-
-    The id of the orders are 0 to numorders-1.
-    */
-    unsigned int numorders;
+    std::set<uint32_t> contained;
 
     /*! \brief The last modification time of this object.
     */
