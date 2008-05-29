@@ -156,7 +156,7 @@ namespace TPProto{
         pad = 0;
     }
     
-    if (len > 0 && datalen >= dataptr + len + pad) {
+    if (len >= 0 && datalen >= dataptr + len + pad) {
       std::string rtnstr(data+dataptr, len);
       dataptr += len + pad;
       return rtnstr;
