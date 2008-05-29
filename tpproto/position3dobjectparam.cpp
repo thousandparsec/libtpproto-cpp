@@ -51,6 +51,7 @@ namespace TPProto{
     
     bool Position3dObjectParam::unpackDescBuffer(Buffer* buf){
         //nothing
+        return true;
     }
     
     ObjectParameter* Position3dObjectParam::clone(){
