@@ -29,6 +29,7 @@
 #include "protocollayer.h"
 #include "buffer.h"
 #include "orderdesccache.h"
+#include "objectdesccache.h"
 
 #include "okframe.h"
 #include "failframe.h"
@@ -59,12 +60,6 @@
 #include "objecttypeslist.h"
 #include "objectdesc.h"
 
-#include "universe.h"
-#include "galaxy.h"
-#include "starsystem.h"
-#include "planet.h"
-#include "fleet.h"
-
 #include "framebuilder.h"
 
 namespace TPProto{
@@ -88,6 +83,10 @@ namespace TPProto{
 
     void FrameBuilder::setOrderDescCache(OrderDescCache* odc){
         orderdesccache = odc;
+    }
+    
+    void FrameBuilder::setObjectDescCache(ObjectDescCache* odc){
+        objectdesccache = odc;
     }
     
     /*! \brief Builds a frame from it's type.
@@ -117,7 +116,6 @@ namespace TPProto{
 
         case ft02_Object:
             frame = layer->getFrameFactory()->createObject();
-                    //buildObject(data->peekInt(4));
             break;
 
         case ft02_OrderDesc:
@@ -225,7 +223,7 @@ namespace TPProto{
             frame->setSequenceNumber(seqnum);
             //frame->setFrameTypeVersion(ftver); //TODO when frame supports it
             if(type == ft02_Object){
-                
+                objectdesccache->requestObjectDescription(data->peekInt(4), boost::bind(&FrameBuilder::processObjectDescription, this, frame, data, _1));
             }else if(type == ft02_Order){
                 orderdesccache->requestOrderDescription(data->peekInt(8), boost::bind(&FrameBuilder::processOrderDescription, this, frame, data, _1));
             }else{
@@ -261,40 +259,23 @@ namespace TPProto{
         }
     }
     
-    /*c! \brief Creates the correct Object object from the type.
-
-        Looks at the type in order to create the correct 
-        Object based on the object type number.
-        \param type The type of Object to build.
-        \return The created Object.
-    */
-//     Object* FrameBuilder::buildObject(uint32_t type){
-//         Object* ob;
-// 
-//         switch(type){
-//         case 0:
-//             ob = new Universe();
-//             break;
-//         case 1:
-//             ob = new Galaxy();
-//             break;
-//         case 2:
-//             ob = new StarSystem();
-//             break;
-//         case 3:
-//             ob = new Planet();
-//             break;
-//         case 4:
-//             ob = new Fleet();
-//             break;
-// 
-//         default:
-//             ob = NULL;
-//             break;
-//         }
-// 
-//         return ob;
-//     }
-
+    void FrameBuilder::processObjectDescription(Frame* frame, Buffer* data, boost::shared_ptr<ObjectDescription> od){
+        if(od){
+            Object* object = static_cast<Object*>(frame);
+            object->setObjectType(od);
+            if(object->unpackBuffer(data)){
+                delete data;
+                layer->getFrameCodec()->receivedFrame(frame);
+            }else{
+                delete frame;
+                delete data;
+                //fail frame as above
+            }
+        }else{
+            delete frame;
+            delete data;
+            //fail frame as above
+        }
+    }
 
 }

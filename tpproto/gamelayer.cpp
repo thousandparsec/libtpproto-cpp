@@ -158,6 +158,7 @@ namespace TPProto {
         componentcache->setProtocolLayer(protocol);
         propertycache->setProtocolLayer(protocol);
         protocol->getFrameBuilder()->setOrderDescCache(orderdesccache);
+        protocol->getFrameBuilder()->setObjectDescCache(objectdesccache);
     }
 
     /*! \brief Destructor.
