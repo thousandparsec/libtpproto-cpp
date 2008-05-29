@@ -49,7 +49,7 @@ namespace TPProto{
   };
 
   class Buffer;
-//  class ObjectParameterVisitor;
+  class ObjectParameterVisitor;
 
   /*! \brief A base class for the various types of ObjectParameter.
    */
@@ -91,14 +91,14 @@ namespace TPProto{
     */
     virtual ObjectParameter* clone() = 0;
 
-    /*//! \brief Be visisted by an ObjectParameterVisitor.
+    /*! \brief Be visisted by an ObjectParameterVisitor.
 
     All subclasses must override this method to be visited
     by the correct method in ObjectParameterVisitor.
     \param opv The ObjectParameterVisitor that wishes to visit this
     ObjectParameter.
     */
-//     virtual void visit(ObjectParameterVisitor* opv) = 0;
+    virtual void visit(ObjectParameterVisitor* opv) = 0;
 
     std::string getName();
     std::string getDescription();
