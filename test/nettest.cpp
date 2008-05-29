@@ -219,8 +219,9 @@ void NetTest::receiveUniverse(boost::shared_ptr<Object> universe){
         std::cout << "Got the Universe object ok, status: " << mygame->getStatus() << std::endl;
         std::cout << "ID: " << universe->getId() << std::endl;
         std::cout << "name: " << universe->getName() << std::endl;
+        std::cout << "description: " << universe->getDescription() << std::endl;
         std::cout << "type: " << universe->getObjectType() << std::endl;
-        std::cout << "size: " << universe->getSize() << std::endl;
+        //std::cout << "size: " << universe->getSize() << std::endl;
         //std::cout << "age: " << universe->getAge() << std::endl;
 
         std::set<unsigned int> obset = universe->getContainedObjectIds();
