@@ -19,6 +19,7 @@
  */
 
 #include <boost/bind.hpp>
+#include <iostream>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -234,6 +235,7 @@ namespace TPProto{
                     delete frame;
                     delete data;
                     //TODO create a fail frame with local error, and give to framecodec
+                    std::cerr << "Failed to unpack Buffer" << std::endl;
                 }
             }
             
