@@ -88,7 +88,7 @@ namespace TPProto{
     \param data The array to store the data in.
     \return The length written into the data array.
     */
-    virtual int recv(int len, char * &data) = 0;
+    virtual int recv(int len, char * data) = 0;
 
     void readyToSend();
     void readyToRead();

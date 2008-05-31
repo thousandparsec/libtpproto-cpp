@@ -29,7 +29,7 @@ namespace TPProto{
     void disconnect();
     
     int send(const char *data, int len);
-    int recv(int len, char* &data);
+    int recv(int len, char* data);
 
     void setServerAddr(const char* host, const char* port);
 
