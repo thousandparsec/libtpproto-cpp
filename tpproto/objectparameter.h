@@ -37,7 +37,7 @@ namespace TPProto{
         obpT_Velocity_3D = 1,
         obpT_Acceleration_3D = 2,
         obpT_Position_Bound = 3,
-        obpT_Order_Queuel = 4,
+        obpT_Order_Queue = 4,
         obpT_Resource_List = 5,
         obpT_Reference = 6,
         obpT_Reference_Quantity_List = 7,
