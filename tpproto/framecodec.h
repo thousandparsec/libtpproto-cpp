@@ -82,7 +82,6 @@ namespace TPProto{
 
   private:
     void recvOneFrame();
-    void clearIncomingFrames();
 
     AsyncFrameListener* asynclistener;
     Logger* logger;
@@ -91,7 +90,10 @@ namespace TPProto{
     int version;
     int nextseqnum;
 
-    std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > > incomingframes;
+    char* rheaderbuff;
+    char* rdatabuff;
+    uint32_t rbuffused;
+
     std::map<uint32_t, FrameSignal* > framesignals;
     std::map<uint32_t, uint32_t> expectedframes;
 

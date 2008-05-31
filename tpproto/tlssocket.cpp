@@ -227,11 +227,11 @@ namespace TPProto{
     \param data The array to store the data in.
     \return The length written into the data array.
     */
-    int TlsSocket::recv(int len, char* &data){
+    int TlsSocket::recv(int len, char* data){
         if(status != 1){
             throw new DisconnectedException();
         }
-        data = (char*)malloc(len);
+        
         int rlen = gnutls_record_recv(session, data, len);
         if(rlen == 0){
             status = 0;

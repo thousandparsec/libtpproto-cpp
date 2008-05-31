@@ -258,7 +258,8 @@ namespace TPProto{
   void Buffer::setData(char* buff, uint32_t len){
     if(data != NULL)
       free(data);
-    data = buff;
+    data = (char*)malloc(len);
+    memcpy(data, buff, len);
     datalen = len;
     dataptr = 0;
   }

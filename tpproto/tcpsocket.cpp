@@ -8,6 +8,7 @@
 #include <sys/select.h>
 #include <stdlib.h>
 #include <errno.h>
+#include <fcntl.h>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -136,6 +137,7 @@ namespace TPProto{
       
       if(!(fd < 0)){
 	status = 1;
+        fcntl(fd, F_SETFL, O_NONBLOCK);
 	return true;
       }
     }
@@ -192,11 +194,11 @@ namespace TPProto{
     \param data The array to store the data in.
     \return The length written into the data array.
     */
-  int TcpSocket::recv(int len, char* &data){
+  int TcpSocket::recv(int len, char* data){
         if(status != 1){
             throw new DisconnectedException();
         }
-        data = (char*)malloc(len);
+        
         int rlen = ::recv(fd, data, len, 0);
        
         if(rlen < 0 && (errno == EAGAIN || errno == EWOULDBLOCK))

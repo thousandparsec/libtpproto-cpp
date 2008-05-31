@@ -51,7 +51,7 @@ namespace TPProto {
     - SilentLogger for the Logger
     - version unknown
   */
-  FrameCodec::FrameCodec() : Connection(){
+  FrameCodec::FrameCodec() : Connection(), rheaderbuff(NULL), rdatabuff(NULL), rbuffused(0){
     asynclistener = NULL;
     logger = new SilentLogger();
     status = 0;
@@ -64,7 +64,7 @@ namespace TPProto {
   FrameCodec::~FrameCodec(){
     delete logger;
 
-        clearIncomingFrames();
+
   }
 
   /*! \brief Sets the AsyncFrameListener.
@@ -259,25 +259,40 @@ namespace TPProto {
   Grabs one Frame from the TPSocket.
   */
   void FrameCodec::recvOneFrame(){
+      logger->debug("FrameCodec::readyToRead");
     if(socket->isConnected()){
-      char* head, *body;
-      int rlen = socket->recv(16, head);
-      if(rlen != 16){
-	//now what?
-	logger->warning("Could not read whole header");
-	delete head;
-	return;
+      if(rheaderbuff == NULL){
+          rheaderbuff = new char[16];
+      }
+      if(rdatabuff == NULL){
+        int rlen = socket->recv(16 - rbuffused, rheaderbuff + rbuffused);
+        if(rlen == 0)
+            return;
+        
+        rbuffused += rlen;
+        if(rbuffused != 16){
+            return;
+        }
       }
       
       uint32_t len, type, sequ, fpver, fver;
       
       Buffer * header = new Buffer();
-      header->setData(head, rlen);
+      header->setData(rheaderbuff, 16);
  
       if(!header->readHeader(fpver, sequ, type, len, fver)){
 	// invalid header
 	logger->warning("Header invalid");
 	delete header;
+        
+        if(rdatabuff != NULL){
+            delete[] rdatabuff;
+            rdatabuff = NULL;
+        }
+        delete rheaderbuff;
+        rheaderbuff = NULL;
+        rbuffused = 0;
+        //TODO probably throw an exception here.
 	return;
       }
       delete header;
@@ -286,6 +301,13 @@ namespace TPProto {
 	logger->warning("Wrong verison of protocol, ver: %d sequ: %d type: %d len: %d", fpver, sequ, type, len);
 	socket->disconnect();
 	status = 0;
+        if(rdatabuff != NULL){
+            delete[] rdatabuff;
+            rdatabuff = NULL;
+        }
+        delete rheaderbuff;
+        rheaderbuff = NULL;
+        rbuffused = 0;
 	return;
       }
       
@@ -298,37 +320,55 @@ namespace TPProto {
                 logger->warning("Wrong verison of protocol (%d), server got it wrong, ", fpver);
                 socket->disconnect();
                 status = 0;
+                if(rdatabuff != NULL){
+                    delete[] rdatabuff;
+                    rdatabuff = NULL;
+                }
+                delete rheaderbuff;
+                rheaderbuff = NULL;
+                rbuffused = 0;
                 return;
             }
         }
 
-      rlen = socket->recv(len, body);
-      if(rlen != len){
-	//again, now what?
-	logger->warning("Could not read whole body");
-	delete body;
+        if(len == 0){
+            delete[] rheaderbuff;
+            rheaderbuff = NULL;
+            if(rdatabuff != NULL){
+                delete[] rdatabuff;
+                rdatabuff = NULL;
+            }
+            rbuffused = 0;
+            logger->debug("Building frame that has no body");
+            layer->getFrameBuilder()->buildFrame(type, new Buffer(), fver, sequ);
+            return;
+        }
+        
+        if(rdatabuff == NULL){
+            rdatabuff = new char[len];
+            rbuffused = 0;
+        }
+        
+      int rlen = socket->recv(len - rbuffused, rdatabuff+ rbuffused);
+      rbuffused += rlen;
+      if(rbuffused != len){
 	return;
       }
       Buffer *data = new Buffer();
-      data->setData(body, rlen);
+      data->setData(rdatabuff, len);
       
+      delete[] rheaderbuff;
+      rheaderbuff = NULL;
+      delete[] rdatabuff;
+      rdatabuff = NULL;
+      rbuffused = 0;
+      
+      logger->debug("Building frame");
       layer->getFrameBuilder()->buildFrame(type, data, fver, sequ);
 
     }
   }
 
-    void FrameCodec::clearIncomingFrames(){
-        for(std::map<uint32_t, std::pair<uint32_t, std::list<Frame*>* > >::iterator outeriter = incomingframes.begin();
-                outeriter != incomingframes.end(); ++outeriter){
-            std::list<Frame*> tmplist = *(outeriter->second.second);
-            for(std::list<Frame*>::iterator inneriter = tmplist.begin();
-                    inneriter != tmplist.end(); ++inneriter){
-                delete *inneriter;
-            }
-            delete outeriter->second.second;
-        }
-        incomingframes.clear();
-    }
     
 }// namespace
 
