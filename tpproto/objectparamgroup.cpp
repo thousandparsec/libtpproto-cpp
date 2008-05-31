@@ -28,6 +28,11 @@
 #include "velocity3dobjectparam.h"
 #include "sizeobjectparam.h"
 #include "integerobjectparam.h"
+#include "orderqueueobjectparam.h"
+#include "resourcelistobjectparam.h"
+#include "referenceobjectparam.h"
+#include "refquantlistobjectparam.h"
+#include "mediaobjectparam.h"
 
 #include "objectparamgroup.h"
 
@@ -88,6 +93,21 @@ namespace TPProto{
               break;
           case obpT_Integer:
               opm = new IntegerObjectParam();
+              break;
+          case obpT_Order_Queue:
+              opm = new OrderQueueObjectParam();
+              break;
+          case obpT_Resource_List:
+              opm = new ResourceListObjectParam();
+              break;
+          case obpT_Reference:
+              opm = new ReferenceObjectParam();
+              break;
+          case obpT_Reference_Quantity_List:
+              opm = new RefQuantityListObjectParam();
+              break;
+          case obpT_Media:
+              opm = new MediaObjectParam();
               break;
 
       default:

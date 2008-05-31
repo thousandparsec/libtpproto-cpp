@@ -11,6 +11,11 @@ namespace TPProto{
   class Velocity3dObjectParam;
   class SizeObjectParam;
   class IntegerObjectParam;
+  class OrderQueueObjectParam;
+  class ResourceListObjectParam;
+  class ReferenceObjectParam;
+  class RefQuantityListObjectParam;
+  class MediaObjectParam;
           
   /*! \brief A nice way of handling the various types of ObjectParameter classes.
 
@@ -33,6 +38,16 @@ namespace TPProto{
     virtual void visitObjectParameter(SizeObjectParam* op) = 0;
     
     virtual void visitObjectParameter(IntegerObjectParam* op) = 0;
+    
+    virtual void visitObjectParameter(OrderQueueObjectParam* op) = 0;
+    
+    virtual void visitObjectParameter(ResourceListObjectParam* op) = 0;
+    
+    virtual void visitObjectParameter(ReferenceObjectParam* op) = 0;
+    
+    virtual void visitObjectParameter(RefQuantityListObjectParam* op) = 0;
+    
+    virtual void visitObjectParameter(MediaObjectParam* op) = 0;
 
   };
 
