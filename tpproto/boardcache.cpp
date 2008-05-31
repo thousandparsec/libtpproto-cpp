@@ -38,7 +38,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    BoardCache::BoardCache() : Cache(), watchers(), waiters(), myboardid(-1), myboardwaiters(){
+    BoardCache::BoardCache() : Cache(), watchers(), waiters(), myboardid(0xffffffff), myboardwaiters(){
     }
 
     /*! \brief Destructor.
@@ -50,7 +50,7 @@ namespace TPProto {
     In BoardCache, we also see what our board's Id is, so we can direct people to it.
     */
     void BoardCache::update(){
-        if(myboardid == -1){
+        if(myboardid == 0xffffffff){
             GetBoard* gb = protocol->getFrameFactory()->createGetBoard();
             gb->addId(0);
             protocol->getFrameCodec()->sendFrame(gb, boost::bind(&BoardCache::receiveMyBoard, this, _1));
@@ -64,7 +64,7 @@ namespace TPProto {
     */
     void BoardCache::requestBoard(uint32_t bid, const BoardCallback &cb){
         if(bid == 0){
-            if(myboardid == -1){
+            if(myboardid == 0xffffffff){
                 myboardwaiters.connect(cb);
                 return;
             }
