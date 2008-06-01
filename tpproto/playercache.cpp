@@ -37,7 +37,7 @@ namespace TPProto {
 
     /*! \brief Default Constructor.
     */
-    PlayerCache::PlayerCache() : Cache(), watchers(), waiters(), myplayerid(-1), myplayerwaiters(){
+    PlayerCache::PlayerCache() : Cache(), watchers(), waiters(), myplayerid(0xffffffff), myplayerwaiters(){
     }
 
     /*! \brief Destructor.
@@ -46,7 +46,7 @@ namespace TPProto {
     }
 
     void PlayerCache::update(){
-        if(myplayerid == -1){
+        if(myplayerid == 0xffffffff){
             GetPlayer* gp = protocol->getFrameFactory()->createGetPlayer();
             gp->addId(0);
             protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetPlayer>(gp), boost::bind(&PlayerCache::receiveMyPlayer, this, _1));
@@ -57,7 +57,7 @@ namespace TPProto {
     void PlayerCache::requestPlayer(uint32_t pid, const PlayerCallback &cb){
         if(pid != 0xffffffff){
             if(pid == 0){
-                if(myplayerid == -1){
+                if(myplayerid == 0xffffffff){
                     myplayerwaiters.connect(cb);
                     return;
                 }
