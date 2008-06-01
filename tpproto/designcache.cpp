@@ -19,6 +19,7 @@
  */
 
 #include <list>
+#include <boost/bind.hpp>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -72,83 +73,31 @@ namespace TPProto {
 
     /*! \brief Adds a Design to the server.
     \param design The Design to add.
-    \return True if added successfully, false otherwise.
     */
-    bool DesignCache::addDesign(Design* design){
-//         AddDesign* frame = protocol->getFrameFactory()->createAddDesign();
-//         frame->copyFromDesign(design);
-//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-//         delete frame;
-//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-//         Frame * reply = NULL;
-//         if(replies.size() >= 1){
-//             reply = replies.front();
-//         }
-//         if(reply != NULL){
-//             if(reply->getType() == ft02_OK){
-//                 
-//                 delete reply;
-//                 cache->update();
-//                 return true;
-//             }
-//             delete reply;
-//         }
-        return false;
+    void DesignCache::addDesign(Design* design){
+        AddDesign* frame = protocol->getFrameFactory()->createAddDesign();
+        frame->copyFromDesign(design);
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&DesignCache::receiveAddDesign, this, _1));
     }
 
     /*! \brief Modifies a Design on the server.
     \param design The Design to modify.
-    \return True if modified successfully, false otherwise.
     */
-    bool DesignCache::modifyDesign(Design* design){
-//         ModifyDesign* frame = protocol->getFrameFactory()->createModifyDesign();
-//         frame->copyFromDesign(design);
-//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-//         delete frame;
-//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-//         Frame * reply = NULL;
-//         if(replies.size() >= 1){
-//             reply = replies.front();
-//         }
-//         if(reply != NULL){
-//             if(reply->getType() == ft02_OK){
-//                 
-//                 delete reply;
-//                 cache->markInvalid(design->getDesignId());
-//                 return true;
-//             }
-//             delete reply;
-//         }
-        return false;
+    void DesignCache::modifyDesign(Design* design){
+        ModifyDesign* frame = protocol->getFrameFactory()->createModifyDesign();
+        frame->copyFromDesign(design);
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&DesignCache::receiveModifyDesign, this, design->getDesignId(), _1));
     }
 
     /*! \brief Removes a design from the server.
     
     Sends the RemoveDesign frame and receives the reply.
     \param designid The Design Id to remove.
-    \return True if sucessful, false otherwise.
   */
-    bool DesignCache::removeDesign(uint32_t designid){
-//         RemoveDesign* frame = protocol->getFrameFactory()->createRemoveDesign();
-//         frame->removeDesignId(designid);
-//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-//         delete frame;
-//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-//         
-//         Frame * reply = NULL;
-//         if(replies.size() >= 1){
-//             reply = replies.front();
-//         }
-//         
-//         if(reply != NULL && reply->getType() == ft02_OK){
-//             delete reply;
-//             cache->markInvalid(designid);
-//             return true;
-//             
-//         }
-//         delete reply;
-//         
-        return false;
+    void DesignCache::removeDesign(uint32_t designid){
+        RemoveDesign* frame = protocol->getFrameFactory()->createRemoveDesign();
+        frame->removeDesignId(designid);
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&DesignCache::receivedRemoveDesign, this, designid, _1));
     }
 
     /*! \brief Set an Design Id as invalid and mark to be refetched.
@@ -220,4 +169,22 @@ namespace TPProto {
         }
     }
     
+    void DesignCache::receiveAddDesign(Frame* frame){
+        if(frame->getType() == ft02_OK){
+            update();
+        }
+    }
+    
+    void DesignCache::receiveModifyDesign(uint32_t did, Frame* frame){
+        if(frame->getType() == ft02_OK){
+            invalidateDesign(did);
+        }
+    }
+    
+    void DesignCache::receivedRemoveDesign(uint32_t did, Frame* frame){
+        if(frame->getType() == ft02_OK){
+            invalidateDesign(did);
+            update();
+        }
+    }
 }
