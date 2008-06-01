@@ -47,8 +47,8 @@ namespace TPProto{
     void requestCategory(uint32_t catid, const CategoryCallback &cb);
     boost::signals::connection watchCategory(uint32_t catid, const CategoryCallback &cb);
     
-//     bool addCategory(Category* cat);
-//     bool removeCategory(uint32_t catid);
+    void addCategory(Category* cat);
+    void removeCategory(uint32_t catid);
     
     void invalidateCategory(uint32_t catid);
 
@@ -64,6 +64,8 @@ namespace TPProto{
     virtual void existingItem(boost::shared_ptr<Frame> item);
 
         private:
+            void receiveAddCategory(Frame* frame);
+            void receiveRemoveCategory(uint32_t catid, Frame* frame);
             std::map<uint32_t, CategorySignal*> watchers;
             std::map<uint32_t, CategorySignal*> waiters;
     };

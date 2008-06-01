@@ -19,6 +19,7 @@
  */
 
 #include <list>
+#include <boost/bind.hpp>
 
 #ifdef HAVE_CONFIG_H
 #include "config.h"
@@ -70,61 +71,26 @@ namespace TPProto {
         return conn;
     }
     
-    /*c! \brief Adds a Category to the server.
+    /*! \brief Adds a Category to the server.
     \param cat The Category to add.
-    \return True if added successfully, false otherwise.
     */
-//     bool CategoryCache::addCategory(Category* cat){
-//         AddCategory* frame = protocol->getFrameFactory()->createAddCategory();
-//         frame->setName(cat->getName());
-//         frame->setDescription(cat->getDescription());
-//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-//         delete frame;
-//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-//         Frame * reply = NULL;
-//         if(replies.size() >= 1){
-//             reply = replies.front();
-//         }
-//         if(reply != NULL){
-//             if(reply->getType() == ft02_OK){
-//                 
-//                 delete reply;
-//                 cache->update();
-//                 return true;
-//             }
-//             delete reply;
-//         }
-//         return false;
-//     }
+    void CategoryCache::addCategory(Category* cat){
+        AddCategory* frame = protocol->getFrameFactory()->createAddCategory();
+        frame->setName(cat->getName());
+        frame->setDescription(cat->getDescription());
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&CategoryCache::receiveAddCategory, this, _1));
+    }
 
-    /*c! \brief Removes a category from the server.
+    /*! \brief Removes a category from the server.
     
     Sends the RemoveCategory frame and receives the reply.
     \param catid The Category Id to remove.
-    \return True if sucessful, false otherwise.
   */
-//     bool CategoryCache::removeCategory(uint32_t catid){
-//         RemoveCategory* frame = protocol->getFrameFactory()->createRemoveCategory();
-//         frame->removeCategoryId(catid);
-//         uint32_t seqnum = protocol->getFrameCodec()->sendFrame(frame);
-//         delete frame;
-//         std::list<Frame*> replies = protocol->getFrameCodec()->recvFrames(seqnum);
-//         
-//         Frame * reply = NULL;
-//         if(replies.size() >= 1){
-//             reply = replies.front();
-//         }
-//         
-//         if(reply != NULL && reply->getType() == ft02_OK){
-//             delete reply;
-//             cache->markInvalid(catid);
-//             return true;
-//             
-//         }
-//         delete reply;
-//         
-//         return false;
-//     }
+    void CategoryCache::removeCategory(uint32_t catid){
+        RemoveCategory* frame = protocol->getFrameFactory()->createRemoveCategory();
+        frame->removeCategoryId(catid);
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&CategoryCache::receiveRemoveCategory, this, catid, _1));
+    }
 
     /*! \brief Set an Category Id as invalid and mark to be refetched.
     \param catid The id of the Category to invalidate.
@@ -193,6 +159,19 @@ namespace TPProto {
                 delete bs;
             }
             waiters.erase(category->getCategoryId());
+        }
+    }
+    
+    void CategoryCache::receiveAddCategory(Frame* frame){
+        if(frame->getType() == ft02_OK){
+            update();
+        }
+    }
+    
+    void CategoryCache::receiveRemoveCategory(uint32_t catid, Frame* frame){
+        if(frame->getType() == ft02_OK){
+            invalidateCategory(catid);
+            update();
         }
     }
     
