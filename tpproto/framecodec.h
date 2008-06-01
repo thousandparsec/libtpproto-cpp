@@ -25,6 +25,7 @@
 #include <map>
 #include <list>
 #include <boost/signal.hpp>
+#include <boost/shared_ptr.hpp>
 
 #include <tpproto/connection.h>
 
@@ -71,7 +72,7 @@ namespace TPProto{
     //send and receive frames
     //uint32_t sendFrame(Frame * f);
     //std::list<Frame*> recvFrames(uint32_t seqnum);
-    FrameConnection sendFrame(Frame * f, const FrameSignal::slot_type& callback);
+    FrameConnection sendFrame(boost::shared_ptr<Frame>  f, const FrameSignal::slot_type& callback);
     
     //Connection related methods
     void readyToRead();

@@ -149,6 +149,7 @@ namespace TPProto{
         void accountCreateCallback(Frame* frame);
         void timeRemainingCallback(Frame* frame);
         void finishedTurnCallback(Frame* frame);
+        void gameInfoCallback(Frame* frame);
         
         ProtocolLayer* protocol;
         EventLoop* eventloop;

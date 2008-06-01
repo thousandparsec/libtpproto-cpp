@@ -49,7 +49,7 @@ namespace TPProto {
         if(myplayerid == -1){
             GetPlayer* gp = protocol->getFrameFactory()->createGetPlayer();
             gp->addId(0);
-            protocol->getFrameCodec()->sendFrame(gp, boost::bind(&PlayerCache::receiveMyPlayer, this, _1));
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetPlayer>(gp), boost::bind(&PlayerCache::receiveMyPlayer, this, _1));
         }
         Cache::update();
     }

@@ -53,7 +53,7 @@ namespace TPProto {
         if(myboardid == 0xffffffff){
             GetBoard* gb = protocol->getFrameFactory()->createGetBoard();
             gb->addId(0);
-            protocol->getFrameCodec()->sendFrame(gb, boost::bind(&BoardCache::receiveMyBoard, this, _1));
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetBoard>(gb), boost::bind(&BoardCache::receiveMyBoard, this, _1));
         }
         Cache::update();
     }

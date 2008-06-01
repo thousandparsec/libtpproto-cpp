@@ -81,6 +81,8 @@
 #include "redirect.h"
 #include "probeorder.h"
 #include "finished.h"
+#include "getgameinfo.h"
+#include "gameinfo.h"
 
 #include "gamelayer.h"
 
@@ -353,8 +355,7 @@ namespace TPProto {
             status = gsConnecting;
             Connect * cf = protocol->getFrameFactory()->createConnect();
             cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid);
-            protocol->getFrameCodec()->sendFrame(cf, boost::bind(&GameLayer::connectCallback, this, _1));
-            delete cf;
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Connect>(cf), boost::bind(&GameLayer::connectCallback, this, _1));
             return true;
         }else{
             logger->error("Could not open socket to server");
@@ -378,8 +379,7 @@ namespace TPProto {
           account->setPass(password);
           account->setEmail(email);
           account->setComment(comment);
-          protocol->getFrameCodec()->sendFrame(account, boost::bind(&GameLayer::accountCreateCallback, this, _1));
-          delete account;
+          protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(account), boost::bind(&GameLayer::accountCreateCallback, this, _1));
           
           return true;
 
@@ -404,8 +404,7 @@ namespace TPProto {
             Login * login = protocol->getFrameFactory()->createLogin();
             login->setUser(username);
             login->setPass(password);
-           protocol->getFrameCodec()->sendFrame(login, boost::bind(&GameLayer::loginCallback, this, _1));
-            delete login;
+           protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Login>(login), boost::bind(&GameLayer::loginCallback, this, _1));
             return true;
         }
         if(!sock->isConnected()){
@@ -838,13 +837,12 @@ namespace TPProto {
     void GameLayer::getTimeRemaining(){
         GetTime* gt = protocol->getFrameFactory()->createGetTimeRemaining();
         
-        protocol->getFrameCodec()->sendFrame(gt, boost::bind(&GameLayer::timeRemainingCallback, this, _1));
-        delete gt;
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetTime>(gt), boost::bind(&GameLayer::timeRemainingCallback, this, _1));
     }
 
     void GameLayer::finishedTurn(){
-        FinishedFrame* ft = protocol->getFrameFactory()->createFinished();
-        if(ft != NULL){
+        boost::shared_ptr<FinishedFrame> ft(protocol->getFrameFactory()->createFinished());
+        if(ft){
             protocol->getFrameCodec()->sendFrame(ft, boost::bind(&GameLayer::finishedTurnCallback, this, _1));
         }
     }
@@ -856,9 +854,13 @@ namespace TPProto {
             logger->info("Connected");
             //get features
             GetFeatures * gf = protocol->getFrameFactory()->createGetFeatures();
-            protocol->getFrameCodec()->sendFrame(gf, boost::bind(&GameLayer::featureCallback, this, _1));
-            delete gf;
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetFeatures>(gf), boost::bind(&GameLayer::featureCallback, this, _1));
             //if tp04, get game info
+            boost::shared_ptr<GetGameInfo> ggi(protocol->getFrameFactory()->createGetGameInfo());
+            if(ggi){
+                protocol->getFrameCodec()->sendFrame(ggi, boost::bind(&GameLayer::gameInfoCallback, this, _1));
+            }
+            
             
             if(statuslistener != NULL)
                 statuslistener->connected();
@@ -946,6 +948,10 @@ namespace TPProto {
         //check the frame type
         //disable sending finishedturn frames if fail frame.
         delete frame;
+    }
+    
+    void GameLayer::gameInfoCallback(Frame* frame){
+        
     }
     
 }

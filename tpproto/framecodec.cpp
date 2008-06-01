@@ -194,7 +194,7 @@ namespace TPProto {
 // 
 //     }
 
-    FrameConnection FrameCodec::sendFrame(Frame * f, const FrameSignal::slot_type& callback){
+    FrameConnection FrameCodec::sendFrame(boost::shared_ptr<Frame>  f, const FrameSignal::slot_type& callback){
         if(!socket->isConnected()){
             throw new DisconnectedException();
         }
@@ -202,14 +202,15 @@ namespace TPProto {
         f->packBuffer(data);
         Buffer *header = new Buffer();
         uint32_t real_seqnum = nextseqnum;
+        nextseqnum++;
+        if(nextseqnum == 0)
+            nextseqnum++;
+        f->setSequenceNumber(real_seqnum);
         header->createHeader(f->getProtocolVersion(), real_seqnum, f->getType(), data->getLength());
         socket->send(header->getData(), header->getLength());
         if(data->getLength() > 0){
             socket->send(data->getData(), data->getLength());
         }
-        nextseqnum++;
-        if(nextseqnum == 0)
-            nextseqnum++;
         delete data;
         delete header;
         FrameSignal *fs = new FrameSignal();

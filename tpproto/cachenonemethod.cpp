@@ -59,8 +59,7 @@ namespace TPProto {
     void CacheNoneMethod::getById(uint32_t id){
         GetById* gbi = cache->createGetByIdFrame();
         gbi->addId(id);
-        protocol->getFrameCodec()->sendFrame(gbi, boost::bind(&CacheNoneMethod::receiveItem, this, _1));
-        delete gbi;
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetById>(gbi), boost::bind(&CacheNoneMethod::receiveItem, this, _1));
     }
 
     void CacheNoneMethod::markInvalid(uint32_t id){
@@ -71,7 +70,7 @@ namespace TPProto {
         GetIdSequence *frame = cache->createGetIdSequenceFrame();
         if(frame != NULL){
             frame->setCount(8737); // When this code is shifted out, this should be in a loop to get all the items
-            protocol->getFrameCodec()->sendFrame(frame, boost::bind(&CacheNoneMethod::receiveIdList, this, _1));
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&CacheNoneMethod::receiveIdList, this, _1));
             
            delete frame; 
         }
