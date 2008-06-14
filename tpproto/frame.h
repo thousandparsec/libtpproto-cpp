@@ -110,7 +110,16 @@ namespace TPProto{
         ft04_ObjectTypes_List = 70,
         ft04_Object_Modify = 71,
     ft02_Max,
-    
+
+    ftad_LogMessage = 1000,
+    ftad_CommandUpdate = 1001,
+    ftad_CommandDesc_Get = 1002,
+    ftad_CommandDesc = 1003,
+    ftad_CommandTypes_List = 1005,
+    ftad_Command = 1006,
+    ftad_CommandResult = 1007,
+    ftad_Max,
+  
     
   };
   
