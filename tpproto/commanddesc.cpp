@@ -50,7 +50,7 @@ namespace TPProto{
     packed on the client side.  assert(0) is called.
         \param buf The Buffer, ignored.
     */
-    void OrderDescription::packBuffer(Buffer* buf)
+    void CommandDescription::packBuffer(Buffer* buf)
     {
         assert(0);
     }

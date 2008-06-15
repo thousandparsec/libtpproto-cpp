@@ -136,12 +136,12 @@ namespace TPProto{
         return new IntegerCommandParameter(*this);
     }
 
-    uint32_t IntegerCommandParameter::getValue()
+    uint32_t IntegerCommandParameter::getValue() const
     {
         return value;
     }
 
-    void IntegerCommandParameter::setValue(uint32_t &nval)
+    void IntegerCommandParameter::setValue(uint32_t nval)
     {
         value = nval;
     }
