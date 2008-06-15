@@ -21,7 +21,7 @@
 #include <cassert>
 
 #include "buffer.h"
-//TODO - include command parameter class
+#include "commandparameter.h"
 
 #include "commanddesc.h"
 
@@ -75,7 +75,12 @@ namespace TPProto{
             CommandParameter* opm = NULL;
             switch(ptype)
             {
-            //TODO - handle parameter types
+            case cpT_String:
+                opm = new StringCommandParameter();
+                break;
+            case cpT_Integer:
+                opm = new IntegerCommandParameter();
+                break;
             default:
 	            break;
             }
