@@ -115,6 +115,7 @@ namespace TPProto{
     ftad_CommandUpdate = 1001,
     ftad_CommandDesc_Get = 1002,
     ftad_CommandDesc = 1003,
+    ftad_CommandTypes_Get = 1004,
     ftad_CommandTypes_List = 1005,
     ftad_Command = 1006,
     ftad_CommandResult = 1007,
