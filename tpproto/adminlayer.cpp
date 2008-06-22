@@ -63,6 +63,8 @@
 
 namespace TPProto {
 
+    class TimeRemaining;
+
     class AdminLayerAsyncFrameListener : public AsyncFrameListener{
     public:
         
@@ -74,6 +76,9 @@ namespace TPProto {
         {
             layer = al;
         }
+
+        // TimeRemaining frames are not used by admin clients
+        void recvTimeRemaining(TimeRemaining * trf){}
         
         void recvLogMessage(LogMessage * lmf)
         {

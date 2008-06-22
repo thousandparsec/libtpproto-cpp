@@ -88,6 +88,8 @@
 
 namespace TPProto {
 
+    class LogMessage;
+
     /*! \brief A AsyncFrameListener for GameLayer.
     Internally used by GameLayer to get async frames.
     */
@@ -125,6 +127,9 @@ namespace TPProto {
                 }
             }
         }
+
+        // LogMessage frames are not used by game clients
+        void recvLogMessage(LogMessage* lmf){}
         
     private:
         GameLayer* layer;

@@ -30,6 +30,12 @@ namespace TPProto{
     */
     virtual void recvTimeRemaining(TimeRemaining* trf) = 0;
 
+    /*! \brief Handles LogMessage frames (must be overridden).
+     
+    \param lmf The LogMessage frame received.
+    */
+    virtual void recvLogMessage(LogMessage* lmf) = 0;
+
   };
 
 }
