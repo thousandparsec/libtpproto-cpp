@@ -131,12 +131,12 @@ namespace TPProto {
     {
         boost::shared_ptr<CommandDescription> cmddesc(boost::dynamic_pointer_cast<CommandDescription>(item));
         if(cmddesc){
-            CommandDescSignal* bs = waiters[cmddesc->getOrderType()];
+            CommandDescSignal* bs = waiters[cmddesc->getCommandType()];
             if(bs != NULL){
                 (*bs)(cmddesc);
                 delete bs;
             }
-            waiters.erase(orddesc->getCommandType());
+            waiters.erase(cmddesc->getCommandType());
         }
     }
 
