@@ -98,6 +98,14 @@
 #include "getpropertyidslist.h"
 #include "propertyidslist.h"
 
+#include "logmessage.h"
+#include "getcommanddesc.h"
+#include "commanddesc.h"
+#include "getcommandtypeslist.h"
+#include "commandtypeslist.h"
+#include "command.h"
+#include "commandresult.h"
+
 #include "framefactory.h"
 
 namespace TPProto {
@@ -906,6 +914,90 @@ namespace TPProto {
     PropertyIdsList* FrameFactory::createPropertyIdsList(){
         if(pver >= 3){
             PropertyIdsList* f = new PropertyIdsList();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a LogMessage Frame.
+    \return A new LogMessage Frame.
+    */
+    LogMessage* FrameFactory::createLogMessage(){
+        if(pver >= 4){
+            LogMessage* f = new LogMessage();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a GetCommandDescription Frame.
+    \return A new GetCommandDescription Frame.
+    */
+    GetCommandDescription* FrameFactory::createGetCommandDescription(){
+        if(pver >= 4){
+            GetCommandDescription* f = new GetCommandDescription();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a CommandDescription Frame.
+    \return A new CommandDescription Frame.
+    */
+    CommandDescription* FrameFactory::createCommandDescription(){
+        if(pver >= 4){
+            CommandDescription* f = new CommandDescription();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a GetCommandTypesList Frame.
+    \return A new GetCommandTypesList Frame.
+    */
+    GetCommandTypesList* FrameFactory::createGetCommandTypesList(){
+        if(pver >= 4){
+            GetCommandTypesList* f = new GetCommandTypesList();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a CommandTypesList Frame.
+    \return A new CommandTypesList Frame.
+    */
+    CommandTypesList* FrameFactory::createCommandTypesList(){
+        if(pver >= 4){
+            CommandTypesList* f = new CommandTypesList();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a Command Frame.
+    \return A new Command Frame.
+    */
+    Command* FrameFactory::createCommand(){
+        if(pver >= 4){
+            Command* f = new Command();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a CommandResult Frame.
+    \return A new CommandResult Frame.
+    */
+    CommandResult* FrameFactory::createCommandResult(){
+        if(pver >= 4){
+            CommandResult* f = new CommandResult();
             f->setProtocolVersion(pver);
             return f;
         }

@@ -102,6 +102,14 @@ namespace TPProto{
     class Property;
     class GetPropertyIdsList;
     class PropertyIdsList;
+    // admin frame types
+    class LogMessage;
+    class GetCommandDescription;
+    class CommandDescription;
+    class GetCommandTypesList;
+    class CommandTypesList;
+    class Command;
+    class CommandResult;
 
     /*! \brief FrameFactory baseclass.
     
@@ -189,6 +197,14 @@ namespace TPProto{
         virtual Property* createProperty();
         virtual GetPropertyIdsList* createGetPropertyIdsList();
         virtual PropertyIdsList* createPropertyIdsList();
+        // admin frame types
+        virtual LogMessage* createLogMessage();
+        virtual GetCommandDescription* createGetCommandDescription();
+        virtual CommandDescription* createCommandDescription();
+        virtual GetCommandTypesList* createGetCommandTypesList();
+        virtual CommandTypesList* createCommandTypesList();
+        virtual Command* createCommand();
+        virtual CommandResult* createCommandResult();
 
     protected:
         /*! \brief The Protocol Version to make frames for.
