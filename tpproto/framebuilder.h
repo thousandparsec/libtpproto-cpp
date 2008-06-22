@@ -36,10 +36,13 @@ namespace TPProto{
     class Buffer;
     class OrderDescCache;
     class ObjectDescCache;
+    class Command;
+    class CommandDescCache;
 
     /*! \brief Builds Frames from frame type and Buffer.
 
-    Also creates  Objects from object type, and Orders from order types.
+    Also creates  Objects from object types, Orders from order types,
+    and Commands from command types.
     */
     class FrameBuilder{
     public:
@@ -49,12 +52,14 @@ namespace TPProto{
         void setProtocolLayer(ProtocolLayer* pl);
         void setOrderDescCache(OrderDescCache* odc);
         void setObjectDescCache(ObjectDescCache* odc);
+        void setCommandDescCache(CommandDescCache* cdc);
         
         virtual void buildFrame(uint32_t type, Buffer* data, uint32_t ftver, uint32_t seqnum);
         
     protected:
         void processOrderDescription(Frame* frame, Buffer* data, boost::shared_ptr<OrderDescription> od);
         void processObjectDescription(Frame* frame, Buffer* data, boost::shared_ptr<ObjectDescription> od);
+        void processCommandDescription(Frame* frame, Buffer* data, boost::shared_ptr<CommandDescription> cd);
         
         /*! \brief The ProtocolLayer this FrameBuilder is part of.
         */
@@ -67,6 +72,10 @@ namespace TPProto{
         /*! The ObjectDescCache to use to create Objects.
         */
         ObjectDescCache* objectdesccache;
+
+        /*! The CommandDescCache to use to create Commands.
+        */
+        CommandDescCache* commanddesccache;
         
     };
 

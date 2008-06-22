@@ -31,6 +31,7 @@
 #include "buffer.h"
 #include "orderdesccache.h"
 #include "objectdesccache.h"
+#include "commanddesccache.h"
 
 #include "okframe.h"
 #include "failframe.h"
@@ -60,6 +61,11 @@
 #include "gameinfo.h"
 #include "objecttypeslist.h"
 #include "objectdesc.h"
+#include "logmessage.h"
+#include "commanddesc.h"
+#include "commandtypeslist.h"
+#include "command.h"
+#include "commandresult.h"
 
 #include "framebuilder.h"
 
@@ -88,6 +94,10 @@ namespace TPProto{
     
     void FrameBuilder::setObjectDescCache(ObjectDescCache* odc){
         objectdesccache = odc;
+    }
+
+    void FrameBuilder::setCommandDescCache(CommandDescCache* cdc){
+        commanddesccache = cdc;
     }
     
     /*! \brief Builds a frame from it's type.
@@ -215,6 +225,22 @@ namespace TPProto{
             frame = layer->getFrameFactory()->createObjectTypesList();
             break;
 
+        case ftad_LogMessage:
+            frame = layer->getFrameFactory()->createLogMessage();
+            break;
+
+        case ftad_CommandDesc:
+            frame = layer->getFrameFactory()->createCommandDescription();
+            break;
+
+        case ftad_CommandTypes_List:
+            frame = layer->getFrameFactory()->createCommandTypesList();
+            break;
+
+        case ftad_CommandResult:
+            frame = layer->getFrameFactory()->createCommandResult();
+            break;
+
         default:
             //others...
             break;
@@ -227,6 +253,8 @@ namespace TPProto{
                 objectdesccache->requestObjectDescription(data->peekInt(4), boost::bind(&FrameBuilder::processObjectDescription, this, frame, data, _1));
             }else if(type == ft02_Order){
                 orderdesccache->requestOrderDescription(data->peekInt(8), boost::bind(&FrameBuilder::processOrderDescription, this, frame, data, _1));
+            }else if(type == ftad_Command){
+                commanddesccache->requestCommandDescription(data->peekInt(4), boost::bind(&FrameBuilder::processCommandDescription, this, frame, data, _1));
             }else{
                 if(frame->unpackBuffer(data)){
                     delete data;
@@ -266,6 +294,25 @@ namespace TPProto{
             Object* object = static_cast<Object*>(frame);
             object->setObjectType(od);
             if(object->unpackBuffer(data)){
+                delete data;
+                layer->getFrameCodec()->receivedFrame(frame);
+            }else{
+                delete frame;
+                delete data;
+                //fail frame as above
+            }
+        }else{
+            delete frame;
+            delete data;
+            //fail frame as above
+        }
+    }
+
+    void FrameBuilder::processCommandDescription(Frame* frame, Buffer* data, boost::shared_ptr<CommandDescription> cd){
+        if(cd){
+            Command* command = static_cast<Command*>(frame);
+            command->setCommandType(cd);
+            if(command->unpackBuffer(data)){
                 delete data;
                 layer->getFrameCodec()->receivedFrame(frame);
             }else{
