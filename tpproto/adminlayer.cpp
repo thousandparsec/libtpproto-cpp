@@ -163,6 +163,16 @@ namespace TPProto {
         protocol->getFrameCodec()->setEventLoop(eventloop);
     }
 
+    /*! \brief Gets the state of the admin connection.
+    \return The AdminStatus enum value for the current state.
+    */
+    AdminStatus AdminLayer::getStatus()
+    {
+        if((sock == NULL || !sock->isConnected()) && status != asDisconnected)
+            status = asDisconnected;
+        return status;
+    }
+
     /*! \brief Gets the ProtocolLayer being used.
     This could be used to do low level calls to the protocol itself, or 
     more importantly, set the FrameFactory, FrameBuilder and/or FrameCodec

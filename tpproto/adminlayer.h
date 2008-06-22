@@ -59,6 +59,9 @@ namespace TPProto{
         void setCacheMethod(CacheMethod* prototype);
         void setEventLoop(EventLoop* el);
 
+        // status
+        AdminStatus getStatus();
+
         // protocol layer
         ProtocolLayer* getProtocolLayer() const;
 
