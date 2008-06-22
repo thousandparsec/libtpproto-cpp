@@ -30,8 +30,10 @@
 
 namespace TPProto{
 
+    class Logger;
     class ProtocolLayer;
     class TPSocket;
+    class Frame;
     class Command;
     class AdminLayerAsyncFrameListener;
     class CacheMethod;
@@ -56,8 +58,8 @@ namespace TPProto{
         // config and setup
         void setClientString(const std::string & name);
         void setLogger(Logger * nlog);
-        void setCacheMethod(CacheMethod* prototype);
-        void setEventLoop(EventLoop* el);
+        void setCacheMethod(CacheMethod * prototype);
+        void setEventLoop(EventLoop * el);
 
         // status
         AdminStatus getStatus();
@@ -67,7 +69,7 @@ namespace TPProto{
 
         // connect, login and disconnect
         bool connect(const std::string& address);
-        bool connect(TPSocket* nsock);
+        bool connect(TPSocket * nsock);
         bool login(const std::string &user, const std::string &password);
         void disconnect();
 
@@ -77,8 +79,8 @@ namespace TPProto{
         CommandDescCache* getCommandDescCache() const;
 
     private:
-        void connectCallback(Frame* frame);
-        void loginCallback(Frame* frame);
+        void connectCallback(Frame * frame);
+        void loginCallback(Frame * frame);
         
         ProtocolLayer * protocol;
         EventLoop * eventloop;
