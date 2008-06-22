@@ -55,6 +55,7 @@ namespace TPProto{
 
         // config and setup
         void setClientString(const std::string & name);
+        void setLogger(Logger * nlog);
         void setCacheMethod(CacheMethod* prototype);
         void setEventLoop(EventLoop* el);
 
