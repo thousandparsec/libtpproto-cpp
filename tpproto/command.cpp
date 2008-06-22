@@ -57,6 +57,16 @@ namespace TPProto{
         type = ftad_Command;
     }
 
+    /*! \brief Unpack from a Buffer, fails always.
+        Command frames are only sent to the server, so unpacking is not needed.
+    \param buf The Buffer to unpack out of, ignored.
+    \return False always.
+    */
+    bool Command::unpackBuffer(Buffer* buf)
+    {
+        return false;
+    }
+
     /*! \brief Gets the name of this command type.
         \return The name of the command.
     */

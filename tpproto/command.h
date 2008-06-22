@@ -44,6 +44,7 @@ namespace TPProto{
         virtual ~Command();
     
         void packBuffer(Buffer* buf);
+        bool unpackBuffer(Buffer* buf);
 
         std::string getName();
         std::string getDescription();
