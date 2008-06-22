@@ -129,7 +129,7 @@ namespace TPProto {
     
     void CommandDescCache::existingItem(boost::shared_ptr<Frame> item)
     {
-        boost::shared_ptr<CommandDescription> orddesc(boost::dynamic_pointer_cast<CommandDescription>(item));
+        boost::shared_ptr<CommandDescription> cmddesc(boost::dynamic_pointer_cast<CommandDescription>(item));
         if(cmddesc){
             CommandDescSignal* bs = waiters[cmddesc->getOrderType()];
             if(bs != NULL){

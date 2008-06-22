@@ -22,7 +22,7 @@
 
 #include "buffer.h"
 
-#include "ordertypeslist.h"
+#include "commandtypeslist.h"
 
 namespace TPProto{
 

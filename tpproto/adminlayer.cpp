@@ -79,16 +79,16 @@ namespace TPProto {
         {
             switch(lmf->getLevel()){
             case LML_Debug:
-                layer->logger->debug(lmf->getMessage());
+                layer->logger->debug(lmf->getMessage().c_str());
                 break;
             case LML_Info:
-                layer->logger->info(lmf->getMessage());
+                layer->logger->info(lmf->getMessage().c_str());
                 break;
             case LML_Warning:
-                layer->logger->warning(lmf->getMessage());
+                layer->logger->warning(lmf->getMessage().c_str());
                 break;
             case LML_Error:
-                layer->logger->error(lmf->getMessage());
+                layer->logger->error(lmf->getMessage().c_str());
                 break;
             }
         }
@@ -264,7 +264,7 @@ namespace TPProto {
             status = asConnecting;
             Connect * cf = protocol->getFrameFactory()->createConnect();
             cf->setClientString(std::string("libtpproto-cpp/") + VERSION + " " + clientid + " (admin)");
-            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Connect>(cf), boost::bind(&GameLayer::connectCallback, this, _1));
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Connect>(cf), boost::bind(&AdminLayer::connectCallback, this, _1));
             return true;
         }else{
             logger->error("Could not open socket to server");
@@ -317,7 +317,7 @@ namespace TPProto {
     \return The CommandDescCache.
     */
     CommandDescCache* AdminLayer::getCommandDescCache() const{
-        return orderdesccache;
+        return commanddesccache;
     }
     
     void AdminLayer::connectCallback(Frame* frame){
