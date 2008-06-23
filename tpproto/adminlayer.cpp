@@ -58,6 +58,7 @@
 #include "commanddesc.h"
 #include "getcommanddesc.h"
 #include "logmessage.h"
+#include "redirect.h"
 
 #include "adminlayer.h"
 
@@ -257,7 +258,7 @@ namespace TPProto {
     */
     bool AdminLayer::connect(TPSocket* nsock){
         if(status != asDisconnected){
-            logger->error("Already connected, ignoring connection attempt");
+            logger->warning("Already connected, ignoring connection attempt");
             return false;
         }
         
@@ -333,6 +334,7 @@ namespace TPProto {
         }else if(frame->getType() == ft03_Redirect){
             status = asDisconnected;
             sock->disconnect();
+            connect(static_cast<Redirect*>(frame)->getUrl());
             delete frame;
         }else{
             status = asDisconnected;
