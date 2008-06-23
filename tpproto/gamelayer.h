@@ -35,6 +35,7 @@ namespace TPProto{
     class Logger;
     class ProtocolLayer;
     class TPSocket;
+    class Frame;
     class Order;
     class Message;
     class Features;
