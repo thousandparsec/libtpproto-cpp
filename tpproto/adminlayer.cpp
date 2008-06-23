@@ -103,6 +103,13 @@ namespace TPProto {
         AdminLayer* layer;
     };
 
+    /*! \brief Constructs object and sets up defaults.
+    
+    Defaults are
+        - The default ProtocolLayer
+        - Disconnected state.
+        - "Unknown client" for the client string
+    */
     AdminLayer::AdminLayer() : protocol(NULL), eventloop(NULL), logger(NULL), status(asDisconnected),
         clientid("Unknown admin client"), asyncframes(new AdminLayerAsyncFrameListener()),
         commanddesccache(new CommandDescCache())
@@ -116,6 +123,8 @@ namespace TPProto {
         protocol->getFrameBuilder()->setCommandDescCache(commanddesccache);
     }
 
+    /*! \brief Destructor.
+     */
     AdminLayer::~AdminLayer()
     {
         if(status != asDisconnected){
