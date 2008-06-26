@@ -35,6 +35,7 @@ namespace TPProto{
     class TPSocket;
     class Frame;
     class Command;
+    class AdminStatusListener;
     class AdminLayerAsyncFrameListener;
     class CacheMethod;
     class CommandDescCache;
@@ -58,6 +59,7 @@ namespace TPProto{
         // config and setup
         void setClientString(const std::string & name);
         void setLogger(Logger * nlog);
+        void setAdminStatusListener(AdminStatusListener* asl);
         void setCacheMethod(CacheMethod * prototype);
         void setEventLoop(EventLoop * el);
 
@@ -85,6 +87,7 @@ namespace TPProto{
         ProtocolLayer * protocol;
         EventLoop * eventloop;
         Logger * logger;
+        AdminStatusListener * statuslistener;
         TPSocket * sock;
         AdminStatus status;
         std::string clientid;

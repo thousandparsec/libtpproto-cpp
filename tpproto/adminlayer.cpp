@@ -34,6 +34,7 @@
 #include "protocollayer.h"
 #include "eventloop.h"
 #include "logger.h"
+#include "adminstatuslistener.h"
 #include "asyncframelistener.h"
 #include "silentlogger.h"
 #include "framecodec.h"
@@ -110,7 +111,7 @@ namespace TPProto {
         - Disconnected state.
         - "Unknown client" for the client string
     */
-    AdminLayer::AdminLayer() : protocol(NULL), eventloop(NULL), logger(NULL), status(asDisconnected),
+    AdminLayer::AdminLayer() : protocol(NULL), eventloop(NULL), logger(NULL), statuslistener(NULL), status(asDisconnected),
         clientid("Unknown admin client"), asyncframes(new AdminLayerAsyncFrameListener()),
         commanddesccache(new CommandDescCache())
     {
@@ -157,6 +158,14 @@ namespace TPProto {
         protocol->getFrameCodec()->setLogger(nlog);
     }
 
+    /*! \brief Sets the AdminStatusListener to use.
+        \param asl The new AdminStatusListener to use.
+    */
+    void AdminLayer::setAdminStatusListener(AdminStatusListener * asl)
+    {
+        statuslistener = asl;
+    }
+
     /*! \brief Sets the CacheMethod for the caches to use.
     Changes the default CacheMethod used, defaults to CacheNoneMethod.
     \param prototype A CacheMethod that will be cloned for each Cache to use.
@@ -184,7 +193,11 @@ namespace TPProto {
     AdminStatus AdminLayer::getStatus()
     {
         if((sock == NULL || !sock->isConnected()) && status != asDisconnected)
+        {
             status = asDisconnected;
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
+        }
         return status;
     }
 
@@ -303,7 +316,11 @@ namespace TPProto {
             return true;
         }
         if(!sock->isConnected())
+        {
             status = asDisconnected;
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
+        }
         return false;
     }
 
@@ -316,6 +333,8 @@ namespace TPProto {
             sock->disconnect();
             logger->info("Disconnected");
             status = asDisconnected;
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
         }
     }
 
@@ -340,16 +359,21 @@ namespace TPProto {
             delete frame;
             status = asConnected;
             logger->info("Connected");
+            if(statuslistener != NULL)
+                statuslistener->connected();
         }else if(frame->getType() == ft03_Redirect){
             status = asDisconnected;
             sock->disconnect();
-            connect(static_cast<Redirect*>(frame)->getUrl());
+            if(statuslistener == NULL || (statuslistener != NULL && statuslistener->redirected(static_cast<Redirect*>(frame)->getUrl())))
+                connect(static_cast<Redirect*>(frame)->getUrl());
             delete frame;
         }else{
             status = asDisconnected;
             logger->error("Could not connect");
             //TODO: check why, maybe wrong protocol version?
             sock->disconnect();
+            if(statuslistener != NULL)
+                statuslistener->disconnected();
             delete frame;
         }
     }
@@ -359,12 +383,18 @@ namespace TPProto {
             delete frame;
             status = asLoggedIn;
             logger->info("Logged In");
+            if(statuslistener != NULL)
+                statuslistener->loggedIn(true);
         }else if(frame->getType() == ft03_Redirect){
             status = asDisconnected;
             sock->disconnect();
+            if(statuslistener == NULL || (statuslistener != NULL && statuslistener->redirected(static_cast<Redirect*>(frame)->getUrl())))
+                connect(static_cast<Redirect*>(frame)->getUrl());
             delete frame;
         }else{
             logger->error("Login failed: %s", ((FailFrame*)frame)->getErrorString().c_str());
+            if(statuslistener != NULL)
+                statuslistener->loggedIn(false);
         }
     }
 

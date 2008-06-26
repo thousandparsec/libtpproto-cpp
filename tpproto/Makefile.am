@@ -67,7 +67,7 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     resourcelistobjectparam.h refquantlistobjectparam.h \
 	logmessage.h getcommanddesc.h commanddesc.h commandparameter.h command.h \
 	getcommandtypeslist.h commandtypeslist.h commandresult.h \
-	adminlayer.h commanddesccache.h
+	adminlayer.h commanddesccache.h adminstatuslistener.h
 
 if GNUTLS
 GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp
