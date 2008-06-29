@@ -18,6 +18,8 @@
  *
  */
 
+#include <sstream>
+
 #include "buffer.h"
 
 #include "commandparameter.h"
@@ -90,6 +92,12 @@ namespace TPProto{
     {
         return new StringCommandParameter(*this);
     }
+    
+    bool StringCommandParameter::setValueFromString(const std::string &nval)
+    {
+        value = nval;
+        return true;
+    }
 
     unsigned int StringCommandParameter::getMaxLength()
     {
@@ -134,6 +142,17 @@ namespace TPProto{
     CommandParameter* IntegerCommandParameter::clone()
     {
         return new IntegerCommandParameter(*this);
+    }
+
+    bool IntegerCommandParameter::setValueFromString(const std::string &nval)
+    {
+        uint32_t ival;
+        std::istringstream sval(nval);
+
+        if(!(sval >> ival))
+            return false;
+        value = ival;
+        return true;
     }
 
     uint32_t IntegerCommandParameter::getValue() const

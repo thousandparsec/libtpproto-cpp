@@ -47,6 +47,7 @@ namespace TPProto{
         virtual void packBuffer(Buffer* buf) = 0;
         virtual bool unpackBuffer(Buffer* buf) = 0;
         virtual CommandParameter* clone() = 0;
+        virtual bool setValueFromString(const std::string &nval) = 0;
 
         std::string getName();
         std::string getDescription();
@@ -68,6 +69,7 @@ namespace TPProto{
         void packBuffer(Buffer* buf);
         bool unpackBuffer(Buffer* buf);
         CommandParameter* clone();
+        bool setValueFromString(const std::string &nval);
 
         unsigned int getMaxLength();
         std::string getString();
@@ -88,6 +90,7 @@ namespace TPProto{
         void packBuffer(Buffer* buf);
         bool unpackBuffer(Buffer* buf);
         CommandParameter* clone();
+        bool setValueFromString(const std::string &nval);
         
         uint32_t getValue() const;
 
