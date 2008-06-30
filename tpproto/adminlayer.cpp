@@ -56,6 +56,8 @@
 #include "connect.h"
 #include "login.h"
 #include "command.h"
+#include "commandparameter.h"
+#include "commandresult.h"
 #include "commanddesc.h"
 #include "getcommanddesc.h"
 #include "logmessage.h"
@@ -338,6 +340,18 @@ namespace TPProto {
         }
     }
 
+    /*! \brief Send a command to the server.
+        \param ctype The command type.
+        \param params The parameters (with values).
+    */
+    void AdminLayer::sendCommand(boost::shared_ptr<CommandDescription> cd, std::list<CommandParameter*> plist)
+    {
+        Command * command = protocol->getFrameFactory()->createCommand();
+        command->setCommandType(cd);
+        command->fillParameterList(plist);
+        protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Command>(command), boost::bind(&AdminLayer::commandCallback, this, _1));
+    }
+
     /*! \brief Tells all the caches to update.
     Called automatically after logged in, and after EOT has finished.
     Call if you want the caches to be updated.
@@ -395,6 +409,16 @@ namespace TPProto {
             logger->error("Login failed: %s", ((FailFrame*)frame)->getErrorString().c_str());
             if(statuslistener != NULL)
                 statuslistener->loggedIn(false);
+        }
+    }
+
+    void AdminLayer::commandCallback(Frame * frame)
+    {
+        if(frame->getType() == ftad_CommandResult){
+            if(((CommandResult*)frame)->getStatus() == 0)
+                logger->info(((CommandResult*)frame)->getMessage().c_str());
+            else
+                logger->error(((CommandResult*)frame)->getMessage().c_str());
         }
     }
 

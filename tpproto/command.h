@@ -54,10 +54,9 @@ namespace TPProto{
         CommandParameter* getParameter(unsigned int which);
 
         void setCommandType(boost::shared_ptr<CommandDescription> cd);
+        void fillParameterList(std::list<CommandParameter*> plist);
 
       private:
-        unsigned int ctype;
-
         std::list<CommandParameter*> params;
 
         boost::shared_ptr<CommandDescription> desc;

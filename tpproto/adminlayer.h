@@ -21,9 +21,8 @@
  */
 
 #include <string>
-#include <set>
-#include <map>
 #include <list>
+#include <boost/shared_ptr.hpp>
 /*! \file
   \brief Declares the AdminLayer class.
 */
@@ -35,6 +34,8 @@ namespace TPProto{
     class TPSocket;
     class Frame;
     class Command;
+    class CommandParameter;
+    class CommandDescription;
     class AdminStatusListener;
     class AdminLayerAsyncFrameListener;
     class CacheMethod;
@@ -75,6 +76,9 @@ namespace TPProto{
         bool login(const std::string &user, const std::string &password);
         void disconnect();
 
+        // send command
+        void sendCommand(boost::shared_ptr<CommandDescription> cd, std::list<CommandParameter*> plist);
+
         void updateCaches();
     
         //CommandDescription
@@ -83,6 +87,8 @@ namespace TPProto{
     private:
         void connectCallback(Frame * frame);
         void loginCallback(Frame * frame);
+        
+        void commandCallback(Frame * frame);
         
         ProtocolLayer * protocol;
         EventLoop * eventloop;

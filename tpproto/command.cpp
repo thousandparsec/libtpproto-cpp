@@ -124,5 +124,13 @@ namespace TPProto{
         params = cd->getParameters();
     }
 
+    /*! \brief Fills the parameter list with valued parameters.
+        \param plist The valued parameter list.
+    */
+    void Command::fillParameterList(std::list<CommandParameter*> plist)
+    {
+        params = plist;
+    }
+
 }
 
