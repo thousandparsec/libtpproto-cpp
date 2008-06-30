@@ -72,7 +72,6 @@ namespace TPProto {
             frame->setCount(8737); // When this code is shifted out, this should be in a loop to get all the items
             protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(frame), boost::bind(&CacheNoneMethod::receiveIdList, this, _1));
             
-           delete frame; 
         }
         
     }
