@@ -18,7 +18,6 @@
  *
  */
 
-#include <iostream>
 #include <boost/bind.hpp>
 
 #ifdef HAVE_CONFIG_H
@@ -341,7 +340,7 @@ namespace TPProto {
     }
 
     /*! \brief Send a command to the server.
-        \param ctype The command type.
+        \param cd The command description.
         \param params The parameters (with values).
     */
     void AdminLayer::sendCommand(boost::shared_ptr<CommandDescription> cd, std::list<CommandParameter*> plist)
@@ -353,7 +352,7 @@ namespace TPProto {
     }
 
     /*! \brief Tells all the caches to update.
-    Called automatically after logged in, and after EOT has finished.
+    Called automatically after logged in.
     Call if you want the caches to be updated.
     */
     void AdminLayer::updateCaches(){
@@ -415,10 +414,12 @@ namespace TPProto {
     void AdminLayer::commandCallback(Frame * frame)
     {
         if(frame->getType() == ftad_CommandResult){
-            if(((CommandResult*)frame)->getStatus() == 0)
-                logger->info(((CommandResult*)frame)->getMessage().c_str());
-            else
-                logger->error(((CommandResult*)frame)->getMessage().c_str());
+            if(static_cast<CommandResult*>(frame)->getStatus() == 0){
+                logger->info(static_cast<CommandResult*>(frame)->getMessage().c_str());
+            }else{
+                logger->error(static_cast<CommandResult*>(frame)->getMessage().c_str());
+            }
+            delete frame;
         }
     }
 
