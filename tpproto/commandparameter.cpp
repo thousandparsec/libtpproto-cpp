@@ -76,7 +76,6 @@ namespace TPProto{
 
     void StringCommandParameter::packBuffer(Buffer* buf)
     {
-        buf->packInt(0);
         buf->packString(value);
     }
 
