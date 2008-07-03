@@ -20,7 +20,6 @@
 
 #include <sys/select.h>
 #include <sys/types.h>
-#include <iostream>
 
 #include "tpsocket.h"
 
@@ -143,7 +142,6 @@ namespace TPProto{
                         try{
                             (*itcurr)->readyToRead();
                         }catch(DisconnectedException *e){
-                            std::cout << "Disconnected in simpleeventloop" << std::endl;
                             writeset.erase(*itcurr);
                             //delete (*itcurr);
                             readset.erase(itcurr);
