@@ -239,6 +239,8 @@ namespace TPProto {
                 if(asynclistener != NULL){
                     if(frame->getType() == ft02_Time_Remaining){
                         asynclistener->recvTimeRemaining((TimeRemaining*)frame);
+                    }else if(frame->getType() == ftad_LogMessage){
+                        asynclistener->recvLogMessage((LogMessage*)frame);
                     }
                 }
             }else{

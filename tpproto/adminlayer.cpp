@@ -85,18 +85,19 @@ namespace TPProto {
         
         void recvLogMessage(LogMessage * lmf)
         {
+            std::string msg = "[Server] " + lmf->getMessage();
             switch(lmf->getLevel()){
             case LML_Debug:
-                layer->logger->debug(lmf->getMessage().c_str());
+                layer->logger->debug(msg.c_str());
                 break;
             case LML_Info:
-                layer->logger->info(lmf->getMessage().c_str());
+                layer->logger->info(msg.c_str());
                 break;
             case LML_Warning:
-                layer->logger->warning(lmf->getMessage().c_str());
+                layer->logger->warning(msg.c_str());
                 break;
             case LML_Error:
-                layer->logger->error(lmf->getMessage().c_str());
+                layer->logger->error(msg.c_str());
                 break;
             }
         }
