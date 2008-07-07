@@ -45,6 +45,10 @@ namespace TPProto {
     {
     }
 
+    /*! \brief Request a command description.
+        \param cmdtype The command type ID.
+        \param cb The callback function for the description.
+    */
     void CommandDescCache::requestCommandDescription(uint32_t cmdtype, const CommandDescCallback & cb)
     {
         CommandDescSignal * bs = waiters[cmdtype];
@@ -56,6 +60,11 @@ namespace TPProto {
         cache->getById(cmdtype);
     }
     
+    /*! \brief Watch a command description.
+        \param cmdtype The command type ID.
+        \param cb The callback function for the description.
+        \return The connection for the callback.
+    */
     boost::signals::connection CommandDescCache::watchCommandDescription(uint32_t cmdtype, const CommandDescCallback & cb)
     {
         CommandDescSignal * bs = watchers[cmdtype];
@@ -68,27 +77,43 @@ namespace TPProto {
         return conn;
     }
     
+    /*! \brief Request a list of command type IDs.
+        \param cb The callback function for the sequence.
+    */
     void CommandDescCache::requestCommandTypes(const IdSetCallback & cb)
     {
         cache->getAllIds(cb);
     }
     
+    /*! \brief Watch the list of command type IDs.
+        \param cb The callback function for the sequence.
+        \return The connection for the callback.
+    */
     boost::signals::connection CommandDescCache::watchCommandTypes(const IdSetCallback & cb)
     {
         return cache->watchAllIds(cb);
     }
     
-    
+    /*! \brief Create a Get Command Type IDs frame.
+        \return The Get Command Type IDs frame.
+    */
     GetIdSequence * CommandDescCache::createGetIdSequenceFrame()
     {
         return protocol->getFrameFactory()->createGetCommandTypesList();
     }
 
+    /*! \brief Create a Get Command Description frame.
+        \return The Get Command Description frame.
+    */
     GetById * CommandDescCache::createGetByIdFrame()
     {
         return protocol->getFrameFactory()->createGetCommandDescription();
     }
 
+    /*! \brief Get the command type ID from a Command Description frame.
+        \param frame The Command Description frame.
+        \return The command type ID.
+    */
     uint32_t CommandDescCache::getIdFromFrame(Frame* frame)
     {
         CommandDescription * cmd = dynamic_cast<CommandDescription*>(frame);
@@ -99,6 +124,10 @@ namespace TPProto {
         }
     }
 
+    /*! \brief Get the modification time from a Command Description frame.
+        \param frame The Command Description frame.
+        \return The modification time.
+    */
     uint64_t CommandDescCache::getModTimeFromFrame(Frame* frame)
     {
         CommandDescription * cmd = dynamic_cast<CommandDescription*>(frame);
@@ -108,7 +137,7 @@ namespace TPProto {
             return 0LL;
         }
     }
-    
+  
     void CommandDescCache::newItem(boost::shared_ptr<Frame> item)
     {
         boost::shared_ptr<CommandDescription> cmddesc(boost::dynamic_pointer_cast<CommandDescription>(item));
@@ -126,7 +155,7 @@ namespace TPProto {
         }
         
     }
-    
+   
     void CommandDescCache::existingItem(boost::shared_ptr<Frame> item)
     {
         boost::shared_ptr<CommandDescription> cmddesc(boost::dynamic_pointer_cast<CommandDescription>(item));
