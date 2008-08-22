@@ -56,8 +56,8 @@ namespace TPProto{
     bool IdSequence::unpackBuffer(Buffer *buf){
         seqkey = buf->unpackInt();
         remaining = buf->unpackInt();
-        uint numids = buf->unpackInt();
-        for(uint i = 0; i < numids; i++){
+        uint32_t numids = buf->unpackInt();
+        for(uint32_t i = 0; i < numids; i++){
             uint32_t id = buf->unpackInt();
             idlist[id] = buf->unpackInt64();
         }

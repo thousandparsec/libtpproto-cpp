@@ -52,8 +52,8 @@ namespace TPProto{
     \return True if sucessful, false otherwise.
     */
     bool Features::unpackBuffer(Buffer *buf){
-        uint numfeat = buf->unpackInt();
-        for(uint i = 0; i < numfeat; i++){
+        uint32_t numfeat = buf->unpackInt();
+        for(uint32_t i = 0; i < numfeat; i++){
             uint32_t id = buf->unpackInt();
             features.insert(id);
         }
