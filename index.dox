@@ -62,9 +62,8 @@ be of interest to some clients. But might not be necessary with a good cache
 method.
 
 \subsection future_doc Future documentation areas
- - Polling
- - Blocking
- - Theading
+ - Async programming using libtpproto-cpp
+ - Intergrating libtpproto-cpp with a GUI toolkit
  - Writing a CacheMethod
  - Example code for connection and other basic tasks
 
