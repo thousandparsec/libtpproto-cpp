@@ -7,6 +7,7 @@
 namespace TPProto{
 
   class TimeRemaining;
+  class LogMessage;
 
   /*! \brief Base class for handling asynchronous frames.
 
