@@ -26,6 +26,8 @@
 */
 
 #include <stdint.h>
+#include <string>
+
 #include <tpproto/frame.h>
 
 namespace TPProto{
@@ -53,10 +55,14 @@ namespace TPProto{
 
     uint32_t getTimeRemaining();
     uint32_t getReasonCode();
+    uint32_t getTurnNumber();
+    std::string getTurnName();
 
   private:
     uint32_t time;
     uint32_t reason;
+    uint32_t turnnum;
+    std::string turnname;
 
   };
 

@@ -53,6 +53,8 @@ namespace TPProto{
     time = buf->unpackInt();
     if(protoVer >= 4){
       reason = buf->unpackInt();
+      turnnum = buf->unpackInt();
+      turnname = buf->unpackString();
     }
     type = ft02_Time_Remaining;
     return true;
@@ -69,5 +71,13 @@ namespace TPProto{
     return reason;
   }
 
+  uint32_t TimeRemaining::getTurnNumber(){
+      return turnnum;
+  }
+  
+  std::string TimeRemaining::getTurnName(){
+      return turnname;
+  }
+  
 }
 
