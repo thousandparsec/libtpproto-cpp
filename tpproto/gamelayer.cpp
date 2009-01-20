@@ -379,12 +379,17 @@ namespace TPProto {
     */
     bool GameLayer::createAccount(const std::string &user, const std::string &password, const std::string &email, const std::string &comment){
       if(status == gsConnected && sock->isConnected()){
-          AccountCreate * account = protocol->getFrameFactory()->createAccountCreate();
-          account->setUser(user);
-          account->setPass(password);
-          account->setEmail(email);
-          account->setComment(comment);
-          protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(account), boost::bind(&GameLayer::accountCreateCallback, this, _1));
+          if(serverfeatures != NULL && serverfeatures->supportsAccountCreation()){
+            AccountCreate * account = protocol->getFrameFactory()->createAccountCreate();
+            account->setUser(user);
+            account->setPass(password);
+            account->setEmail(email);
+            account->setComment(comment);
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Frame>(account), boost::bind(&GameLayer::accountCreateCallback, this, _1));
+          }else{
+              logger->error("Account creation not supported on the server");
+              return false;
+          }
           
           return true;
 
@@ -846,9 +851,11 @@ namespace TPProto {
     }
 
     void GameLayer::finishedTurn(){
-        boost::shared_ptr<FinishedFrame> ft(protocol->getFrameFactory()->createFinished());
-        if(ft){
-            protocol->getFrameCodec()->sendFrame(ft, boost::bind(&GameLayer::finishedTurnCallback, this, _1));
+        if(protocol->getFrameFactory()->getProtocolVersion() > 3){
+            boost::shared_ptr<FinishedFrame> ft(protocol->getFrameFactory()->createFinished());
+            if(ft){
+                protocol->getFrameCodec()->sendFrame(ft, boost::bind(&GameLayer::finishedTurnCallback, this, _1));
+            }
         }
     }
 
