@@ -75,39 +75,60 @@ namespace TPProto{
         return isSet(0x2);
     }
 
-    /*! \brief Does this port support secure connection.
-        \return True if the server supports secure connection on this port.
+    /*! \brief Does this port support http tunneling.
+        \return True if the server supports http tunneling on this port.
      */
     bool Features::hasHttpTunnelingThisPort() const{
         return isSet(0x3);
     }
 
-    /*! \brief Does this port support secure connection.
-        \return True if the server supports secure connection on this port.
+    /*! \brief Does another port support http tunneling.
+        \return True if the server supports http tunneling on a different port.
      */
     bool Features::hasHttpTunnelingOtherPort() const{
         return isSet(0x4);
     }
 
-    /*! \brief Does this port support secure connection.
-        \return True if the server supports secure connection on this port.
+    /*! \brief Does this server support ping frames
+        \return True if the server supports ping frames.
      */
     bool Features::supportsPing() const{
         return isSet(0x5);
     }
 
-    /*! \brief Does this port support secure connection.
-        \return True if the server supports secure connection on this port.
+    /*! \brief Does this server support server side property calcuation.
+        \return True if the server supports server side property calculation.
      */
     bool Features::supportsServerSidePropertyCalc() const{
         return isSet(0x6);
+    }
+    
+    /*! \brief Does this server support account creation.
+    \return True if the server supports account creation.
+     */
+    bool Features::supportsAccountCreation() const{
+        return isSet(0x3E8);
+    }
+    
+    /*! \brief Does this server support the SSL Filter.
+        \return True if the server supports the SSL Filter.
+     */
+    bool Features::hasFilterSSL() const{
+        return isSet(0x1000);
+    }
+    
+    /*! \brief Does this server support the padding Filter.
+    \return True if the server supports the padding Filter.
+     */
+    bool Features::hasFilterPadding() const{
+        return isSet(0x1200);
     }
 
     /*! \brief Does this port support secure connection.
         \return True if the server supports secure connection on this port.
      */
     bool Features::isSet(uint32_t val) const{
-        return (features.find(val) != features.end());
+        return (features.count(val) > 0);
     }
 
 }

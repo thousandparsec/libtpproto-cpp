@@ -44,6 +44,9 @@ namespace TPProto{
         bool hasHttpTunnelingOtherPort() const;
         bool supportsPing() const;
         bool supportsServerSidePropertyCalc() const;
+        bool supportsAccountCreation() const;
+        bool hasFilterSSL() const;
+        bool hasFilterPadding() const;
 
         bool isSet(uint32_t val) const;
 
