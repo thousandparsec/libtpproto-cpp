@@ -3,6 +3,8 @@ More info at
 http://www.thousandparsec.net/tp/
 
 Requires:
+Boost (libboost)
+Boost Signals (libboost-signals)
 (Optional) libgnutls (for secure connections).
 
 

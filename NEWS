@@ -1,3 +1,10 @@
+2009-01-22 Lee
+Released 0.1.9 as needed by tpadmin-cpp, and as a pre-release technology demostration. It has
+a few missing features which make it unsuitable for general use. Namely, Orders and Messages are
+not accessable at all, and Objects do not have Object Parameters yet. The biggest steps forward 
+in this release are the new asynchronious model with event loop abstraction and TP04 support in
+most places. This release only works with tpadmin-cpp, and git version of tpclient-cpptext.
+
 2007-07-04 Lee
 Quite a few changes for 0.1.1. Slightly better thread safing, but not complete.
 Adds some new features, such as caches, TPS and HTTPS sockets, and GameStatusListener.
