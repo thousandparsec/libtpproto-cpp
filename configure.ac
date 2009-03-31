@@ -50,6 +50,12 @@ AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[#include <sys/types.h>
 AX_BOOST_BASE([1.31.1])
 AX_BOOST_SIGNALS
 
+#check that boost is going to be used
+if test "x$ax_cv_boost_signals" != "xyes"; then
+    AC_MSG_ERROR(Boost Signals is required to build libtpproto-cpp and was not available)
+fi
+
+
 PKG_CHECK_MODULES(libgnutls, gnutls >= 1.2.10,
   [
     AC_DEFINE(HAVE_LIBGNUTLS, 1, Define to 1 if libgnutls is available)
