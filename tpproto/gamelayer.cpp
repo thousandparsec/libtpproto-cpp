@@ -850,6 +850,10 @@ namespace TPProto {
         protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetTime>(gt), boost::bind(&GameLayer::timeRemainingCallback, this, _1));
     }
 
+    /*! \brief Tells the server that the player has finished their turn.
+    
+    Sends a FinishedFrame to the server.
+    */
     void GameLayer::finishedTurn(){
         if(protocol->getFrameFactory()->getProtocolVersion() > 3){
             boost::shared_ptr<FinishedFrame> ft(protocol->getFrameFactory()->createFinished());

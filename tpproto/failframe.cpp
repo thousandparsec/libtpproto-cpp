@@ -84,6 +84,9 @@ namespace TPProto{
     return errstring;
   }
   
+  /*! \brief Gets the list of General References that this fail frame refers to.
+  \return The list of general references as a map of int32_t to uint32_t.
+  */
   std::map<int32_t, uint32_t> FailFrame::getReferences(){
     return refs;
   }

@@ -1,6 +1,6 @@
 /*  TimeRemaining Frame
  *
- *  Copyright (C) 2005-2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -67,14 +67,23 @@ namespace TPProto{
     return time;
   }
 
+  /*! \brief Gets the reason code for this TimeRemaining frame.
+  \return The TimeRemainingReasons code for this frame.
+  */
   uint32_t TimeRemaining::getReasonCode(){
     return reason;
   }
 
+  /*! \brief Gets the Turn Number this frame is from.
+  \return The current turn number.
+  */
   uint32_t TimeRemaining::getTurnNumber(){
       return turnnum;
   }
   
+  /*! \brief Gets the name of the turn.
+  \return The name of the turn, can be empty.
+  */
   std::string TimeRemaining::getTurnName(){
       return turnname;
   }

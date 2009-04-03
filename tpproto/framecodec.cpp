@@ -1,6 +1,6 @@
 /*  FrameCodec class
  *
- *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -194,6 +194,15 @@ namespace TPProto {
 // 
 //     }
 
+  /*! \brief Sends a Frame and sets the slot for the recieved reply(s) to be sent to.
+
+  Packs the Frame into a Buffer and sends it via the TPSocket.  Sets the 
+  sequence number and increments the sequence number counter.
+  \param f The Frame to send.
+  \param callback The slot that replies will be sent to.
+  \return A FrameConnection to manage the slot.
+  \throws DisconnectedException If the socket is not connected.
+  */
     FrameConnection FrameCodec::sendFrame(boost::shared_ptr<Frame>  f, const FrameSignal::slot_type& callback){
         if(!socket->isConnected()){
             throw new DisconnectedException();
@@ -233,6 +242,11 @@ namespace TPProto {
       
     }
     
+    /*! \brief Called by FrameBuilder when a Frame is decoded from a Buffer.
+    Sends the Frame to the right slot, or to the AsyncFrameListener if the frame 
+    is an asynchronous (sequence number is 0).
+    \param frame The Frame that has been received.
+    */
     void FrameCodec::receivedFrame(Frame* frame){
         if(frame != NULL){
             if(frame->getSequenceNumber() == 0){

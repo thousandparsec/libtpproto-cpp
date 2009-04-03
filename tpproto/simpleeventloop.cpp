@@ -1,6 +1,6 @@
 /*  SimpleEventLoop - an example simple event loop.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,13 +27,22 @@
 
 namespace TPProto{
     
+    /*! \brief Implements the '>' operator for ordering the Timers.
+    \param rhs The Timer to compare against.
+    \return True if the expiration time of this Timer is greater than the argument Timer.
+    */
     bool Timer::operator>(const Timer& rhs) const{
         return expiretime > rhs.expiretime;
     }
 
+    /*! \brief Constructs the SimpleEventLoop.
+    */
     SimpleEventLoop::SimpleEventLoop() : running(false), readset(), writeset(), timers(){
     }
     
+    /*! \brief Desctructs the SimpleEventLoop.
+    Frees the TPSockets that are still open.
+    */
     SimpleEventLoop::~SimpleEventLoop(){
         for(std::set<TPSocket*>::iterator itcurr = readset.begin(); itcurr != readset.end();
                 ++itcurr){
@@ -43,14 +52,28 @@ namespace TPProto{
         writeset.clear();
     }
 
+    /*! \brief Adds a TPSocket to the reading list.
+    \param sock The TPSocket that wants to read.
+    The TPSocket remains in the list until closed or removed.
+    */
     void SimpleEventLoop::listenForSocketRead(TPSocket* sock){
         readset.insert(sock);
     }
     
+    /*! \brief Adds a TPSocket to the writing list.
+    \param sock The TPSocket that wants to write.
+    After it has written, it is removed from the writing list. To write more,
+    the TPSocket has to be re-added to the writing list.
+    */
     void SimpleEventLoop::listenForSocketWrite(TPSocket* sock){
         writeset.insert(sock);
     }
     
+    /*! \brief Set a timer to be called.
+    \param interval Time in seconds until the callback is called.
+    \param callback The callback to call when the timer expires.
+    \return The TimerConnection that can be used to manage the timer
+    */
     TimerConnection SimpleEventLoop::setTimer(uint32_t interval, const TimerSignal::slot_type& callback){
         Timer timer;
         timer.expiretime = time(NULL) + interval;
@@ -60,6 +83,9 @@ namespace TPProto{
         return tc;
     }
             
+    /*! \brief Runs the EventLoop.
+    Call to start processing event. This does not exit until after SimpleEventLoop::endEventLoop() is called.
+    */
     void SimpleEventLoop::runEventLoop(){
         running =true;
         
@@ -154,6 +180,9 @@ namespace TPProto{
         }
     }
     
+    /*! \brief End the eventloop processing.
+    Cause the call to SimpleEventLoop::runEventLoop() to exit the next time it loops.
+    */
     void SimpleEventLoop::endEventLoop(){
         running = false;
     }

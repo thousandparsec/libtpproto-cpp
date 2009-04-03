@@ -64,7 +64,7 @@ namespace TPProto{
             called when the socket is ready to send data.
             
             This is a single shot, and should be disabled from from being triggered again
-            <emph>before</emph> calling TPSocket::isReadyToSend().
+            <i>before</i> calling TPSocket::isReadyToSend().
             \param sock The TPSocket to check
             */
             virtual void listenForSocketWrite(TPSocket* sock) = 0;
