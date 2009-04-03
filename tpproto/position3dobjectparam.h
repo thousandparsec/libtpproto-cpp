@@ -2,7 +2,7 @@
 #define TPPROTO_POSITION3DOBJECTPARAM_H
 /*  Position3dObjectParameter - Position3d ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,11 +20,17 @@
  *
  */
 
+/*! \brief Defines the Position3dObjectParam class.
+*/
+
 #include <tpproto/objectparameter.h>
 #include <tpproto/vector3d.h>
 
 namespace TPProto{
     
+    /*! \brief This ObjectParameter holds the position of the object in 3d space.
+    The position is relative to the given object (normally the universe).
+    */
     class Position3dObjectParam : public ObjectParameter{
         public:
             Position3dObjectParam();

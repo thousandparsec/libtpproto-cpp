@@ -1,8 +1,8 @@
 #ifndef TPPROTO_MEDIAOBJECTPARAM_H
 #define TPPROTO_MEDIAOBJECTPARAM_H
-/*  MediaObjectParameter - Media ObjectParameters.
+/*  MediaObjectParam - Media ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,12 +20,21 @@
  *
  */
 
+/*! \file
+ \brief Declears the MediaObjectParam class.
+*/
+
 #include <string>
 
 #include <tpproto/objectparameter.h>
 
 namespace TPProto{
     
+    /*! \brief The MediaObjectParam is an ObjectParameter that references a peice of media.
+    
+    Using the base media URL in the GameFrame for the game,and the types the client supports,
+    the media can be found and/or downloaded for the client to display.
+    */
     class MediaObjectParam : public ObjectParameter{
         public:
             MediaObjectParam();

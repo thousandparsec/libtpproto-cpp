@@ -33,20 +33,60 @@ namespace TPProto{
     */
     virtual void visitObjectParameter(Position3dObjectParam* op) = 0;
 
+    /*! \brief Visit a Velocity 3d object parameter.
+    
+    All subclasses must override this method.
+    \param op The Velocity3dObjectParam to visit.
+    */
     virtual void visitObjectParameter(Velocity3dObjectParam* op) = 0;
     
+    /*! \brief Visit a Size object parameter.
+    
+    All subclasses must override this method.
+    \param op The SizeObjectParam to visit.
+     */
     virtual void visitObjectParameter(SizeObjectParam* op) = 0;
     
+    /*! \brief Visit a Integer object parameter.
+    
+    All subclasses must override this method.
+    \param op The IntegerObjectParam to visit.
+     */
     virtual void visitObjectParameter(IntegerObjectParam* op) = 0;
     
+    /*! \brief Visit a OrderQueue object parameter.
+    
+    All subclasses must override this method.
+    \param op The OrderQueueObjectParam to visit.
+     */
     virtual void visitObjectParameter(OrderQueueObjectParam* op) = 0;
     
+    /*! \brief Visit a Resource list object parameter.
+    
+    All subclasses must override this method.
+    \param op The ResourceListObjectParam to visit.
+     */
     virtual void visitObjectParameter(ResourceListObjectParam* op) = 0;
     
+    /*! \brief Visit a Reference object parameter.
+    
+    All subclasses must override this method.
+    \param op The ReferenceObjectParam to visit.
+     */
     virtual void visitObjectParameter(ReferenceObjectParam* op) = 0;
     
+    /*! \brief Visit a Reference Quality list object parameter.
+    
+    All subclasses must override this method.
+    \param op The RefQuantityListObjectParam to visit.
+     */
     virtual void visitObjectParameter(RefQuantityListObjectParam* op) = 0;
     
+    /*! \brief Visit a Media object parameter.
+    
+    All subclasses must override this method.
+    \param op The MediaObjectParam to visit.
+     */
     virtual void visitObjectParameter(MediaObjectParam* op) = 0;
 
   };
