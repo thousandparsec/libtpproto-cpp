@@ -1,6 +1,6 @@
 /*  Velocity3dObjectParameter - Velocity3d ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,16 +26,28 @@
 
 namespace TPProto{
     
+    /*! \brief Constructs a Velocity3dObjectParam.
+    */
     Velocity3dObjectParam::Velocity3dObjectParam() : ObjectParameter(), vel(), relative(0){
     }
     
+    /*! \brief Constructs a Velocity3dObjectParam from another one.
+    \param rhs The Velocity3dObjectParam to copy.
+    */
     Velocity3dObjectParam::Velocity3dObjectParam(const Velocity3dObjectParam& rhs) :
             ObjectParameter(rhs), vel(rhs.vel), relative(rhs.relative){
     }
     
+    /*! \brief Destructor.
+    */
     Velocity3dObjectParam::~Velocity3dObjectParam(){
     }
     
+    /*! \brief Pack the Velocity into the Buffer.
+    
+    Sets everything to zero as all the fields are read only.
+    \param buf The Buffer to pack into.
+    */
     void Velocity3dObjectParam::packBuffer(Buffer* buf){
         buf->packInt64(0);
         buf->packInt64(0);
@@ -43,29 +55,51 @@ namespace TPProto{
         buf->packInt(0);
     }
     
+    /*! \brief Unpack this Velocity3dObjectParam from the Buffer.
+    \param buf The Buffer to unpack from.
+    \return True if successful.
+    */
     bool Velocity3dObjectParam::unpackBuffer(Buffer* buf){
         vel.unpack(buf);
         relative = buf->unpackInt();
         return true;
     }
     
+    /*! \brief Unpack description fields.
+    
+    There are none for the Velocity3dObjectParam, so nothing is done.
+    \param buf The Buffer to unpack from.
+    \return True.
+    */
     bool Velocity3dObjectParam::unpackDescBuffer(Buffer* buf){
         //nothing
         return true;
     }
     
+    /*! \brief Clones this Velocity3dObjectParam.
+    \return A new copy of this Velocity3dObjectParam.
+    */
     ObjectParameter* Velocity3dObjectParam::clone(){
         return new Velocity3dObjectParam(*this);
     }
     
+    /*! \brief Visit by an ObjectParameterVisitor.
+    \param opv The ObjectParameterVisitor that is visiting.
+    */
     void Velocity3dObjectParam::visit(ObjectParameterVisitor* opv){
         opv->visitObjectParameter(this);
     }
             
+    /*! \brief Get the velocity.
+    \return The velocity of the object.
+    */
     Vector3d Velocity3dObjectParam::getVelocity() const{
         return vel;
     }
     
+    /*! \brief Get the object id of the object the velocity is relative to.
+    \return The objectid.
+    */
     uint32_t Velocity3dObjectParam::getRelativeObject() const{
         return relative;
     }

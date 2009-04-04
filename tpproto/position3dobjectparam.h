@@ -20,7 +20,8 @@
  *
  */
 
-/*! \brief Defines the Position3dObjectParam class.
+/*! \file
+\brief Defines the Position3dObjectParam class.
 */
 
 #include <tpproto/objectparameter.h>

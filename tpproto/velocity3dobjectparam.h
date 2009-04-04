@@ -2,7 +2,7 @@
 #define TPPROTO_VELOCITY3DOBJECTPARAM_H
 /*  Velocity3dObjectParameter - Velocity3d ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,11 +20,17 @@
  *
  */
 
+/*! \file
+\brief Declears the Velocity3dObjectParam.
+*/
+
 #include <tpproto/objectparameter.h>
 #include <tpproto/vector3d.h>
 
 namespace TPProto{
     
+    /*! \brief ObjectParameter to represent the Velocity of the Object in 3D space.
+    */
     class Velocity3dObjectParam : public ObjectParameter{
         public:
             Velocity3dObjectParam();

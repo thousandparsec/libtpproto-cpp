@@ -2,7 +2,7 @@
 #define TPPROTO_SIZEOBJECTPARAM_H
 /*  SizeObjectParameter - Size ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,15 @@
  *
  */
 
+/*! \file
+\brief Declears SizeObjectParam class.
+*/
+
 #include <tpproto/objectparameter.h>
 
 namespace TPProto{
-    
+    /*! \brief ObjectParameter that holds the size of the object.
+    */
     class SizeObjectParam : public ObjectParameter{
         public:
             SizeObjectParam();

@@ -2,7 +2,7 @@
 #define TPPROTO_RESOURCELISTOBJECTPARAM_H
 /*  ResourceListObjectParameter - Resource List ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -19,17 +19,34 @@
  *  Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  */
+
+/*! \file
+\brief Declears the ResourceListObjectParam class and the ResourceCount struct.
+*/
+
 #include <map>
 #include <tpproto/objectparameter.h>
 
 namespace TPProto{
     
+    /*! \brief Holds the Resource counts, stored, minable and unavailable.
+    */
     struct ResourceCount{
+        /*! The quantity stored and usable.
+        */
         uint32_t stored;
+        
+        /*! The quantity that could be made available.
+        */
         uint32_t minable;
+        
+        /*! The quantity known but not available currently.
+        */
         uint32_t unavailable;
     };
     
+    /*! \brief Represents a list of ResourceCounts for the Resources as an ObjectParameter.
+    */
     class ResourceListObjectParam : public ObjectParameter{
         public:
             ResourceListObjectParam();
