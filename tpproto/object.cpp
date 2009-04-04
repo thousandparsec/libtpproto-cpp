@@ -87,12 +87,12 @@ namespace TPProto{
 //         }
 //         buf->unpackInt();
 //         buf->unpackInt();
-//     }else{
-//         modtime = buf->unpackInt64();
-//         buf->unpackInt();
-//         buf->unpackInt();
-//         buf->unpackInt();
-//         buf->unpackInt();
+    }else{
+        modtime = buf->unpackInt64();
+        buf->unpackInt();
+        buf->unpackInt();
+        buf->unpackInt();
+        buf->unpackInt();
     }
 
     //unpack parameters
