@@ -2,7 +2,7 @@
 #define TPPROTO_REFERENCEOBJECTPARAM_H
 /*  ReferenceObjectParameter - Reference ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,15 @@
  *
  */
 
+/*! \file
+\brief Declears the ReferenceObjectParam class.
+*/
+
 #include <tpproto/objectparameter.h>
 
 namespace TPProto{
-    
+    /*! \brief An ObjectParameter that holds a general reference.
+    */
     class ReferenceObjectParam : public ObjectParameter{
         public:
             ReferenceObjectParam();

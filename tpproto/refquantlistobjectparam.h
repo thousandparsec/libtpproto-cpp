@@ -2,7 +2,7 @@
 #define TPPROTO_REFQUANTLISTOBJECTPARAM_H
 /*  RefQuantityListObjectParameter - Reference Quantity List ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,11 +20,17 @@
  *
  */
 
+/*! \file
+\brief Declears the RefQuantityListObjectParam class.
+*/
+
 #include <map>
 #include <tpproto/objectparameter.h>
 
 namespace TPProto{
     
+    /*! \brief ObjectParameter for having a list of Reference quantity pairs.
+    */
     class RefQuantityListObjectParam : public ObjectParameter{
         public:
             RefQuantityListObjectParam();
@@ -37,7 +43,12 @@ namespace TPProto{
             ObjectParameter* clone();
             void visit(ObjectParameterVisitor* opv);
             
+            /*! \brief Typedef for Reference Type and Reference Id pairs.
+            */
             typedef std::pair<int32_t, uint32_t> RefTypeAndId;
+            
+            /*! \brief Typedef for Reference and Quantity List.
+            */
             typedef std::map<RefTypeAndId, uint32_t> RefQuantityList;
             
             RefQuantityList getRefQuantityList() const;

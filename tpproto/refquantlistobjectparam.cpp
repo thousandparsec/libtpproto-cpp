@@ -1,6 +1,6 @@
 /*  RefQuantityListObjectParameter - Reference Quantity List ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -26,20 +26,36 @@
 
 namespace TPProto{
     
+    /*! \brief Constructor.
+    */
     RefQuantityListObjectParam::RefQuantityListObjectParam() : ObjectParameter(), list(){
     }
     
+    /*! \brief Copy construct from another RefQuantityListObjectParam.
+    \param rhs The RefQuantityList to copy.
+    */
     RefQuantityListObjectParam::RefQuantityListObjectParam(const RefQuantityListObjectParam& rhs) :
             ObjectParameter(rhs), list(rhs.list){
     }
     
+    /*! \brief Destructor.
+    */
     RefQuantityListObjectParam::~RefQuantityListObjectParam(){
     }
     
+    /*! \brief Pack into a Buffer.
+    
+    Packs a zero, as all fields are read-only.
+    \param buf The Buffer to pack into.
+    */
     void RefQuantityListObjectParam::packBuffer(Buffer* buf){
         buf->packInt(0);
     }
     
+    /*! \brief Unpack this RefQuantityListObjectParam from a Buffer.
+    \param buf The Buffer to unpack from.
+    \return True if successful.
+    */
     bool RefQuantityListObjectParam::unpackBuffer(Buffer* buf){
         int numitems = buf->unpackInt();
         
@@ -53,19 +69,34 @@ namespace TPProto{
         return true;
     }
     
+    /*! \brief Unpack the Description from a Buffer.
+    
+    Does not unpack anything.
+    \param buf The Buffer to unpack from.
+    \return True.
+    */
     bool RefQuantityListObjectParam::unpackDescBuffer(Buffer* buf){
         //nothing
         return true;
     }
     
+    /*! \brief Create a clone of this RefQuantityListObjectParam.
+    \return A new copy of this RefQuantityListObjectParam.
+    */
     ObjectParameter* RefQuantityListObjectParam::clone(){
         return new RefQuantityListObjectParam(*this);
     }
     
+    /*! \brief Have an ObjectParameterVisitor to visit.
+    \param opv The ObjectParameter that is visiting.
+    */
     void RefQuantityListObjectParam::visit(ObjectParameterVisitor* opv){
         opv->visitObjectParameter(this);
     }
     
+    /*! \brief Get the Reference quantity list.
+    \return The RefQuantityList.
+    */
     RefQuantityListObjectParam::RefQuantityList RefQuantityListObjectParam::getRefQuantityList() const{
         return list;
     }

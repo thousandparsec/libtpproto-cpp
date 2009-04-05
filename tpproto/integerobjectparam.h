@@ -2,7 +2,7 @@
 #define TPPROTO_INTEGEROBJECTPARAM_H
 /*  IntegerObjectParameter - Integer ObjectParameters.
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -20,10 +20,17 @@
  *
  */
 
+/*! \file
+\brief Declears the IntegerObjectParam class.
+*/
+
 #include <tpproto/objectparameter.h>
 
 namespace TPProto{
     
+    /*! \brief ObjectParameter to hold an Integer value.
+    Used for example in Minisec's Universe Object to hold the turn number.
+    */
     class IntegerObjectParam : public ObjectParameter{
         public:
             IntegerObjectParam();
