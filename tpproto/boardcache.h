@@ -31,7 +31,12 @@
 
 namespace TPProto{
     
+    /*! \brief Signal for receiving a Board.
+    */
     typedef boost::signal<void (boost::shared_ptr<Board>)> BoardSignal;
+    
+    /*! \brief Callback slot for the BoardSignal.
+    */
     typedef BoardSignal::slot_type BoardCallback;
 
     class Board;

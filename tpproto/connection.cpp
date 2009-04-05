@@ -1,6 +1,6 @@
 /*  Connection - Base class for objects handling sockets
  *
- *  Copyright (C) 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -31,10 +31,16 @@ namespace TPProto{
     Connection::~Connection(){
     }
     
+    /*! \brief Sets the Socket that this Connection uses.
+    \param sock The Socket to use.
+    */
     void Connection::setSocket(TPSocket* sock){
         socket = sock;
     }
 
+    /*! \brief Sets the EventLoop this Connection uses.
+    \param el The EventLoop to use.
+    */
     void Connection::setEventLoop(EventLoop* el){
         eventloop = el;
     }

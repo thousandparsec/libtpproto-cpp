@@ -2,7 +2,7 @@
 #define TPPROTO_CACHEMETHOD_H
 /*  CacheMethod - Methods of caching Frames base class
  *
- *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -34,6 +34,8 @@ namespace TPProto{
     class Cache;
     class ProtocolLayer;
     
+    /*! \brief Type for IdSet signal.
+    */
     typedef boost::signal<void (std::set<uint32_t>)> IdSetSignal;
     typedef IdSetSignal::slot_type IdSetCallback;
 
@@ -84,6 +86,8 @@ namespace TPProto{
     virtual CacheMethod* clone() = 0;
 
     protected:
+        /*! \brief Called to retreve the list of Ids from the server.
+        */
         virtual void getIdList() = 0;
         void newIdList(std::set<uint32_t> list);
         void existingList(std::set<uint32_t> list);
@@ -96,7 +100,12 @@ namespace TPProto{
     */
     ProtocolLayer* protocol;
     
+    /*! \brief The waiters are waiting for the IdSet, and are removed after it is send to them.
+    */
     IdSetSignal waiters;
+    
+    /*! \brief The watches are sent the signal each timer the IdSet changes.
+    */
     IdSetSignal watchers;
 
     };

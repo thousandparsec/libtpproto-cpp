@@ -88,14 +88,26 @@ namespace TPProto{
         layer = pl;
     }
 
+    /*! \brief Sets the OrderDescCache to use.
+    Used to build Order Frames.
+    \param odc The OrderDescCache to use.
+    */
     void FrameBuilder::setOrderDescCache(OrderDescCache* odc){
         orderdesccache = odc;
     }
     
+    /*! \brief Sets the ObjectDescCache to use.
+    Used to build Object Frames.
+    \param odc The ObjectDescCache to use.
+    */
     void FrameBuilder::setObjectDescCache(ObjectDescCache* odc){
         objectdesccache = odc;
     }
 
+    /*! \brief Sets the CommandDescCache to use.
+    Used to build Command Frames.
+    \param cdc The CommandDescCache to use.
+    */
     void FrameBuilder::setCommandDescCache(CommandDescCache* cdc){
         commanddesccache = cdc;
     }
@@ -270,6 +282,14 @@ namespace TPProto{
         }
     }
 
+    /*! \brief Builds an Order Frame from the frame, Buffer, and the OrderDescription.
+    
+    When done, the Frame is passed to FrameCodec::receiveFrame() to be send to the
+    requester.
+    \param frame The Frame to build, is an Order.
+    \param data The Buffer to unpack to create the Order.
+    \param od The OrderDescription for this Order's type.
+    */
     void FrameBuilder::processOrderDescription(Frame* frame, Buffer* data, boost::shared_ptr<OrderDescription> od){
         if(od){
             Order* order = static_cast<Order*>(frame);
@@ -289,6 +309,14 @@ namespace TPProto{
         }
     }
     
+    /*! \brief Builds an Object Frame from the frame, Buffer, and the ObjectDescription.
+    
+    When done, the Frame is passed to FrameCodec::receiveFrame() to be send to the
+    requester.
+    \param frame The Frame to build, is an Object.
+    \param data The Buffer to unpack to create the Object.
+    \param od The ObjectDescription for this Object's type.
+     */
     void FrameBuilder::processObjectDescription(Frame* frame, Buffer* data, boost::shared_ptr<ObjectDescription> od){
         if(od){
             Object* object = static_cast<Object*>(frame);
@@ -308,6 +336,14 @@ namespace TPProto{
         }
     }
 
+    /*! \brief Builds an Command Frame from the frame, Buffer, and the CommandDescription.
+    
+    When done, the Frame is passed to FrameCodec::receiveFrame() to be send to the
+    requester.
+    \param frame The Frame to build, is an Command.
+    \param data The Buffer to unpack to create the Command.
+    \param cd The CommandDescription for this Command's type.
+     */
     void FrameBuilder::processCommandDescription(Frame* frame, Buffer* data, boost::shared_ptr<CommandDescription> cd){
         if(cd){
             Command* command = static_cast<Command*>(frame);

@@ -68,6 +68,8 @@ namespace TPProto {
 
     class TimeRemaining;
 
+    /*! \brief An AsyncFrameListener to connect between the ProtocolLayer and the AdminLayer.
+    */
     class AdminLayerAsyncFrameListener : public AsyncFrameListener{
     public:
         

@@ -37,6 +37,8 @@ namespace TPProto{
     class CacheMethod;
     class ProtocolLayer;
     
+    /*! \brief Callback type for the IdSet.
+    */
     typedef boost::signal<void (std::set<uint32_t>)>::slot_type IdSetCallback;
 
     /*! \brief Interface to a cache.

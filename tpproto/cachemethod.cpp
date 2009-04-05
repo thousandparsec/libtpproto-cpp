@@ -1,6 +1,6 @@
 /*  CacheMethod - Methods of caching Frames base class
  *
- *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -68,6 +68,10 @@ namespace TPProto {
         getIdList();
     }
     
+    /*! \brief Add an IdSetCallback to watch for changes to IdSet.
+    \param cb The IdSetCallback to call when the IdSet changes.
+    \return Connection to the signal for the callback. Allows management of the Signal connection.
+    */
     boost::signals::connection CacheMethod::watchAllIds(const IdSetCallback& cb){
         waiters.connect(cb);
         boost::signals::connection conn = watchers.connect(cb);
@@ -75,12 +79,21 @@ namespace TPProto {
         return conn;
     }
     
+    /*! \brief Sends a new set of Ids from the cache.
+    The list is sent to all the waiters and the watches.
+    \param list The set of Ids.
+    */
     void CacheMethod::newIdList(std::set<uint32_t> list){
         waiters(list);
         waiters.disconnect_all_slots();
         watchers(list);
     }
     
+    /*! \brief Sends an existing list of Ids from the cache.
+    The list is only sent to the waiters, as there are no changes the
+    watchers would be interested it.
+    \param list The set of Ids.
+    */
     void CacheMethod::existingList(std::set<uint32_t> list){
         waiters(list);
         waiters.disconnect_all_slots();

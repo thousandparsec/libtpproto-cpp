@@ -42,6 +42,8 @@ namespace TPProto{
     class CommandDescCache;
     class EventLoop;
 
+    /*! \brief Enum for the Status of the Adminlayer.
+    */
     enum AdminStatus
     {
         asDisconnected,
@@ -50,6 +52,9 @@ namespace TPProto{
         asLoggedIn
     };
 
+    /*! \brief They layer for interact with the Administration interface of the server.
+    Basically the same as the GameLayer, but for the Administration protocol.
+    */
     class AdminLayer{
     public:
         friend class AdminLayerAsyncFrameListener;

@@ -30,6 +30,8 @@ namespace TPProto{
     
     class Connection;
     
+    /*! \brief An exception to throw when a socket is disconneted.
+    */
     class DisconnectedException : public std::exception{
     };
 

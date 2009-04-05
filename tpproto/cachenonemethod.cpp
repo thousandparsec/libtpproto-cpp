@@ -1,6 +1,6 @@
 /*  CacheNoneMethod - Methods of caching Frames that doesn't class
  *
- *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -53,18 +53,29 @@ namespace TPProto {
     CacheNoneMethod::~CacheNoneMethod(){
     }
 
+    /*! \brief Updates the Cache.
+    Actually does nothing, as there is no cache to flush or revalidate.
+    */
     void CacheNoneMethod::update(){
     }
 
+    /*! \brief Gets the thing by its Id directly from the server.
+    \param id The Id of the thing that is requested.
+    */
     void CacheNoneMethod::getById(uint32_t id){
         GetById* gbi = cache->createGetByIdFrame();
         gbi->addId(id);
         protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetById>(gbi), boost::bind(&CacheNoneMethod::receiveItem, this, _1));
     }
 
+    /*! \brief Marks thing as invalid using its ID.
+    Doesn't do anything, as there is no cached objects to invalid.
+    */
     void CacheNoneMethod::markInvalid(uint32_t id){
     }
 
+    /*! \brief Requests the IdList from the server directly.
+    */
     void CacheNoneMethod::getIdList(){
         
         GetIdSequence *frame = cache->createGetIdSequenceFrame();
@@ -76,10 +87,18 @@ namespace TPProto {
         
     }
 
+    /*! \brief Clones this CacheNoneMethod.
+    \return A new copy of this CacheNoneMethod.
+    */
     CacheMethod* CacheNoneMethod::clone(){
         return new CacheNoneMethod(*this);
     }
 
+    /*! \brief Called when an item is returned from the server.
+    Passes the frame do this method's Cache::newItem() if it is not
+    a fail frame. Deletes the frame if it is a fail frame.
+    \param frame The Frame of this item.
+    */
     void CacheNoneMethod::receiveItem(Frame* frame){
         if(frame->getType() != ft02_Fail){
             cache->newItem(boost::shared_ptr<Frame>(frame));
@@ -87,6 +106,11 @@ namespace TPProto {
             delete frame;
         }
     }
+    
+    /*! \brief Called when an IdList is received from the server.
+    Takes just the Ids and sends them to CacheMethod::newIdList().
+    \param frame The Frame that has the IdList.
+    */
     
     void CacheNoneMethod::receiveIdList(Frame* frame){
         std::set<uint32_t> out;

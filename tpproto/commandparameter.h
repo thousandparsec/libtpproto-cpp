@@ -38,6 +38,8 @@ namespace TPProto{
 
     class Buffer;
 
+    /*! \brief Baseclass for holding a parameter for a Command.
+    */
     class CommandParameter{
       public:
         CommandParameter();
@@ -60,6 +62,8 @@ namespace TPProto{
         std::string description;
     };
 
+    /*! \brief Holds a string CommandParameter.
+    */
     class StringCommandParameter : public CommandParameter{
       public:
         StringCommandParameter();
@@ -81,6 +85,8 @@ namespace TPProto{
         std::string value;
     };
 
+    /*! \brief A CommandParameter that holds an integer.
+    */
     class IntegerCommandParameter : public CommandParameter{
       public:
         IntegerCommandParameter();
