@@ -2,7 +2,7 @@
 #define TPPROTO_OBJECT_H
 /*  Object - Frame send by the server to tell the client about an object.
  *
- *  Copyright (C) 2005, 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include <stdint.h>
 #include <string>
 #include <set>
+#include <list>
 #include <boost/shared_ptr.hpp>
 
 #include <tpproto/frame.h>
@@ -34,6 +35,7 @@
 namespace TPProto{
 
   class ObjectDescription;
+  class ObjectParameterGroup;
 
   /*! \brief The Object Frame class.
     
@@ -57,6 +59,7 @@ namespace TPProto{
     std::set<uint32_t> getContainedObjectIds();
     uint64_t getLastModifiedTime();
     //something about parameters
+    std::list<ObjectParameterGroup*> getParameters();
     
     void setObjectType(boost::shared_ptr<ObjectDescription> od);
 
@@ -89,6 +92,10 @@ namespace TPProto{
     /*! \brief The last modification time of this object.
     */
     uint64_t modtime;
+    
+    /*! \brief The list of ObjectParameterGroup that contain the parameters.
+    */
+    std::list<ObjectParameterGroup*> paramgroups;
 
   };
 

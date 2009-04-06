@@ -1,6 +1,6 @@
 /*  Object - Frame send by the server to tell the client about an object.
  *
- *  Copyright (C) 2005, 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -21,6 +21,8 @@
 
 #include "buffer.h"
 #include "objectdesc.h"
+#include "objectparamgroup.h"
+#include "objectparameter.h"
 
 #include "object.h"
 
@@ -28,7 +30,7 @@ namespace TPProto{
 
     /*! Constructor.
     */
-    Object::Object() : Frame(), id(0), obtype(), name(), description(), parent(0), contained(), modtime(0){
+    Object::Object() : Frame(), id(0), obtype(), name(), description(), parent(0), contained(), modtime(0), paramgroups(){
     }
     
   /*! \brief Required destructor.
@@ -96,7 +98,14 @@ namespace TPProto{
     }
 
     //unpack parameters
-    //TODO
+    for(std::list<ObjectParameterGroup*>::iterator itcurr = paramgroups.begin(); 
+            itcurr != paramgroups.end(); ++itcurr){
+        std::list<ObjectParameter*> paramlist = (*itcurr)->getParameters();
+        for(std::list<ObjectParameter*>::iterator paramcurr = paramlist.begin();
+                paramcurr != paramlist.end(); ++paramcurr){
+            (*paramcurr)->unpackBuffer(buf);
+        }
+    }
     
     type = ft02_Object;
 
@@ -153,6 +162,13 @@ namespace TPProto{
     return modtime;
   }
   
+  /*! \brief Gets the list of ObjectParameterGroup, and therefore the ObjectParameters.
+  \return The list of ObjectParameterGroups.
+  */
+  std::list<ObjectParameterGroup*> Object::getParameters(){
+      return paramgroups;
+  }
+  
   /*! \brief Sets the ObjectDescription this Object should use.
   Must be set before calling unpackBuffer.
   \param od The ObjectDescription.
@@ -160,7 +176,7 @@ namespace TPProto{
   void Object::setObjectType(boost::shared_ptr<ObjectDescription> od){
       obtype = od;
       //parameters
-      //TODO
+      paramgroups = od->getParameterGroups();
   }
 
 }
