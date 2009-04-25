@@ -1,6 +1,6 @@
 /*  FrameFactory class
  *
- *  Copyright (C) 2005,2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005,2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -76,6 +76,8 @@
 #include "resourcetypeslist.h"
 #include "getplayer.h"
 #include "player.h"
+#include "getplayeridslist.h"
+#include "playeridslist.h"
 #include "getcategory.h"
 #include "category.h"
 #include "addcategory.h"
@@ -662,6 +664,30 @@ namespace TPProto {
     Player* FrameFactory::createPlayer(){
         if(pver >= 3){
             Player* f = new Player();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a GetPlayerIdsList Frame.
+    \return A new GetPlayerIdsList Frame.
+     */
+    GetPlayerIdsList* FrameFactory::createGetPlayerIdsList(){
+        if(pver >= 4){
+            GetPlayerIdsList* f = new GetPlayerIdsList();
+            f->setProtocolVersion(pver);
+            return f;
+        }
+        return NULL;
+    }
+
+    /*! \brief Creates a PlayerIdsList Frame.
+    \return A new PlayerIdsList Frame.
+     */
+    PlayerIdsList* FrameFactory::createPlayerIdsList(){
+        if(pver >= 4){
+            PlayerIdsList* f = new PlayerIdsList();
             f->setProtocolVersion(pver);
             return f;
         }

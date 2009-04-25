@@ -1,6 +1,6 @@
 /*  FrameBuilder class
  *
- *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -50,6 +50,7 @@
 #include "resourcedesc.h"
 #include "resourcetypeslist.h"
 #include "player.h"
+#include "playeridslist.h"
 #include "category.h"
 #include "categoryidslist.h"
 #include "design.h"
@@ -235,6 +236,10 @@ namespace TPProto{
             
         case ft04_ObjectTypes_List:
             frame = layer->getFrameFactory()->createObjectTypesList();
+            break;
+            
+        case ft04_PlayerIds:
+            frame = layer->getFrameFactory()->createPlayerIdsList();
             break;
 
         case ftad_LogMessage:
