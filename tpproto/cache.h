@@ -56,7 +56,7 @@ namespace TPProto{
 
     /*! \brief Receive a new or updated version of an item from the CacheMethod.
     
-    \param item The existing item in a Frame
+    \param item The new item in a Frame
     */
     virtual void newItem(boost::shared_ptr<Frame> item) = 0;
     
