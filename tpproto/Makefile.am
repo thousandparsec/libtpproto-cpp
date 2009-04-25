@@ -35,7 +35,7 @@ COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
     orderqueueobjectparam.cpp resourcelistobjectparam.cpp refquantlistobjectparam.cpp \
 	logmessage.cpp getcommanddesc.cpp commanddesc.cpp commandparameter.cpp command.cpp \
 	getcommandtypeslist.cpp commandtypeslist.cpp commandresult.cpp \
-	adminlayer.cpp commanddesccache.cpp
+	adminlayer.cpp commanddesccache.cpp getplayeridslist.cpp playeridslist.cpp
 libtpprotodir = $(includedir)/tpproto
 COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
@@ -67,7 +67,8 @@ COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
     resourcelistobjectparam.h refquantlistobjectparam.h \
 	logmessage.h getcommanddesc.h commanddesc.h commandparameter.h command.h \
 	getcommandtypeslist.h commandtypeslist.h commandresult.h \
-	adminlayer.h commanddesccache.h adminstatuslistener.h
+	adminlayer.h commanddesccache.h adminstatuslistener.h \
+	getplayeridslist.h playeridslist.h
 
 if GNUTLS
 GNUTLSSOURCES = tlssocket.cpp httpssocket.cpp tpssocket.cpp

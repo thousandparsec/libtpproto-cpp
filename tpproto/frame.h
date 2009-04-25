@@ -109,6 +109,8 @@ namespace TPProto{
         ft04_ObjectTypes_Get = 69,
         ft04_ObjectTypes_List = 70,
         ft04_Object_Modify = 71,
+        ft04_PlayerIds_Get = 72,
+        ft04_PlayerIds = 73,
     ft02_Max,
 
     ftad_LogMessage = 1000,
