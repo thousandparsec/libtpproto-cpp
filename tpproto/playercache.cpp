@@ -1,6 +1,6 @@
-/*  PlayerCache - Cache of Objects class
+/*  PlayerCache - Cache of Players class
  *
- *  Copyright (C) 2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -27,6 +27,7 @@
 #include "cachemethod.h"
 #include "player.h"
 #include "getplayer.h"
+#include "getplayeridslist.h"
 #include "protocollayer.h"
 #include "framefactory.h"
 #include "framecodec.h"
@@ -100,7 +101,7 @@ namespace TPProto {
     }
     
     GetIdSequence* PlayerCache::createGetIdSequenceFrame(){
-        return NULL;
+        return protocol->getFrameFactory()->createGetPlayerIdsList();
     }
 
     GetById* PlayerCache::createGetByIdFrame(){
