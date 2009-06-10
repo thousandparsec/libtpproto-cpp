@@ -280,6 +280,10 @@ namespace TPProto {
             logger->warning("Already connected, ignoring connection attempt");
             return false;
         }
+        if(eventloop != NULL){
+            logger->error("Event Loop not set, not connecting");
+            return false;
+        }
         std::string type, host, port;
         //parse address to type, host, and port
         size_t tpos = address.find("://");
@@ -350,6 +354,10 @@ namespace TPProto {
     bool GameLayer::connect(TPSocket* nsock){
         if(status != gsDisconnected){
             logger->warning("Already connected, ignoring connection attempt");
+            return false;
+        }
+        if(eventloop != NULL){
+            logger->error("Event Loop not set, not connecting");
             return false;
         }
         sock = nsock;

@@ -45,6 +45,11 @@ changes, when connected, redirected (with url), disconnected, logged in, when
 the library detects the End-of-turn has started on the server, and when the 
 time to the end of turn is received.
 
+An EventLoop must be set before connecting. The eventloop needs to be subclasses
+to work with an existing toolkit used, or if there isn't an existing eventloop, 
+there is a SimpleEventLoop implementation. It is suitable for commandline 
+clients.
+
 The CacheMethod is the way the various caches of game data operate. Currently, 
 only one method is provided (CacheNoneMethod) but in future more will be 
 added, and clients are welcome to write their own. The cache update method is 
