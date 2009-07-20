@@ -280,7 +280,7 @@ namespace TPProto {
             logger->warning("Already connected, ignoring connection attempt");
             return false;
         }
-        if(eventloop != NULL){
+        if(eventloop == NULL){
             logger->error("Event Loop not set, not connecting");
             return false;
         }
@@ -356,7 +356,7 @@ namespace TPProto {
             logger->warning("Already connected, ignoring connection attempt");
             return false;
         }
-        if(eventloop != NULL){
+        if(eventloop == NULL){
             logger->error("Event Loop not set, not connecting");
             return false;
         }
