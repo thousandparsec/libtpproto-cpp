@@ -362,8 +362,8 @@ namespace TPProto {
         }
         sock = nsock;
         sock->setConnection(protocol->getFrameCodec());
-        eventloop->listenForSocketRead(sock);
         if(sock->connect()){
+            eventloop->listenForSocketRead(sock);
             logger->debug("Connection opened");
             status = gsConnecting;
             Connect * cf = protocol->getFrameFactory()->createConnect();
