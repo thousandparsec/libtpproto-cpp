@@ -2,7 +2,7 @@
 #define TPPROTO_GAMESTATUSLISTENER_H
 /*  GameStatusListener - Listener for changes in status.
  *
- *  Copyright (C) 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -55,29 +55,35 @@ namespace TPProto{
         virtual void disconnected() = 0;
 
         /*! \brief Called when the player's account is created sucessfully or not.
+        
         \param status True if account created, false otherwise.
         */
         virtual void accountCreated(bool status) = 0;
         
         /*! \brief Called when the player is sucessfully logged in or not.
+        
         \param status True if logged in, false otherwise.
         */
         virtual void loggedIn(bool status) = 0;
 
         /*! \brief Called when libtpproto-cpp notices that EOT has started.
+        
         Noticed when a Time frame is sent that has 0 time. This could be well
         after it has actually started.
         */
         virtual void eotStarted() = 0;
 
         /*! \brief Called when libtpproto-cpp notices that EOT has ended.
+        
         Noticed when a Time frame is sent that has non-zero time after EOT has started. This could be well
         after it has actually ended.
         */
         virtual void eotEnded() = 0;
 
         /*! \brief Called when an updated time to end of turn is received.
-        Could be inacturate. Called after eotStated and eotEnded are called.
+        
+        Could be inaccurate. Called after eotStated and eotEnded are called.
+        @param timetoeot The number of seconds to the next end of turn.
         */
         virtual void timeToEot(uint32_t timetoeot) = 0;
 
