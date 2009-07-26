@@ -1,6 +1,6 @@
 /*  GameLayer class
  *
- *  Copyright (C) 2005-2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -143,8 +143,8 @@ namespace TPProto {
         - "Unknown client" for the client string
     */
     GameLayer::GameLayer() : protocol(NULL), eventloop(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
-            clientid("Unknown client"), serverfeatures(NULL), asyncframes(new GameLayerAsyncFrameListener()),
-            objectdesccache(new ObjectDescCache()),
+            clientid("Unknown client"), serverfeatures(NULL), currentGame(NULL), gamename(""),
+            asyncframes(new GameLayerAsyncFrameListener()), objectdesccache(new ObjectDescCache()),
             objectcache(new ObjectCache()), orderdesccache(new OrderDescCache()), 
             playercache(new PlayerCache()), boardcache(new BoardCache()),
             resourcecache(new ResourceCache()), categorycache(new CategoryCache()),
@@ -180,6 +180,11 @@ namespace TPProto {
         if(serverfeatures != NULL){
             delete serverfeatures;
         }
+        
+        for(std::set<GameInfo*>::iterator itgame = gameinfo.begin(); itgame != gameinfo.end(); ++itgame){
+            delete *itgame;
+        }
+        
         delete asyncframes;
         delete objectdesccache;
         delete objectcache;
@@ -381,15 +386,16 @@ namespace TPProto {
     Sends a AccountCreate Frame to the server and waits for a reply.
     \param user The username to use.
     \param password The password for the account.
+    @param game The name of the game to create the account on.
     \param email The user's email address.
     \param comment A comment to send.
     \return True if successful, false otherwise.
     */
-    bool GameLayer::createAccount(const std::string &user, const std::string &password, const std::string &email, const std::string &comment){
+    bool GameLayer::createAccount(const std::string &user, const std::string &password, const std::string &game, const std::string &email, const std::string &comment){
       if(status == gsConnected && sock->isConnected()){
           if(serverfeatures != NULL && serverfeatures->supportsAccountCreation()){
             AccountCreate * account = protocol->getFrameFactory()->createAccountCreate();
-            account->setUser(user);
+            account->setUser(user + "@" + game);
             account->setPass(password);
             account->setEmail(email);
             account->setComment(comment);
@@ -415,14 +421,16 @@ namespace TPProto {
     Sends a Login Frame to the server and waits for a reply.
     \param username The username to connect as.
     \param password The password of the account of the username.
+    @param game The name of the game to log into.
     \return True if successfully started, false otherwise.
     */
-    bool GameLayer::login(const std::string &username, const std::string &password){
+    bool GameLayer::login(const std::string &username, const std::string &password, const std::string &game){
         if(status == gsConnected && sock->isConnected()){
             Login * login = protocol->getFrameFactory()->createLogin();
-            login->setUser(username);
+            login->setUser(username + "@" + game);
             login->setPass(password);
-           protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Login>(login), boost::bind(&GameLayer::loginCallback, this, _1));
+            protocol->getFrameCodec()->sendFrame(boost::shared_ptr<Login>(login), boost::bind(&GameLayer::loginCallback, this, _1));
+            gamename = game;
             return true;
         }
         if(!sock->isConnected()){
@@ -441,9 +449,15 @@ namespace TPProto {
         if(status != gsDisconnected && sock != NULL){
             sock->disconnect();
             logger->info("Disconnected");
-             status = gsDisconnected;
+            status = gsDisconnected;
             if(statuslistener != NULL)
                 statuslistener->disconnected();
+            gamename = "";
+            currentGame = NULL;
+            for(std::set<GameInfo*>::iterator itgame = gameinfo.begin(); itgame != gameinfo.end(); ++itgame){
+                delete *itgame;
+            }
+            gameinfo.clear();
         }
     }
 
@@ -870,6 +884,24 @@ namespace TPProto {
             }
         }
     }
+    
+    /*! Get this set of available GameInfo for this server.
+    
+    Could be empty if not yet fetched from the server or not connected.
+    
+    @return The set of GameInfo for the games on this server
+    */
+    std::set<GameInfo*> GameLayer::getAvailableGames() const{
+        return gameinfo;
+    }
+    
+    /*! Get the GameInfo for the currently logged in game.
+    
+    @return The GameInfo for the current game, or NULL if not logged in.
+    */
+    GameInfo* GameLayer::getActiveGame() const{
+        return currentGame;
+    }
 
     void GameLayer::connectCallback(Frame* frame){
         if(frame->getType() == ft02_OK){
@@ -923,6 +955,14 @@ namespace TPProto {
             status = gsLoggedIn;
             logger->info("Logged In");
             
+            //setup the currentgame
+            for(std::set<GameInfo*>::iterator itgame = gameinfo.begin(); itgame != gameinfo.end(); ++itgame){
+                if(gamename == (*itgame)->getGameName()){
+                    currentGame = *itgame;
+                    break;
+                }
+            }
+            
             if(statuslistener != NULL)
                 statuslistener->loggedIn(true);
         }else if(frame->getType() == ft03_Redirect){
@@ -975,7 +1015,14 @@ namespace TPProto {
     }
     
     void GameLayer::gameInfoCallback(Frame* frame){
-        
+        GameInfo* gi = dynamic_cast<GameInfo*>(frame);
+        if(gi != NULL){
+            logger->debug("Received GameInfo for %s", gi->getGameName().c_str());
+            gameinfo.insert(gi);
+        }else{
+            logger->debug("gameInfoCallback: unknown frame type %d", frame->getType());
+            delete frame;
+        }
     }
     
 }

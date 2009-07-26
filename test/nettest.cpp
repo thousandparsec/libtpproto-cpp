@@ -1,6 +1,6 @@
 /*  Does a network test of the library.
  *
- *  Copyright (C) 2004, 2005, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2004, 2005, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -181,7 +181,7 @@ void NetTest::connect(){
 
 void NetTest::login(){
     status = 3;
-        if(mygame->login(username, password)){
+        if(mygame->login(username, password, "tp")){
             std::cout << "Login ok, status: " << mygame->getStatus() << std::endl;
         }else{
             std::cout << "Could not start login: " << mygame->getStatus() << std::endl;

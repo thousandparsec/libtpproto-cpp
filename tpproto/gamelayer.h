@@ -2,7 +2,7 @@
 #define TPPROTO_GAMELAYER_H
 /*  GameLayer - High level interface to the Thousand Parsec game.
  *
- *  Copyright (C) 2005-2006, 2008  Lee Begg and the Thousand Parsec Project
+ *  Copyright (C) 2005-2006, 2008, 2009  Lee Begg and the Thousand Parsec Project
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ namespace TPProto{
     class Order;
     class Message;
     class Features;
+    class GameInfo;
     class GameStatusListener;
     class GameLayerAsyncFrameListener;
     class CacheMethod;
@@ -93,8 +94,8 @@ namespace TPProto{
         //connect, login and disconnect
         bool connect(const std::string& address);
         bool connect(TPSocket* nsock);
-        bool createAccount(const std::string &user, const std::string &password, const std::string &email, const std::string &comment);
-        bool login(const std::string &user, const std::string &password);
+        bool createAccount(const std::string &user, const std::string &password, const std::string &game, const std::string &email, const std::string &comment);
+        bool login(const std::string &user, const std::string &password, const std::string &game);
         void disconnect();
 
         void updateCaches();
@@ -141,6 +142,10 @@ namespace TPProto{
         //Time
         void getTimeRemaining();
         void finishedTurn();
+        
+        //GameInfo
+        std::set<GameInfo*> getAvailableGames() const;
+        GameInfo* getActiveGame() const;
 
     private:
         
@@ -161,6 +166,10 @@ namespace TPProto{
         std::string clientid;
 
         Features* serverfeatures;
+        
+        std::set<GameInfo*> gameinfo;
+        GameInfo* currentGame;
+        std::string gamename;
 
         GameLayerAsyncFrameListener* asyncframes;
 
