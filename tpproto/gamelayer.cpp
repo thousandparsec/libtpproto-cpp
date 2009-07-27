@@ -144,6 +144,7 @@ namespace TPProto {
     */
     GameLayer::GameLayer() : protocol(NULL), eventloop(NULL), logger(NULL), statuslistener(NULL), status(gsDisconnected),
             clientid("Unknown client"), serverfeatures(NULL), currentGame(NULL), gamename(""),
+            expectingNumGameInfo(0),
             asyncframes(new GameLayerAsyncFrameListener()), objectdesccache(new ObjectDescCache()),
             objectcache(new ObjectCache()), orderdesccache(new OrderDescCache()), 
             playercache(new PlayerCache()), boardcache(new BoardCache()),
@@ -909,17 +910,21 @@ namespace TPProto {
             status = gsConnected;
             logger->info("Connected");
             //get features
+            if(serverfeatures != NULL){
+                delete serverfeatures;
+                serverfeatures = NULL;
+            }
             GetFeatures * gf = protocol->getFrameFactory()->createGetFeatures();
             protocol->getFrameCodec()->sendFrame(boost::shared_ptr<GetFeatures>(gf), boost::bind(&GameLayer::featureCallback, this, _1));
             //if tp04, get game info
             boost::shared_ptr<GetGameInfo> ggi(protocol->getFrameFactory()->createGetGameInfo());
             if(ggi){
+                expectingNumGameInfo = 1;
                 protocol->getFrameCodec()->sendFrame(ggi, boost::bind(&GameLayer::gameInfoCallback, this, _1));
+            }else{
+                expectingNumGameInfo = 0;
             }
             
-            
-            if(statuslistener != NULL)
-                statuslistener->connected();
         }else if(frame->getType() == ft03_Redirect){
             status = gsDisconnected;
             sock->disconnect();
@@ -944,6 +949,10 @@ namespace TPProto {
             if(serverfeatures != NULL)
                 delete serverfeatures;
             serverfeatures = (Features*)frame;
+            if(expectingNumGameInfo == 0){
+                if(statuslistener != NULL)
+                    statuslistener->connected();
+            }
         }else{
             delete frame;
         }
@@ -1019,8 +1028,22 @@ namespace TPProto {
         if(gi != NULL){
             logger->debug("Received GameInfo for %s", gi->getGameName().c_str());
             gameinfo.insert(gi);
+            expectingNumGameInfo--;
+            if(expectingNumGameInfo == 0 && serverfeatures != NULL){
+                if(statuslistener != NULL)
+                    statuslistener->connected();
+            }
+        }else if(frame->getType() == ft02_Sequence){
+            Sequence* seq = dynamic_cast<Sequence*>(frame);
+            expectingNumGameInfo = seq->getNumber();
+            delete frame;
         }else{
             logger->debug("gameInfoCallback: unknown frame type %d", frame->getType());
+            expectingNumGameInfo--;
+            if(expectingNumGameInfo == 0 && serverfeatures != NULL){
+                if(statuslistener != NULL)
+                    statuslistener->connected();
+            }
             delete frame;
         }
     }

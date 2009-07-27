@@ -170,6 +170,7 @@ namespace TPProto{
         std::set<GameInfo*> gameinfo;
         GameInfo* currentGame;
         std::string gamename;
+        int expectingNumGameInfo;
 
         GameLayerAsyncFrameListener* asyncframes;
 
