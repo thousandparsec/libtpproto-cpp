@@ -31,6 +31,7 @@
 #include <tpproto/logger.h>
 #include <tpproto/gamelayer.h>
 #include <tpproto/simpleeventloop.h>
+#include <tpproto/tpsocket.h>
 
 #include <tpproto/objectcache.h>
 #include <tpproto/boardcache.h>
@@ -164,10 +165,6 @@ void NetTest::stopTest(){
     myel->endEventLoop();
 }
 
-void NetTest::disconnect(){
-    mygame->disconnect();
-    myel->setTimer(2, boost::bind(&NetTest::allDone, this));
-}
 
 void NetTest::allDone(){
     status = 0;
@@ -218,6 +215,23 @@ void NetTest::getPlayer(){
     mygame->getPlayerCache()->requestPlayer(1, boost::bind(&NetTest::receivePlayer, this, _1));
 }
 
+void NetTest::disconnect(){
+    status = 8;
+    mygame->disconnect();
+    myel->setTimer(2, boost::bind(&NetTest::testSendAfterDisconnect, this));
+}
+
+void NetTest::testSendAfterDisconnect(){
+    status = 9;
+    try{
+        mygame->getTimeRemaining();
+    }catch(DisconnectedException *e){
+        allDone();
+        return;
+    }
+    std::cerr << "Did not get DisconnectedException after disconnected, status: " << mygame->getStatus() << std::endl;
+    stopTest();
+}
 
 void NetTest::receiveUniverse(boost::shared_ptr<Object> universe){
     if(universe){

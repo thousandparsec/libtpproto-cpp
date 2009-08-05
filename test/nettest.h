@@ -54,6 +54,7 @@ class NetTest{
         void getPlayer();
         
         void disconnect();
+        void testSendAfterDisconnect();
         void allDone();
         
         int getStatus();
