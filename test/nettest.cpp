@@ -164,6 +164,11 @@ void NetTest::stopTest(){
     myel->endEventLoop();
 }
 
+void NetTest::disconnect(){
+    mygame->disconnect();
+    myel->setTimer(2, boost::bind(&NetTest::allDone, this));
+}
+
 void NetTest::allDone(){
     status = 0;
     stopTest();
@@ -262,7 +267,7 @@ void NetTest::receivePlayer(boost::shared_ptr<Player> player){
         std::cout << "Playerid: " << player->getPlayerId() << std::endl;
         std::cout << "Name: " << player->getPlayerName() << std::endl;
         std::cout << "Race: " << player->getRaceName() << std::endl;
-        allDone();
+        disconnect();
     }else{
         std::cerr << "Did not get Player, status: " << mygame->getStatus() << std::endl;
         stopTest();

@@ -68,6 +68,7 @@ namespace TPProto{
     /*! \brief Call when the socket is ready to send data
     
     This method should be called when the socket is ready to send data.
+    @throws DisconnectedException if the socket is disconnected.
     
     */
     void TPSocket::readyToSend(){
@@ -81,6 +82,7 @@ namespace TPProto{
     /*! \brief Call when the socket has data ready to be read.
     
     This method should be called when the socket is read to have data read.
+    @throws DisconnectedException if the socket id disconnected.
     */
     void TPSocket::readyToRead(){
         if(connection != NULL)

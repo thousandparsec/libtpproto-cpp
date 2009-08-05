@@ -54,6 +54,9 @@ namespace TPProto{
             
             The socket is removed when it is disconnected.
             
+            The TPSocket::isReadyToRead() method can throw a DisconnectedException, which should be
+            caught before returning to the underlying event loop.
+            
             \param sock The TPSocket to check
             */
             virtual void listenForSocketRead(TPSocket* sock) = 0;
@@ -65,6 +68,10 @@ namespace TPProto{
             
             This is a single shot, and should be disabled from from being triggered again
             <i>before</i> calling TPSocket::isReadyToSend().
+            
+            The TPSocket::isReadyToSend() method can throw a DisconnectedException, which should be
+            caught before returning to the underlying event loop.
+            
             \param sock The TPSocket to check
             */
             virtual void listenForSocketWrite(TPSocket* sock) = 0;

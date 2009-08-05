@@ -44,8 +44,6 @@ bool TestGameStateListener::redirected(const std::string& url){
 
 void TestGameStateListener::disconnected(){
     std::cout << "GAMESTATUS: disconnected" << std::endl;
-    if(nettest->getStatus() != 0)
-        nettest->stopTest();
 }
 
 void TestGameStateListener::loggedIn(bool state){

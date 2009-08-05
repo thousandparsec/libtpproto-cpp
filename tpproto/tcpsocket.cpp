@@ -161,7 +161,7 @@ namespace TPProto{
 
   /*! \brief Sends data to the socket.
 
-  \throw DisconnectionException if not connected.
+  \throw DisconnectedException if not connected.
   \param data The data.
   \param len The length of the data.
   \return The number of bytes sent.
@@ -189,7 +189,7 @@ namespace TPProto{
 
   If nothing is recieved from the network,
   we have been disconnected, and throws a DisconnectedException.
-    \throw DisconnectionException if not connected.
+    \throw DisconnectedException if not connected.
     \param len The length of the data to receive.
     \param data The array to store the data in.
     \return The length written into the data array.
