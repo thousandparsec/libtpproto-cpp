@@ -20,6 +20,7 @@
  *
  */
 
+#include <stdint.h>
 #include <boost/signal.hpp>
 
 /*! \file

@@ -24,6 +24,8 @@
   \brief Declares the GameStatusListener baseclass interface.
 */
 
+#include <stdint.h>
+
 namespace TPProto{
 
     /*! \brief A Listener for listening for changes to the game status and connection.

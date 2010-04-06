@@ -1,5 +1,5 @@
 # ===========================================================================
-#            http://autoconf-archive.cryp.to/ax_boost_signals.html
+#     http://www.gnu.org/software/autoconf-archive/ax_boost_signals.html
 # ===========================================================================
 #
 # SYNOPSIS
@@ -20,18 +20,17 @@
 #
 #     HAVE_BOOST_SIGNALS
 #
-# LAST MODIFICATION
-#
-#   2008-04-12
-#
-# COPYLEFT
+# LICENSE
 #
 #   Copyright (c) 2008 Thomas Porschberg <thomas@randspringer.de>
 #   Copyright (c) 2008 Michael Tindal
 #
 #   Copying and distribution of this file, with or without modification, are
 #   permitted in any medium without royalty provided the copyright notice
-#   and this notice are preserved.
+#   and this notice are preserved. This file is offered as-is, without any
+#   warranty.
+
+#serial 12
 
 AC_DEFUN([AX_BOOST_SIGNALS],
 [

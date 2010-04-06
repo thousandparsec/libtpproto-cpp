@@ -25,6 +25,7 @@
 */
 
 #include "tpproto/cachemethod.h"
+#include <stdint.h>
 
 namespace TPProto{
 

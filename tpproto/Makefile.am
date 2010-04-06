@@ -37,7 +37,7 @@ COMMONSOURCES = framecodec.cpp tpsocket.cpp frame.cpp buffer.cpp \
 	getcommandtypeslist.cpp commandtypeslist.cpp commandresult.cpp \
 	adminlayer.cpp commanddesccache.cpp getplayeridslist.cpp playeridslist.cpp
 libtpprotodir = $(includedir)/tpproto
-COMMONHEADERS = framecodec.h frame.h tpsocket.h frame.h buffer.h \
+COMMONHEADERS = framecodec.h frame.h tpsocket.h buffer.h \
     connect.h okframe.h failframe.h login.h tcpsocket.h sequence.h \
     getobjectbyid.h vector3d.h getobjectbypos.h object.h \
     board.h getboard.h getmessage.h message.h gettime.h timeremaining.h \

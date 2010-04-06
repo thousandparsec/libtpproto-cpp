@@ -26,6 +26,7 @@
 
 #include <map>
 #include <set>
+#include <stdint.h>
 #include <boost/signal.hpp>
 
 namespace TPProto{

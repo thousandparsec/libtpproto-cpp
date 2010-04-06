@@ -24,6 +24,7 @@
 #include <set>
 #include <map>
 #include <list>
+#include <stdint.h>
 #include <boost/signal.hpp>
 #include <boost/shared_ptr.hpp>
 

@@ -24,6 +24,8 @@
 #include <set>
 #include <map>
 #include <list>
+#include <stdint.h>
+
 /*! \file
   \brief Declares the GameLayer class.
 
