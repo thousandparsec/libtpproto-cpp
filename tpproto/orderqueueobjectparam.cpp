@@ -28,14 +28,14 @@ namespace TPProto{
     
     /*! Constructor.
     */
-    OrderQueueObjectParam::OrderQueueObjectParam() : ObjectParameter(), maxslots(0), queueid(0), numorders(0), allowedorders(){
+    OrderQueueObjectParam::OrderQueueObjectParam() : ObjectParameter(), queueid(0){
     }
     
     /*! Copy construct the OrderQueueObjectParam from another one
     \param rhs The OrderQueueObjectParam to copy.
     */
     OrderQueueObjectParam::OrderQueueObjectParam(const OrderQueueObjectParam& rhs) :
-            ObjectParameter(rhs), maxslots(rhs.maxslots), queueid(0), numorders(0), allowedorders(){
+            ObjectParameter(rhs), queueid(0){
     }
     
     /*! Destructor.
@@ -50,8 +50,6 @@ namespace TPProto{
     */
     void OrderQueueObjectParam::packBuffer(Buffer* buf){
         buf->packInt(0);
-        buf->packInt(0);
-        buf->packInt(0);
     }
     
     /*! \brief Unpack this OrderQueueObjectParam from a Buffer.
@@ -60,11 +58,6 @@ namespace TPProto{
     */
     bool OrderQueueObjectParam::unpackBuffer(Buffer* buf){
         queueid = buf->unpackInt();
-        numorders = buf->unpackInt();
-        int numallowed = buf->unpackInt();
-        for(int i = 0; i < numallowed; i++){
-            allowedorders.insert(buf->unpackInt());
-        }
         return true;
     }
     
@@ -76,7 +69,6 @@ namespace TPProto{
     \return True if successful.
     */
     bool OrderQueueObjectParam::unpackDescBuffer(Buffer* buf){
-        maxslots = buf->unpackInt();
         return true;
     }
     
@@ -94,13 +86,6 @@ namespace TPProto{
         opv->visitObjectParameter(this);
     }
     
-    /*! \brief Get the maximum number of slots in this order queue.
-    \return The maximum number of slots.
-    */
-    uint32_t OrderQueueObjectParam::getMaxSlots() const{
-        return maxslots;
-    }
-    
     /*! \brief Get the Queue Id for this OrderQueue.
     \return The OrderQueue Id.
     */
@@ -108,17 +93,4 @@ namespace TPProto{
         return queueid;
     }
     
-    /*! \brief Get the number of Orders in this OrderQueue.
-    \return The number of orders.
-    */
-    uint32_t OrderQueueObjectParam::getNumOrders() const{
-        return numorders;
-    }
-    
-    /*! \brief Get the set of allowed Order types that this OrderQueue can have.
-    \return Set of allowed Order types.
-    */
-    std::set<uint32_t> OrderQueueObjectParam::getAllowedOrderTypes() const{
-        return allowedorders;
-    }
 }

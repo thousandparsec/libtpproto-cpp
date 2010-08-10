@@ -43,17 +43,10 @@ namespace TPProto{
             ObjectParameter* clone();
             void visit(ObjectParameterVisitor* opv);
             
-            uint32_t getMaxSlots() const;
-            
             uint32_t getQueueId() const;
-            uint32_t getNumOrders() const;
-            std::set<uint32_t> getAllowedOrderTypes() const;
             
         private:
-            uint32_t maxslots;
             uint32_t queueid;
-            uint32_t numorders;
-            std::set<uint32_t> allowedorders;
     };
 }
 
