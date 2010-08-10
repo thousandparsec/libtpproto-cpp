@@ -26,6 +26,7 @@
 
 #include <string>
 #include <list>
+#include <stdint.h>
 #include <tpproto/frame.h>
 
 namespace TPProto{
